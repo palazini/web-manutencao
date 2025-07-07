@@ -9,12 +9,12 @@ import { getFirestore } from "firebase/firestore";
 // A configuração do seu app da web do Firebase
 // SUBSTITUA PELAS SUAS CREDENCIAIS VINDAS DO CONSOLE DO FIREBASE
 const firebaseConfig = {
-  apiKey: "AIzaSyAWx133vnf5VeTR4BD-1xkpZuzwy3aFcZ4",
-  authDomain: "app-tpm-web.firebaseapp.com",
-  projectId: "app-tpm-web",
-  storageBucket: "app-tpm-web.firebasestorage.app",
-  messagingSenderId: "29700779521",
-  appId: "1:29700779521:web:2c918a04b9b41fb57a1a00"
+  apiKey: import.meta.env.VITE_API_KEY,
+  authDomain: import.meta.env.VITE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_APP_ID
 };
 
 // Inicializa o Firebase
