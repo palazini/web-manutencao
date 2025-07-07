@@ -15,6 +15,7 @@ import GestorDashboard from './GestorDashboard.jsx';
 import ChamadoDetalhe from '../pages/ChamadoDetalhe.jsx';
 import HistoricoPage from '../pages/HistoricoPage.jsx';
 import PerfilPage from '../pages/PerfilPage.jsx';
+import PlanosPage from '../pages/PlanosPage';
 
 const MainLayout = ({ user }) => {
   const handleLogout = () => {
@@ -54,6 +55,12 @@ const MainLayout = ({ user }) => {
             <FiUser className={styles.navIcon} />
             <span>Meu Perfil</span>
           </NavLink>
+          {user.role === 'gestor' && (
+          <NavLink to="/planos" className={({ isActive }) => isActive ? `${styles.navLink} ${styles.activeLink}` : styles.navLink}>
+              <FiCalendar className={styles.navIcon} />
+              <span>Planos de Manutenção</span>
+          </NavLink>
+          )}
         </nav>
         <div className={styles.userInfo}>
           <span className={styles.userEmail}>{user.nome}</span>
@@ -65,6 +72,7 @@ const MainLayout = ({ user }) => {
 
       <main className={styles.mainContent}>
         <Routes>
+          <Route path="/planos" element={<PlanosPage />} />
           <Route path="/perfil" element={<PerfilPage user={user} />} />
           <Route path="/historico" element={<HistoricoPage />} />
           <Route path="/chamado/:id" element={<ChamadoDetalhe user={user} />} />
