@@ -1,11 +1,10 @@
 // src/components/MainLayout.jsx
 
 import React from 'react';
-// A linha mais importante: garante que Link e NavLink estão sendo importados
 import { Routes, Route, NavLink, Link } from 'react-router-dom';
 import { auth } from '../firebase';
 import { signOut } from 'firebase/auth';
-import { FiHome, FiLogOut, FiCheckSquare, FiUser } from 'react-icons/fi';
+import { FiHome, FiLogOut, FiCheckSquare, FiUser, FiCalendar } from 'react-icons/fi';
 import styles from './MainLayout.module.css';
 
 // Importa todos os painéis e páginas
@@ -14,8 +13,7 @@ import MaintainerDashboard from './MaintainerDashboard.jsx';
 import GestorDashboard from './GestorDashboard.jsx';
 import ChamadoDetalhe from '../pages/ChamadoDetalhe.jsx';
 import HistoricoPage from '../pages/HistoricoPage.jsx';
-import PerfilPage from '../pages/PerfilPage.jsx';
-import PlanosPage from '../pages/PlanosPage';
+import PlanosPage from '../pages/PlanosPage.jsx';
 
 const MainLayout = ({ user }) => {
   const handleLogout = () => {
@@ -35,7 +33,6 @@ const MainLayout = ({ user }) => {
     <div className={styles.layout}>
       <aside className={styles.sidebar}>
         <div className={styles.sidebarHeader}>
-          {/* Este Link precisa ser importado para funcionar */}
           <Link to="/" style={{ textDecoration: 'none', color: 'inherit' }}>
             <h2 className={styles.sidebarTitle}>Manutenção</h2>
           </Link>
@@ -45,21 +42,24 @@ const MainLayout = ({ user }) => {
             <FiHome className={styles.navIcon} />
             <span>Início</span>
           </NavLink>
+
           {(user.role === 'manutentor' || user.role === 'gestor') && (
             <NavLink to="/historico" className={({ isActive }) => isActive ? `${styles.navLink} ${styles.activeLink}` : styles.navLink}>
               <FiCheckSquare className={styles.navIcon} />
               <span>Histórico</span>
             </NavLink>
           )}
+
           <NavLink to="/perfil" className={({ isActive }) => isActive ? `${styles.navLink} ${styles.activeLink}` : styles.navLink}>
             <FiUser className={styles.navIcon} />
             <span>Meu Perfil</span>
           </NavLink>
+
           {user.role === 'gestor' && (
-          <NavLink to="/planos" className={({ isActive }) => isActive ? `${styles.navLink} ${styles.activeLink}` : styles.navLink}>
+            <NavLink to="/planos" className={({ isActive }) => isActive ? `${styles.navLink} ${styles.activeLink}` : styles.navLink}>
               <FiCalendar className={styles.navIcon} />
               <span>Planos de Manutenção</span>
-          </NavLink>
+            </NavLink>
           )}
         </nav>
         <div className={styles.userInfo}>
