@@ -1,9 +1,10 @@
 // src/App.jsx
 
 import React, { useState, useEffect } from 'react';
-import { auth, db } from './firebase'; // Importa o db
+import { Toaster } from 'react-hot-toast'; // 1. Importar o Toaster
+import { auth, db } from './firebase';
 import { onAuthStateChanged } from 'firebase/auth';
-import { doc, getDoc } from 'firebase/firestore'; // Importa funções do Firestore
+import { doc, getDoc } from 'firebase/firestore';
 
 import LoginPage from './components/LoginPage.jsx';
 import MainLayout from './components/MainLayout.jsx';
@@ -44,7 +45,30 @@ function App() {
     return <div>Carregando...</div>;
   }
 
-  return user ? <MainLayout user={user} /> : <LoginPage />;
+  return (
+    // Usamos um fragment <> para poder adicionar o Toaster
+    <>
+      {/* 2. Adiciona o componente Toaster aqui. Ele é invisível mas gerencia as notificações. */}
+      <Toaster 
+        position="top-right"
+        toastOptions={{
+          success: {
+            style: {
+              background: '#28a745',
+              color: 'white',
+            },
+          },
+          error: {
+            style: {
+              background: '#dc3545',
+              color: 'white',
+            },
+          },
+        }}
+      />
+      {user ? <MainLayout user={user} /> : <LoginPage />}
+    </>
+  );
 }
 
 export default App;

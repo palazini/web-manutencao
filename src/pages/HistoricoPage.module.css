@@ -5,12 +5,66 @@
   padding: 24px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
-.cardTitle { margin-top: 0; }
-.chamadoList { list-style: none; padding: 0; margin: 0; }
-.chamadoItem { padding: 16px; border-bottom: 1px solid #eee; }
-.chamadoItem:last-child { border-bottom: none; }
-.chamadoInfo strong { display: block; margin-bottom: 4px; }
-.chamadoInfo small { display: block; margin-bottom: 8px; color: #888; font-size: 0.8rem; }
-.chamadoInfo p { margin: 0; font-size: 0.9rem; }
-.chamadoLink { text-decoration: none; color: inherit; display: block; }
-.chamadoLink:hover > li { background-color: #f7f8fc; }
+.card {
+  background-color: transparent; /* Fundo transparente */
+  padding: 0;
+  box-shadow: none; /* Sem sombra */
+}
+
+.cardTitle {
+  margin-top: 0;
+}
+
+.chamadoList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+/* 2. A MUDANÇA PRINCIPAL: Cada item da lista agora é um card. */
+.chamadoItem {
+  background-color: #ffffff; /* Fundo branco para o card */
+  padding: 20px;
+  border-radius: 8px; /* Bordas arredondadas */
+  margin-bottom: 16px; /* Espaçamento entre os cards */
+  box-shadow: 0 2px 5px rgba(0,0,0,0.07); /* Sombra sutil */
+  border: 1px solid #eef0f3; /* Borda bem clara */
+  transition: box-shadow 0.2s ease-in-out, transform 0.2s ease-in-out;
+}
+
+/* Adicionamos um efeito ao passar o mouse para dar feedback */
+.chamadoItem:hover {
+    transform: translateY(-2px); /* Eleva o card levemente */
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1); /* Sombra mais forte */
+}
+
+.chamadoInfo strong {
+  display: block;
+  margin-bottom: 4px;
+  color: #333;
+}
+
+.chamadoInfo small {
+  display: block;
+  margin-bottom: 8px;
+  color: #888;
+  font-size: 0.8rem;
+}
+
+.chamadoInfo p {
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+.chamadoLink {
+  text-decoration: none;
+  color: inherit;
+  display: block;
+}
+
+.problemaPreview {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 600px;
+}

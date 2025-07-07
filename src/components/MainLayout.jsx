@@ -1,35 +1,32 @@
 // src/components/MainLayout.jsx
 
 import React from 'react';
-import { Routes, Route, Link } from 'react-router-dom';
+// A linha mais importante: garante que Link e NavLink estão sendo importados
+import { Routes, Route, NavLink, Link } from 'react-router-dom';
 import { auth } from '../firebase';
 import { signOut } from 'firebase/auth';
-import { FiHome, FiLogOut, FiCheckSquare } from 'react-icons/fi';
+import { FiHome, FiLogOut, FiCheckSquare, FiUser } from 'react-icons/fi';
 import styles from './MainLayout.module.css';
 
 // Importa todos os painéis e páginas
 import OperatorDashboard from './OperatorDashboard.jsx';
 import MaintainerDashboard from './MaintainerDashboard.jsx';
-import GestorDashboard from './GestorDashboard.jsx'; // 1. Importa o novo painel
+import GestorDashboard from './GestorDashboard.jsx';
 import ChamadoDetalhe from '../pages/ChamadoDetalhe.jsx';
 import HistoricoPage from '../pages/HistoricoPage.jsx';
+import PerfilPage from '../pages/PerfilPage.jsx';
 
 const MainLayout = ({ user }) => {
   const handleLogout = () => {
     signOut(auth).catch((error) => console.error('Erro no logout: ', error));
   };
 
-  // Função para determinar o título do painel
   const getDashboardTitle = () => {
     switch (user.role) {
-      case 'operador':
-        return 'Painel do Operador';
-      case 'manutentor':
-        return 'Painel do Manutentor';
-      case 'gestor':
-        return 'Painel do Gestor';
-      default:
-        return 'Painel Principal';
+      case 'operador': return 'Painel do Operador';
+      case 'manutentor': return 'Painel do Manutentor';
+      case 'gestor': return 'Painel do Gestor';
+      default: return 'Painel Principal';
     }
   };
 
@@ -37,22 +34,26 @@ const MainLayout = ({ user }) => {
     <div className={styles.layout}>
       <aside className={styles.sidebar}>
         <div className={styles.sidebarHeader}>
+          {/* Este Link precisa ser importado para funcionar */}
           <Link to="/" style={{ textDecoration: 'none', color: 'inherit' }}>
             <h2 className={styles.sidebarTitle}>Manutenção</h2>
           </Link>
         </div>
         <nav className={styles.nav}>
-          <Link to="/" className={styles.navLink}>
+          <NavLink to="/" className={({ isActive }) => isActive ? `${styles.navLink} ${styles.activeLink}` : styles.navLink} end>
             <FiHome className={styles.navIcon} />
             <span>Início</span>
-          </Link>
-          {/* 2. LÓGICA ATUALIZADA: Mostra o link de Histórico para Manutentor OU Gestor */}
+          </NavLink>
           {(user.role === 'manutentor' || user.role === 'gestor') && (
-            <Link to="/historico" className={styles.navLink}>
+            <NavLink to="/historico" className={({ isActive }) => isActive ? `${styles.navLink} ${styles.activeLink}` : styles.navLink}>
               <FiCheckSquare className={styles.navIcon} />
               <span>Histórico</span>
-            </Link>
+            </NavLink>
           )}
+          <NavLink to="/perfil" className={({ isActive }) => isActive ? `${styles.navLink} ${styles.activeLink}` : styles.navLink}>
+            <FiUser className={styles.navIcon} />
+            <span>Meu Perfil</span>
+          </NavLink>
         </nav>
         <div className={styles.userInfo}>
           <span className={styles.userEmail}>{user.nome}</span>
@@ -64,16 +65,15 @@ const MainLayout = ({ user }) => {
 
       <main className={styles.mainContent}>
         <Routes>
+          <Route path="/perfil" element={<PerfilPage user={user} />} />
           <Route path="/historico" element={<HistoricoPage />} />
           <Route path="/chamado/:id" element={<ChamadoDetalhe user={user} />} />
           <Route path="/" element={
             <>
               <header className={styles.header}>
-                {/* 3. Usa a função para o título dinâmico */}
                 <h1>{getDashboardTitle()}</h1>
               </header>
               <div className={styles.content}>
-                {/* 4. LÓGICA ATUALIZADA: Renderiza o painel correto para os três papéis */}
                 {user.role === 'operador' && <OperatorDashboard user={user} />}
                 {user.role === 'manutentor' && <MaintainerDashboard user={user} />}
                 {user.role === 'gestor' && <GestorDashboard user={user} />}

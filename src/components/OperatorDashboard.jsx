@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import toast from 'react-hot-toast';
 import styles from './OperatorDashboard.module.css';
 import { FiPlusCircle, FiTool } from 'react-icons/fi';
 import { collection, addDoc, serverTimestamp, query, where, onSnapshot, orderBy } from 'firebase/firestore';
@@ -36,7 +37,7 @@ const OperatorDashboard = ({ user }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!maquina || !descricao) {
-      alert('Por favor, selecione uma máquina e descreva o problema.');
+      toast.error('Por favor, selecione uma máquina e descreva o problema.');
       return;
     }
     setFormLoading(true);
@@ -52,12 +53,12 @@ const OperatorDashboard = ({ user }) => {
         dataConclusao: null,
         manutentorId: null,
       });
-      alert(`Chamado para a máquina ${maquina} aberto com sucesso!`);
+      toast.success(`Chamado para a máquina ${maquina} aberto com sucesso!`);
       setMaquina('');
       setDescricao('');
     } catch (error) {
       console.error("Erro ao adicionar documento: ", error);
-      alert("Ocorreu um erro ao abrir o chamado.");
+      toast.error("Ocorreu um erro ao abrir o chamado.");
     } finally {
       setFormLoading(false);
     }
@@ -108,7 +109,7 @@ const OperatorDashboard = ({ user }) => {
                   <div className={styles.chamadoInfo}>
                     <strong>Máquina: {chamado.maquina}</strong>
                     <small>Aberto em: {chamado.dataAbertura ? new Date(chamado.dataAbertura.toDate()).toLocaleString() : '...'}</small>
-                    <p>{chamado.descricao}</p>
+                    <p className={styles.descriptionPreview}>{chamado.descricao}</p>
                   </div>
                   <span className={`${styles.statusBadge} ${styles[chamado.status.toLowerCase().replace(' ', '')]}`}>
                     {chamado.status}

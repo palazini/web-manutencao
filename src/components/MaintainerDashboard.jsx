@@ -50,7 +50,7 @@ const MaintainerDashboard = ({ user }) => {
                       <div className={styles.chamadoInfo}>
                         <strong>Máquina: {chamado.maquina}</strong>
                         <small>Aberto por: {chamado.operadorNome}</small>
-                        <p>{chamado.descricao}</p>
+                        <p className={styles.descriptionPreview}>{chamado.descricao}</p>
                       </div>
                     </li>
                   </Link>

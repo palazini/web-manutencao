@@ -28,11 +28,16 @@
 }
 
 .chamadoItem {
+  background-color: #f9f9f9;
+  padding: 16px;
+  border-radius: 6px;
+  margin-bottom: 12px;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+  border: 1px solid #eef0f3;
+  /* Removemos o border-bottom */
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 16px;
-  border-bottom: 1px solid #eee;
   gap: 15px;
 }
 
@@ -111,6 +116,14 @@
   display: block; /* Opcional, para o link ocupar toda a largura */
 }
 
-.chamadoLink:hover > li {
-  background-color: #f7f8fc;
+.chamadoLink:hover > .chamadoItem {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+}
+
+.descriptionPreview {
+  white-space: nowrap; /* Impede a quebra de linha */
+  overflow: hidden; /* Esconde o texto que transborda */
+  text-overflow: ellipsis; /* Adiciona "..." */
+  max-width: 500px; /* Define um limite. Ajuste se achar necessário. */
 }

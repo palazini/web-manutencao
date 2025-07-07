@@ -52,7 +52,7 @@ const HistoricoPage = () => {
                       {/* Adicione a linha abaixo */}
                       <small>Atendido por: {chamado.manutentorNome || 'Não identificado'}</small>
                       <small>Concluído em: {chamado.dataConclusao ? new Date(chamado.dataConclusao.toDate()).toLocaleString() : '...'}</small>
-                      <p><strong>Solução:</strong> {chamado.solucao || 'Não especificada'}</p>
+                      <p className={styles.problemaPreview}><strong>Problema:</strong> {chamado.descricao || 'Não especificado'}</p>
                     </div>
                 </li>
                 </Link>

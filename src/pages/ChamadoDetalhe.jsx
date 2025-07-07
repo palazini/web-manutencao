@@ -1,6 +1,7 @@
 // src/pages/ChamadoDetalhe.jsx
 
 import React, { useState, useEffect } from 'react';
+import toast from 'react-hot-toast';
 import { useParams, useNavigate } from 'react-router-dom';
 import { doc, onSnapshot, updateDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from '../firebase';
@@ -37,7 +38,7 @@ const ChamadoDetalhe = ({ user }) => {
       manutentorNome: user.nome
     });
   } catch (error) {
-    console.error("Erro ao atender chamado: ", error);
+    toast.error("Erro ao atender chamado: ", error);
   } finally {
     setIsUpdating(false);
   }
@@ -46,17 +47,17 @@ const ChamadoDetalhe = ({ user }) => {
   const handleConcluirChamado = async (e) => {
     e.preventDefault();
     if (solucao.trim() === '') {
-      alert("Por favor, descreva o serviço realizado.");
+      toast.error("Por favor, descreva o serviço realizado.");
       return;
     }
     setIsUpdating(true);
     const chamadoRef = doc(db, 'chamados', id);
     try {
       await updateDoc(chamadoRef, { status: 'Concluído', solucao: solucao, dataConclusao: serverTimestamp() });
-      alert("Chamado concluído com sucesso!");
+      toast.success("Chamado concluído com sucesso!");
       navigate('/');
     } catch (error) {
-      console.error("Erro ao concluir chamado: ", error);
+      toast.error("Erro ao concluir chamado: ", error);
     } finally {
       setIsUpdating(false);
     }
