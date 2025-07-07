@@ -13,7 +13,8 @@ import MaintainerDashboard from './MaintainerDashboard.jsx';
 import GestorDashboard from './GestorDashboard.jsx';
 import ChamadoDetalhe from '../pages/ChamadoDetalhe.jsx';
 import HistoricoPage from '../pages/HistoricoPage.jsx';
-import PerfilPage from '../pages/PerfilPage.jsx'; // A importação necessária
+import PerfilPage from '../pages/PerfilPage.jsx';
+import PlanosPage from '../pages/PlanosPage.jsx'; // <-- ESTA É A LINHA QUE ESTAVA FALTANDO
 
 const MainLayout = ({ user }) => {
   const handleLogout = () => {
