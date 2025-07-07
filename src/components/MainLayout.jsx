@@ -13,7 +13,7 @@ import MaintainerDashboard from './MaintainerDashboard.jsx';
 import GestorDashboard from './GestorDashboard.jsx';
 import ChamadoDetalhe from '../pages/ChamadoDetalhe.jsx';
 import HistoricoPage from '../pages/HistoricoPage.jsx';
-import PlanosPage from '../pages/PlanosPage.jsx';
+import PerfilPage from '../pages/PerfilPage.jsx'; // A importação que faltava
 
 const MainLayout = ({ user }) => {
   const handleLogout = () => {
