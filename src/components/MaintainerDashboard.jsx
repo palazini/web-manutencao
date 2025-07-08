@@ -3,11 +3,10 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { db } from '../firebase';
-import { collection, query, where, onSnapshot, doc, updateDoc } from 'firebase/firestore';
+import { collection, query, where, onSnapshot } from 'firebase/firestore';
 import styles from './MaintainerDashboard.module.css';
-// 1. IMPORTAR O NOVO ÍCONE
 import { FiTool, FiClock, FiShield } from 'react-icons/fi';
-import LoadingSpinner from './LoadingSpinner';
+// A importação do LoadingSpinner foi removida daqui
 
 const MaintainerDashboard = ({ user }) => {
   const [chamados, setChamados] = useState([]);
@@ -22,9 +21,6 @@ const MaintainerDashboard = ({ user }) => {
       });
       setChamados(chamadosData);
       setLoading(false);
-    }, (error) => {
-      console.error("Erro ao buscar chamados: ", error);
-      setLoading(false);
     });
     return () => unsubscribe();
   }, []);
@@ -34,10 +30,12 @@ const MaintainerDashboard = ({ user }) => {
 
   return (
     <div className={styles.card}>
+      {/* AQUI ESTÁ A CORREÇÃO: trocando o spinner pelo texto */}
       {loading ? (
-        <LoadingSpinner />
+        <p>Carregando fila de trabalho...</p>
       ) : (
         <>
+          {/* O resto do código continua o mesmo */}
           <div className={styles.section}>
             <h2 className={styles.cardTitle}>
               <FiTool className={styles.titleIcon} />
@@ -49,11 +47,9 @@ const MaintainerDashboard = ({ user }) => {
               <ul className={styles.chamadoList}>
                 {chamadosAbertos.map((chamado) => (
                   <Link to={`/chamado/${chamado.id}`} key={chamado.id} className={styles.chamadoLink}>
-                    {/* 2. LÓGICA ATUALIZADA NO ITEM DA LISTA */}
                     <li className={`${styles.chamadoItem} ${chamado.tipo === 'preventiva' ? styles.preventivaItem : ''}`}>
                       <div className={styles.chamadoInfo}>
                         <strong>
-                          {/* Adiciona um ícone se for preventiva */}
                           {chamado.tipo === 'preventiva' && <FiShield className={styles.preventivaIcon} title="Manutenção Preventiva" />}
                           Máquina: {chamado.maquina}
                         </strong>
@@ -66,7 +62,6 @@ const MaintainerDashboard = ({ user }) => {
               </ul>
             )}
           </div>
-
           <div className={styles.section}>
             <h2 className={styles.cardTitle}>
               <FiClock className={styles.titleIcon} />
@@ -78,11 +73,9 @@ const MaintainerDashboard = ({ user }) => {
               <ul className={styles.chamadoList}>
                 {chamadosEmAndamento.map((chamado) => (
                   <Link to={`/chamado/${chamado.id}`} key={chamado.id} className={styles.chamadoLink}>
-                    {/* 3. LÓGICA REPETIDA NA SEGUNDA LISTA */}
                     <li className={`${styles.chamadoItem} ${chamado.tipo === 'preventiva' ? styles.preventivaItem : ''}`}>
                       <div className={styles.chamadoInfo}>
                         <strong>
-                          {/* Adiciona um ícone se for preventiva */}
                           {chamado.tipo === 'preventiva' && <FiShield className={styles.preventivaIcon} title="Manutenção Preventiva" />}
                           Máquina: {chamado.maquina}
                         </strong>
