@@ -3,11 +3,12 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { db } from '../firebase';
-import { collection, query, where, onSnapshot } from 'firebase/firestore';
+import { collection, query, where, onSnapshot, doc, updateDoc } from 'firebase/firestore';
 import styles from './MaintainerDashboard.module.css';
-import { FiTool, FiClock } from 'react-icons/fi';
+// 1. IMPORTAR O NOVO ÍCONE
+import { FiTool, FiClock, FiShield } from 'react-icons/fi';
+import LoadingSpinner from './LoadingSpinner';
 
-// A declaração da função que estava faltando
 const MaintainerDashboard = ({ user }) => {
   const [chamados, setChamados] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -21,6 +22,9 @@ const MaintainerDashboard = ({ user }) => {
       });
       setChamados(chamadosData);
       setLoading(false);
+    }, (error) => {
+      console.error("Erro ao buscar chamados: ", error);
+      setLoading(false);
     });
     return () => unsubscribe();
   }, []);
@@ -28,11 +32,10 @@ const MaintainerDashboard = ({ user }) => {
   const chamadosAbertos = chamados.filter(c => c.status === 'Aberto');
   const chamadosEmAndamento = chamados.filter(c => c.status === 'Em Andamento');
 
-  // O seu return, agora dentro da função, está perfeito.
   return (
     <div className={styles.card}>
       {loading ? (
-        <p>Carregando fila de trabalho...</p>
+        <LoadingSpinner />
       ) : (
         <>
           <div className={styles.section}>
@@ -46,10 +49,15 @@ const MaintainerDashboard = ({ user }) => {
               <ul className={styles.chamadoList}>
                 {chamadosAbertos.map((chamado) => (
                   <Link to={`/chamado/${chamado.id}`} key={chamado.id} className={styles.chamadoLink}>
-                    <li className={styles.chamadoItem}>
+                    {/* 2. LÓGICA ATUALIZADA NO ITEM DA LISTA */}
+                    <li className={`${styles.chamadoItem} ${chamado.tipo === 'preventiva' ? styles.preventivaItem : ''}`}>
                       <div className={styles.chamadoInfo}>
-                        <strong>Máquina: {chamado.maquina}</strong>
-                        <small>Aberto por: {chamado.operadorNome}</small>
+                        <strong>
+                          {/* Adiciona um ícone se for preventiva */}
+                          {chamado.tipo === 'preventiva' && <FiShield className={styles.preventivaIcon} title="Manutenção Preventiva" />}
+                          Máquina: {chamado.maquina}
+                        </strong>
+                        <small>Aberto por: {chamado.operadorNome || chamado.operadorEmail}</small>
                         <p className={styles.descriptionPreview}>{chamado.descricao}</p>
                       </div>
                     </li>
@@ -70,11 +78,16 @@ const MaintainerDashboard = ({ user }) => {
               <ul className={styles.chamadoList}>
                 {chamadosEmAndamento.map((chamado) => (
                   <Link to={`/chamado/${chamado.id}`} key={chamado.id} className={styles.chamadoLink}>
-                    <li className={styles.chamadoItem}>
+                    {/* 3. LÓGICA REPETIDA NA SEGUNDA LISTA */}
+                    <li className={`${styles.chamadoItem} ${chamado.tipo === 'preventiva' ? styles.preventivaItem : ''}`}>
                       <div className={styles.chamadoInfo}>
-                        <strong>Máquina: {chamado.maquina}</strong>
-                        <small>Aberto por: {chamado.operadorNome}</small>
-                        <p>{chamado.descricao}</p>
+                        <strong>
+                          {/* Adiciona um ícone se for preventiva */}
+                          {chamado.tipo === 'preventiva' && <FiShield className={styles.preventivaIcon} title="Manutenção Preventiva" />}
+                          Máquina: {chamado.maquina}
+                        </strong>
+                        <small>Aberto por: {chamado.operadorNome || chamado.operadorEmail}</small>
+                        <p className={styles.descriptionPreview}>{chamado.descricao}</p>
                       </div>
                     </li>
                   </Link>

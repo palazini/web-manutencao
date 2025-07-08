@@ -127,3 +127,13 @@
   text-overflow: ellipsis; /* Adiciona "..." */
   max-width: 500px; /* Define um limite. Ajuste se achar necessário. */
 }
+
+.preventivaItem {
+  border-left: 4px solid #ffc107; /* Borda amarela para destaque */
+}
+
+.preventivaIcon {
+  color: #ffc107; /* Amarelo */
+  margin-right: 8px;
+  vertical-align: middle; /* Alinha o ícone com o texto */
+}
