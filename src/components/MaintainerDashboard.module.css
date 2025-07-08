@@ -128,12 +128,22 @@
   max-width: 500px; /* Define um limite. Ajuste se achar necessário. */
 }
 
+.preditivaItem {
+  border-left: 4px solid #ffc107; /* Borda amarela */
+}
+
+.preditivaIcon {
+  color: #ffc107;
+  margin-right: 8px;
+  vertical-align: middle;
+}
+
 .preventivaItem {
-  border-left: 4px solid #ffc107; /* Borda amarela para destaque */
+  border-left: 4px solid #0d6efd; /* Borda azul */
 }
 
 .preventivaIcon {
-  color: #ffc107; /* Amarelo */
+  color: #0d6efd;
   margin-right: 8px;
-  vertical-align: middle; /* Alinha o ícone com o texto */
+  vertical-align: middle;
 }

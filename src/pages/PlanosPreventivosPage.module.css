@@ -1,43 +1,34 @@
+/* src/pages/PlanosPreventivosPage.module.css */
+
 .card { background-color: #ffffff; border-radius: 8px; padding: 24px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); margin-bottom: 20px; }
-.cardTitle { margin-top: 0; }
+.cardTitle { margin-top: 0; margin-bottom: 20px; }
 .form { display: flex; flex-direction: column; gap: 16px; }
-.formRow { display: flex; gap: 20px; }
-.formGroup { display: flex; flex-direction: column; flex: 1; }
+.formGroup { display: flex; flex-direction: column; }
 .formGroup label { margin-bottom: 8px; font-weight: 500; }
-.input, .select { width: 100%; padding: 10px; border-radius: 4px; border: 1px solid #ccc; box-sizing: border-box; }
+.input, .select { width: 100%; padding: 10px; border-radius: 4px; border: 1px solid #ccc; box-sizing: border-box; font-family: inherit; }
 .button { padding: 10px 20px; border: none; border-radius: 4px; background-color: #4B70E2; color: white; cursor: pointer; font-weight: bold; align-self: flex-start; }
 .planList { list-style: none; padding: 0; margin: 0; }
 
-/* ESTA É A PARTE QUE MUDOU */
 .planItem {
   display: grid;
-  /* Info | F | U | P | Ações */
   grid-template-columns: 3fr 1fr 1fr 1fr 1.5fr;
   align-items: center;
   gap: 15px;
   padding: 16px;
   border-bottom: 1px solid #eee;
 }
+
 .planItem:last-child {
   border-bottom: none;
 }
 
 .planInfo strong { display: block; }
-.planInfo span { font-size: 0.9rem; color: #555; word-break: break-word; }
+.planInfo span, .planInfo small { font-size: 0.9rem; color: #555; word-break: break-word; }
+.planInfo small { margin-top: 4px; font-style: italic; }
 
-/* NOVOS ESTILOS PARA AS COLUNAS DE STATUS */
-.statusColumn {
-  text-align: center;
-}
-.statusValue {
-  font-size: 1.5rem;
-  font-weight: bold;
-  margin: 0;
-}
-.statusLabel {
-  font-size: 0.8rem;
-  color: #666;
-}
+.statusColumn { text-align: center; }
+.statusValue { font-size: 1.5rem; font-weight: bold; margin: 0; }
+.statusLabel { font-size: 0.8rem; color: #666; }
 .statusValue.red { color: #dc3545; }
 .statusValue.orange { color: #fd7e14; }
 .statusValue.green { color: #28a745; }
@@ -46,7 +37,3 @@
 .actionButton { padding: 8px 12px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; display: flex; align-items: center; gap: 5px; transition: background-color 0.2s; }
 .generateButton { background-color: #28a745; color: white; }
 .deleteButton { background-color: #dc3545; color: white; }
-
-.statusValue.red { color: #dc3545; }
-.statusValue.orange { color: #fd7e14; }
-.statusValue.green { color: #28a745; }

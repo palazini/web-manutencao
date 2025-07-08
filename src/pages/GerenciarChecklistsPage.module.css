@@ -1,0 +1,80 @@
+/* src/pages/GerenciarChecklistsPage.module.css */
+
+.card {
+  background-color: #ffffff;
+  border-radius: 8px;
+  padding: 24px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  margin-bottom: 20px;
+}
+
+.cardTitle {
+  margin-top: 0;
+  margin-bottom: 20px;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 16px;
+}
+
+.formGroup label {
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+
+.input, .textarea {
+  width: 100%;
+  padding: 10px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  box-sizing: border-box;
+  font-family: inherit;
+}
+
+.textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+.button {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 4px;
+  background-color: #4B70E2;
+  color: white;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+/* ESTILOS PARA A LISTA E OS CARDS */
+.checklistList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+/* Remove o estilo do link para que o card seja a área clicável */
+.checklistItemLink {
+  text-decoration: none;
+  color: inherit;
+  display: block; /* Garante que o link ocupe todo o espaço do card */
+  margin-bottom: 10px; /* Espaço entre os cards */
+}
+
+/* Transforma o item da lista em um card */
+.checklistItem {
+  background-color: #f1f1f1;
+  padding: 20px;
+  border-radius: 8px;
+  border: 1px solid #eef0f3;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  font-weight: 500;
+  transition: box-shadow 0.2s ease-in-out, transform 0.2s ease-in-out;
+}
+
+.checklistItem:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+}

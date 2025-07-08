@@ -2,10 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { db } from '../firebase';
 import { collection, addDoc, query, onSnapshot, doc, deleteDoc, serverTimestamp, orderBy, updateDoc } from 'firebase/firestore';
 import toast from 'react-hot-toast';
-import styles from './PlanosPage.module.css';
+import styles from './PlanosPreditivosPage.module.css';
 import { FiSend, FiTrash2 } from 'react-icons/fi';
 
-const PlanosPage = () => {
+const PlanosPreditivosPage = () => {
   const [planos, setPlanos] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -18,7 +18,7 @@ const PlanosPage = () => {
 
   // Busca os planos existentes em tempo real
   useEffect(() => {
-    const q = query(collection(db, 'planosManutencao'), orderBy('maquina'));
+    const q = query(collection(db, 'planosPreditivos'), orderBy('maquina'));
     const unsubscribe = onSnapshot(q, (querySnapshot) => {
       const planosData = [];
       querySnapshot.forEach((doc) => {
@@ -39,7 +39,7 @@ const PlanosPage = () => {
     }
 
     try {
-      await addDoc(collection(db, 'planosManutencao'), {
+      await addDoc(collection(db, 'planosPreditivos'), {
         maquina,
         descricao,
         frequencia: Number(frequencia),
@@ -61,15 +61,15 @@ const PlanosPage = () => {
 
   // Função para o botão "Gerar Chamado"
   const handleGerarChamado = async (plano) => {
-    if (!window.confirm(`Tem certeza que deseja gerar um chamado preventivo para a máquina ${plano.maquina}?`)) {
+    if (!window.confirm(`Tem certeza que deseja gerar um chamado preditivo para a máquina ${plano.maquina}?`)) {
       return;
     }
     try {
       await addDoc(collection(db, 'chamados'), {
         maquina: plano.maquina,
-        descricao: `Manutenção preventiva agendada: ${plano.descricao}`,
+        descricao: `Manutenção Preditiva agendada: ${plano.descricao}`,
         status: "Aberto",
-        tipo: "preventiva",
+        tipo: "preditiva",
         planoId: plano.id,
         operadorNome: "Sistema",
         dataAbertura: serverTimestamp(),
@@ -80,7 +80,7 @@ const PlanosPage = () => {
         operadorId: 'sistema',
         operadorEmail: '',
       });
-      toast.success("Chamado preventivo gerado com sucesso!");
+      toast.success("Chamado preditivo gerado com sucesso!");
     } catch (error) {
       console.error("Erro ao gerar chamado: ", error);
       toast.error("Não foi possível gerar o chamado.");
@@ -93,7 +93,7 @@ const PlanosPage = () => {
       return;
     }
     try {
-      await deleteDoc(doc(db, "planosManutencao", planoId));
+      await deleteDoc(doc(db, "planosPreditivos", planoId));
       toast.success("Plano excluído com sucesso.");
     } catch (error) {
       console.error("Erro ao excluir plano: ", error);
@@ -110,7 +110,7 @@ const PlanosPage = () => {
   return (
     <>
       <header style={{ padding: '20px', backgroundColor: '#ffffff', borderBottom: '1px solid #e0e0e0' }}>
-        <h1>Planos de Manutenção Preventiva</h1>
+        <h1>Planos de Manutenção Preditiva</h1>
       </header>
       <div style={{ padding: '20px' }}>
         <div className={styles.card}>
@@ -209,4 +209,4 @@ const PlanosPage = () => {
   );
 };
 
-export default PlanosPage;
+export default PlanosPreditivosPage;
