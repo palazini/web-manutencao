@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
 import { useParams, useNavigate } from 'react-router-dom';
-import { doc, onSnapshot, updateDoc, serverTimestamp } from 'firebase/firestore';
+import { doc, onSnapshot, updateDoc, serverTimestamp, getDoc } from 'firebase/firestore';
 import { db } from '../firebase';
 import styles from './ChamadoDetalhe.module.css';
 
@@ -52,12 +52,39 @@ const ChamadoDetalhe = ({ user }) => {
     }
     setIsUpdating(true);
     const chamadoRef = doc(db, 'chamados', id);
+
     try {
-      await updateDoc(chamadoRef, { status: 'Concluído', solucao: solucao, dataConclusao: serverTimestamp() });
+      // 1. Conclui o chamado, como antes
+      await updateDoc(chamadoRef, {
+        status: 'Concluído',
+        solucao: solucao,
+        dataConclusao: serverTimestamp()
+      });
       toast.success("Chamado concluído com sucesso!");
-      navigate('/');
+
+      // 2. LÓGICA NOVA: Verifica se o chamado era de um plano preventivo
+      if (chamado.tipo === 'preventiva' && chamado.planoId) {
+        const planoRef = doc(db, "planosManutencao", chamado.planoId);
+        const planoDoc = await getDoc(planoRef);
+
+        if (planoDoc.exists()) {
+          const plano = planoDoc.data();
+          const novaProximaData = new Date();
+          novaProximaData.setDate(novaProximaData.getDate() + plano.frequencia);
+
+          // 3. Atualiza o plano original com a nova data
+          await updateDoc(planoRef, {
+            proximaData: novaProximaData,
+            dataUltimaManutencao: serverTimestamp() // Registra a data da última manutenção concluída
+          });
+          toast.success("Plano de manutenção atualizado para o próximo ciclo.");
+        }
+      }
+
+      navigate('/'); // Redireciona de volta ao painel
     } catch (error) {
-      toast.error("Erro ao concluir chamado: ", error);
+      console.error("Erro ao concluir chamado e atualizar plano: ", error);
+      toast.error("Ocorreu um erro ao processar a conclusão.");
     } finally {
       setIsUpdating(false);
     }

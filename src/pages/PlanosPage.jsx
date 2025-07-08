@@ -1,8 +1,6 @@
-// src/pages/PlanosPage.jsx
-
 import React, { useState, useEffect } from 'react';
 import { db } from '../firebase';
-import { collection, addDoc, query, onSnapshot, doc, deleteDoc, serverTimestamp, orderBy } from 'firebase/firestore';
+import { collection, addDoc, query, onSnapshot, doc, deleteDoc, serverTimestamp, orderBy, updateDoc } from 'firebase/firestore';
 import toast from 'react-hot-toast';
 import styles from './PlanosPage.module.css';
 import { FiSend, FiTrash2 } from 'react-icons/fi';
@@ -10,12 +8,15 @@ import { FiSend, FiTrash2 } from 'react-icons/fi';
 const PlanosPage = () => {
   const [planos, setPlanos] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  // Estados do formulário
   const [maquina, setMaquina] = useState('');
   const [descricao, setDescricao] = useState('');
   const [frequencia, setFrequencia] = useState(30);
 
   const maquinasDisponiveis = ['TCN-12', 'TCN-17', 'TCN-18', 'TCN-19', 'TCN-20', 'CT-01', 'Compressor', 'Fresadora'];
 
+  // Busca os planos existentes em tempo real
   useEffect(() => {
     const q = query(collection(db, 'planosManutencao'), orderBy('maquina'));
     const unsubscribe = onSnapshot(q, (querySnapshot) => {
@@ -29,31 +30,36 @@ const PlanosPage = () => {
     return () => unsubscribe();
   }, []);
 
+  // Função para criar um NOVO plano (do formulário)
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!maquina || !descricao || !frequencia) {
       toast.error("Preencha todos os campos do plano.");
       return;
     }
+
     try {
-      const proximaData = new Date();
       await addDoc(collection(db, 'planosManutencao'), {
         maquina,
         descricao,
         frequencia: Number(frequencia),
-        proximaData,
+        proximaData: null,
+        dataUltimaManutencao: null,
         ativo: true,
       });
+
       toast.success("Plano de manutenção criado com sucesso!");
       setMaquina('');
       setDescricao('');
       setFrequencia(30);
+
     } catch (error) {
       console.error("Erro ao criar plano: ", error);
       toast.error("Não foi possível criar o plano.");
     }
   };
 
+  // Função para o botão "Gerar Chamado"
   const handleGerarChamado = async (plano) => {
     if (!window.confirm(`Tem certeza que deseja gerar um chamado preventivo para a máquina ${plano.maquina}?`)) {
       return;
@@ -64,7 +70,8 @@ const PlanosPage = () => {
         descricao: `Manutenção preventiva agendada: ${plano.descricao}`,
         status: "Aberto",
         tipo: "preventiva",
-        operadorNome: "Sistema (Plano Manual)",
+        planoId: plano.id,
+        operadorNome: "Sistema",
         dataAbertura: serverTimestamp(),
         dataConclusao: null,
         manutentorId: null,
@@ -80,6 +87,7 @@ const PlanosPage = () => {
     }
   };
 
+  // Função para o botão "Excluir"
   const handleExcluirPlano = async (planoId, planoDesc) => {
     if (!window.confirm(`Tem certeza que deseja excluir o plano "${planoDesc}"? Esta ação não pode ser desfeita.`)) {
       return;
@@ -91,6 +99,12 @@ const PlanosPage = () => {
       console.error("Erro ao excluir plano: ", error);
       toast.error("Não foi possível excluir o plano.");
     }
+  };
+
+  // Função para calcular a diferença de dias entre duas datas
+  const diffEmDias = (data1, data2) => {
+    const diffTempo = data2.getTime() - data1.getTime();
+    return Math.round(diffTempo / (1000 * 3600 * 24));
   };
 
   return (
@@ -122,30 +136,71 @@ const PlanosPage = () => {
             <button type="submit" className={styles.button}>Criar Plano</button>
           </form>
         </div>
+
         <div className={styles.card}>
           <h2 className={styles.cardTitle}>Planos Ativos</h2>
-          {loading ? (
-            <p>Carregando...</p> // Alteração aqui
-          ) : (
+          {loading ? <p>Carregando...</p> : (
             <ul className={styles.planList}>
               {planos.length === 0 ? <p>Nenhum plano ativo cadastrado.</p> : null}
-              {planos.map(plano => (
-                <li key={plano.id} className={styles.planItem}>
-                  <div className={styles.planInfo}>
-                    <strong>{plano.maquina}</strong>
-                    <span>{plano.descricao}</span>
-                  </div>
-                  <span>A cada {plano.frequencia} dias</span>
-                  <div className={styles.planActions}>
-                    <button onClick={() => handleGerarChamado(plano)} className={`${styles.actionButton} ${styles.generateButton}`} title="Gerar Chamado Agora">
-                      <FiSend /> Gerar
-                    </button>
-                    <button onClick={() => handleExcluirPlano(plano.id, plano.descricao)} className={`${styles.actionButton} ${styles.deleteButton}`} title="Excluir Plano">
-                      <FiTrash2 /> Excluir
-                    </button>
-                  </div>
-                </li>
-              ))}
+              {planos.map(plano => {
+                const hoje = new Date();
+                let diasParaProxima = '-';
+                let corProxima = '';
+                let diasDesdeUltima = '-';
+
+                if (plano.proximaData) {
+                  const proximaData = plano.proximaData.toDate();
+                  diasParaProxima = diffEmDias(hoje, proximaData);
+                  
+                  if (diasParaProxima <= 0) {
+                    corProxima = styles.red;
+                  } else if (diasParaProxima <= 7) {
+                    corProxima = styles.orange;
+                  } else {
+                    corProxima = styles.green;
+                  }
+                }
+
+                if (plano.dataUltimaManutencao) {
+                  const ultimaData = plano.dataUltimaManutencao.toDate();
+                  diasDesdeUltima = diffEmDias(ultimaData, hoje);
+                }
+
+                return (
+                  <li key={plano.id} className={styles.planItem}>
+                    <div className={styles.planInfo}>
+                      <strong>{plano.maquina}</strong>
+                      <span className={styles.descricao}>{plano.descricao}</span>
+                    </div>
+
+                    <div className={styles.statusColumn}>
+                      <h2 className={styles.statusValue}>{plano.frequencia}</h2>
+                      <span className={styles.statusLabel}>F (dias)</span>
+                    </div>
+
+                    <div className={styles.statusColumn}>
+                      <h2 className={styles.statusValue}>{diasDesdeUltima}</h2>
+                      <span className={styles.statusLabel}>U (dias atrás)</span>
+                    </div>
+
+                    <div className={styles.statusColumn}>
+                      <h2 className={`${styles.statusValue} ${corProxima}`}>
+                        {diasParaProxima === '-' ? '-' : (diasParaProxima < 0 ? 'Vencido' : diasParaProxima)}
+                      </h2>
+                      <span className={styles.statusLabel}>P (dias)</span>
+                    </div>
+                    
+                    <div className={styles.planActions}>
+                      <button onClick={() => handleGerarChamado(plano)} className={`${styles.actionButton} ${styles.generateButton}`} title="Gerar Chamado Agora">
+                        <FiSend /> Gerar
+                      </button>
+                      <button onClick={() => handleExcluirPlano(plano.id, plano.descricao)} className={`${styles.actionButton} ${styles.deleteButton}`} title="Excluir Plano">
+                        <FiTrash2 /> Excluir
+                      </button>
+                    </div>
+                  </li>
+                );
+              })}
             </ul>
           )}
         </div>

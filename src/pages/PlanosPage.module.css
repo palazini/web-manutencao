@@ -1,4 +1,3 @@
-/* src/pages/PlanosPage.module.css */
 .card { background-color: #ffffff; border-radius: 8px; padding: 24px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); margin-bottom: 20px; }
 .cardTitle { margin-top: 0; }
 .form { display: flex; flex-direction: column; gap: 16px; }
@@ -8,40 +7,46 @@
 .input, .select { width: 100%; padding: 10px; border-radius: 4px; border: 1px solid #ccc; box-sizing: border-box; }
 .button { padding: 10px 20px; border: none; border-radius: 4px; background-color: #4B70E2; color: white; cursor: pointer; font-weight: bold; align-self: flex-start; }
 .planList { list-style: none; padding: 0; margin: 0; }
-.planItem { display: flex; justify-content: space-between; align-items: center; padding: 16px; border-bottom: 1px solid #eee; }
-.planItem:last-child { border-bottom: none; }
-.planInfo strong { display: block; }
-.planInfo span { font-size: 0.9rem; color: #555; }
 
-.planActions {
-  display: flex;
-  gap: 10px;
-}
-
-.actionButton {
-  padding: 8px 12px;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-weight: bold;
-  display: flex;
+/* ESTA É A PARTE QUE MUDOU */
+.planItem {
+  display: grid;
+  /* Info | F | U | P | Ações */
+  grid-template-columns: 3fr 1fr 1fr 1fr 1.5fr;
   align-items: center;
-  gap: 5px;
-  transition: background-color 0.2s;
+  gap: 15px;
+  padding: 16px;
+  border-bottom: 1px solid #eee;
+}
+.planItem:last-child {
+  border-bottom: none;
 }
 
-.generateButton {
-  background-color: #28a745; /* Verde */
-  color: white;
-}
-.generateButton:hover {
-  background-color: #218838;
-}
+.planInfo strong { display: block; }
+.planInfo span { font-size: 0.9rem; color: #555; word-break: break-word; }
 
-.deleteButton {
-  background-color: #dc3545; /* Vermelho */
-  color: white;
+/* NOVOS ESTILOS PARA AS COLUNAS DE STATUS */
+.statusColumn {
+  text-align: center;
 }
-.deleteButton:hover {
-  background-color: #c82333;
+.statusValue {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin: 0;
 }
+.statusLabel {
+  font-size: 0.8rem;
+  color: #666;
+}
+.statusValue.red { color: #dc3545; }
+.statusValue.orange { color: #fd7e14; }
+.statusValue.green { color: #28a745; }
+
+.planActions { display: flex; gap: 10px; justify-content: flex-end; }
+.actionButton { padding: 8px 12px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; display: flex; align-items: center; gap: 5px; transition: background-color 0.2s; }
+.generateButton { background-color: #28a745; color: white; }
+.deleteButton { background-color: #dc3545; color: white; }
+
+.statusValue.red { color: #dc3545; }
+.statusValue.orange { color: #fd7e14; }
+.statusValue.green { color: #28a745; }
