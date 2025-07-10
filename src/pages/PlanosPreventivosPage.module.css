@@ -15,7 +15,19 @@
   align-items: center;
   gap: 15px;
   padding: 16px;
-  border-bottom: 1px solid #eee;
+  
+  /* ESTILO DE CARD APLICADO AQUI */
+  background-color: #f9f9f9; /* Fundo cinza suave */
+  border: 1px solid #eef0f3;
+  border-radius: 8px;
+  margin-bottom: 12px;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+  transition: box-shadow 0.2s, transform 0.2s;
+}
+
+.planItem:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.08);
 }
 
 .planItem:last-child {

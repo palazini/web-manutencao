@@ -1,18 +1,21 @@
 /* src/components/MainLayout.module.css */
 
+/* O contêiner principal agora ocupa 100% da tela e esconde o overflow */
 .layout {
   display: flex;
-  min-height: 100vh;
+  height: 100vh; /* Ocupa 100% da altura da tela */
+  overflow: hidden; /* Impede que o layout inteiro role */
   background-color: #f7f8fc;
 }
 
+/* A sidebar agora tem uma altura fixa e não encolhe */
 .sidebar {
   width: 250px;
   background-color: #ffffff;
   display: flex;
   flex-direction: column;
   border-right: 1px solid #e0e0e0;
-  flex-shrink: 0; /* <-- ADICIONE ESTA LINHA */
+  flex-shrink: 0; /* Impede que a sidebar encolha */
 }
 
 .sidebarHeader {
@@ -44,12 +47,27 @@
 
 .navLink:hover {
   background-color: #f0f2f5;
-  color: #007bff;
+  color: #4B70E2;
+}
+
+.activeLink {
+  background-color: #e6eefc;
+  color: #4B70E2;
+  font-weight: bold;
 }
 
 .navIcon {
   margin-right: 10px;
   font-size: 18px;
+}
+
+.navSectionTitle {
+  padding: 10px 20px 5px 20px;
+  margin-top: 15px;
+  font-size: 0.8rem;
+  font-weight: bold;
+  color: #888;
+  text-transform: uppercase;
 }
 
 .userInfo {
@@ -76,25 +94,26 @@
   font-size: 20px;
 }
 
+/* A área de conteúdo principal agora é a única que pode rolar */
 .mainContent {
   flex: 1;
   display: flex;
   flex-direction: column;
+  overflow-y: auto; /* Adiciona a barra de rolagem vertical APENAS aqui */
+  overflow-x: hidden; /* Garante que não haverá rolagem horizontal */
 }
 
 .header {
   padding: 20px;
   background-color: #ffffff;
   border-bottom: 1px solid #e0e0e0;
+  /* Adicionamos position sticky para o cabeçalho ficar fixo ao rolar */
+  position: sticky;
+  top: 0;
+  z-index: 10;
 }
 
 .content {
   padding: 20px;
   flex: 1;
-}
-
-.activeLink {
-  background-color: #e6eefc; /* Um azul bem claro para o fundo */
-  color: #4B70E2; /* A nossa cor azul principal para o texto e ícone */
-  font-weight: bold;
 }

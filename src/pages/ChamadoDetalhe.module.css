@@ -7,18 +7,21 @@
 }
 
 .header {
-  padding-bottom: 20px;
+  padding: 24px;
+  background-color: #ffffff;
   border-bottom: 1px solid #e0e0e0;
 }
 
 .header h1 {
   margin: 0;
-  font-size: 1.75rem;
+  font-size: 1.75rem; /* Aumenta o tamanho do título principal */
+  color: #202124; /* Cor mais escura para o título */
+  margin-bottom: 4px; /* Pequeno espaço abaixo do título */
 }
 
 .header small {
   font-size: 0.9rem;
-  color: #888;
+  color: #5f6368; /* Cor mais suave para o subtítulo */
 }
 
 .card {

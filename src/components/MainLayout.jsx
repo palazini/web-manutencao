@@ -2,20 +2,23 @@ import React from 'react';
 import { Routes, Route, NavLink, Link } from 'react-router-dom';
 import { auth } from '../firebase';
 import { signOut } from 'firebase/auth';
-import { FiHome, FiLogOut, FiCheckSquare, FiUser, FiCalendar, FiList, FiClock } from 'react-icons/fi';
+import { FiHome, FiLogOut, FiCheckSquare, FiUser, FiCalendar, FiList, FiClock, FiUsers, FiEdit, FiCheckCircle } from 'react-icons/fi';
 import styles from './MainLayout.module.css';
 
-// Importa todos os painéis e páginas necessários
+// Importa todos os painéis e páginas
 import OperatorDashboard from './OperatorDashboard.jsx';
 import MaintainerDashboard from './MaintainerDashboard.jsx';
 import GestorDashboard from './GestorDashboard.jsx';
 import ChamadoDetalhe from '../pages/ChamadoDetalhe.jsx';
 import HistoricoPage from '../pages/HistoricoPage.jsx';
 import PerfilPage from '../pages/PerfilPage.jsx';
-import PlanosPreditivosPage from '../pages/PlanosPreditivosPage.jsx'; // A página de planos antiga, agora renomeada
-import PlanosPreventivosPage from '../pages/PlanosPreventivosPage.jsx'; // A nova página de planos com checklist
-import GerenciarChecklistsPage from '../pages/GerenciarChecklistsPage.jsx'; // A página para criar os checklists
+import PlanosPreditivosPage from '../pages/PlanosPreditivosPage.jsx';
+import PlanosPreventivosPage from '../pages/PlanosPreventivosPage.jsx';
+import GerenciarChecklistsPage from '../pages/GerenciarChecklistsPage.jsx';
 import EditarChecklistPage from '../pages/EditarChecklistPage.jsx';
+import RelatorioChecklistPage from '../pages/RelatorioChecklistPage.jsx';
+import HistoricoOperadorPage from '../pages/HistoricoOperadorPage.jsx';
+import EditarChecklistDiarioPage from '../pages/EditarChecklistDiarioPage.jsx'; // 1. Importar a nova página
 
 const MainLayout = ({ user }) => {
   const handleLogout = () => {
@@ -44,14 +47,12 @@ const MainLayout = ({ user }) => {
             <FiHome className={styles.navIcon} />
             <span>Início</span>
           </NavLink>
-
           {(user.role === 'manutentor' || user.role === 'gestor') && (
             <NavLink to="/historico" className={({ isActive }) => isActive ? `${styles.navLink} ${styles.activeLink}` : styles.navLink}>
               <FiCheckSquare className={styles.navIcon} />
               <span>Histórico</span>
             </NavLink>
           )}
-
           <NavLink to="/perfil" className={({ isActive }) => isActive ? `${styles.navLink} ${styles.activeLink}` : styles.navLink}>
             <FiUser className={styles.navIcon} />
             <span>Meu Perfil</span>
@@ -59,6 +60,7 @@ const MainLayout = ({ user }) => {
 
           {user.role === 'gestor' && (
             <>
+              <h3 className={styles.navSectionTitle}>Gerenciar Manutenção</h3>
               <NavLink to="/planos-preditivos" className={({ isActive }) => isActive ? `${styles.navLink} ${styles.activeLink}` : styles.navLink}>
                 <FiClock className={styles.navIcon} />
                 <span>Manut. Preditiva</span>
@@ -69,7 +71,13 @@ const MainLayout = ({ user }) => {
               </NavLink>
               <NavLink to="/gerenciar-checklists" className={({ isActive }) => isActive ? `${styles.navLink} ${styles.activeLink}` : styles.navLink}>
                 <FiList className={styles.navIcon} />
-                <span>Gerenciar Checklists</span>
+                <span>Checklists de Tarefas</span>
+              </NavLink>
+
+              <h3 className={styles.navSectionTitle}>Gerenciar Colaboradores</h3>
+              <NavLink to="/checklists-colaboradores" className={({ isActive }) => isActive ? `${styles.navLink} ${styles.activeLink}` : styles.navLink}>
+                <FiUsers className={styles.navIcon} />
+                <span>Checklists de Colaboradores</span>
               </NavLink>
             </>
           )}
@@ -84,8 +92,12 @@ const MainLayout = ({ user }) => {
 
       <main className={styles.mainContent}>
         <Routes>
-          <Route path="/gerenciar-checklists" element={<GerenciarChecklistsPage />} />
+          {/* 2. NOVA ROTA AQUI */}
+          <Route path="/editar-checklist-diario/:id" element={<EditarChecklistDiarioPage />} />
+          <Route path="/historico-operador/:operadorId" element={<HistoricoOperadorPage />} />
+          <Route path="/checklists-colaboradores" element={<RelatorioChecklistPage />} />
           <Route path="/editar-checklist/:id" element={<EditarChecklistPage />} />
+          <Route path="/gerenciar-checklists" element={<GerenciarChecklistsPage />} />
           <Route path="/planos-preventivos" element={<PlanosPreventivosPage />} />
           <Route path="/planos-preditivos" element={<PlanosPreditivosPage />} />
           <Route path="/perfil" element={<PerfilPage user={user} />} />

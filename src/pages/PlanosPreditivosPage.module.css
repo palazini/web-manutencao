@@ -9,17 +9,17 @@
 .planList { list-style: none; padding: 0; margin: 0; }
 
 /* ======================================= */
-/* SEÇÃO MODIFICADA ABAIXO        */
+/* SEÇÃO MODIFICADA ABAIXO                 */
 /* ======================================= */
 .planItem {
   display: grid;
-  /* Info | F | U | P | Ações */
   grid-template-columns: 3fr 1fr 1fr 1fr 1.5fr;
   align-items: center;
   gap: 15px;
   padding: 16px;
-  /* Estilos de Card */
-  background-color: #f9f9f9;
+  
+  /* ESTILO DE CARD APLICADO AQUI */
+  background-color: #f9f9f9; /* Fundo cinza suave */
   border: 1px solid #eef0f3;
   border-radius: 8px;
   margin-bottom: 12px;
@@ -32,12 +32,13 @@
   box-shadow: 0 4px 10px rgba(0,0,0,0.08);
 }
 
-/* A regra :last-child não é mais necessária */
+/* A regra :last-child não é mais necessária para a borda,
+   mas é bom para remover a margem do último item */
 .planItem:last-child {
-  margin-bottom: 0; /* Apenas para garantir que o último item não tenha margem extra */
+  margin-bottom: 0; 
 }
 /* ======================================= */
-/* FIM DA SEÇÃO MODIFICADA        */
+/* FIM DA SEÇÃO MODIFICADA                 */
 /* ======================================= */
 
 

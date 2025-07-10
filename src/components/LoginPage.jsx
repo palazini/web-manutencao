@@ -1,76 +1,75 @@
+// src/components/LoginPage.jsx
+
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../firebase';
+import toast from 'react-hot-toast';
+import styles from './LoginPage.module.css';
+import logo from '../assets/logo.png';
 
 const LoginPage = () => {
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
-  const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    setError('');
     setLoading(true);
-
-    if (!email || !senha) {
-      setError('Por favor, preencha o e-mail e a senha.');
-      setLoading(false);
-      return;
-    }
-
     try {
       await signInWithEmailAndPassword(auth, email, senha);
-    } catch (err) {
-      switch (err.code) {
-        case 'auth/user-not-found':
-          setError('Usuário não encontrado.');
-          break;
-        case 'auth/wrong-password':
-          setError('Senha incorreta.');
-          break;
-        default:
-          setError('Ocorreu um erro ao fazer login.');
-          console.error(err);
-      }
+      navigate('/');
+    } catch (error) {
+      toast.error("E-mail ou senha inválidos.");
     } finally {
       setLoading(false);
     }
   };
 
-  // O código JSX com os estilos que te passei antes vai aqui...
-  // Apenas garanta que a estrutura do return e o export default estejam corretos.
   return (
-    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', backgroundColor: '#f0f2f5' }}>
-      <div style={{ padding: '40px', backgroundColor: 'white', borderRadius: '8px', boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)', width: '100%', maxWidth: '400px' }}>
-        <h2 style={{ marginBottom: '24px', textAlign: 'center' }}>Login</h2>
-        <form onSubmit={handleLogin}>
-          <div style={{ marginBottom: '16px' }}>
-            <label htmlFor="email" style={{ display: 'block', marginBottom: '8px' }}>E-mail</label>
-            <input
-              type="email"
-              id="email"
+    // ADICIONAMOS A DIV "INVÓLUCRO" AQUI
+    <div className={styles.pageWrapper}> 
+      
+      {/* O seu código original fica dentro dela */}
+      <div className={styles.loginContainer}>
+        <div className={styles.logoContainer}>
+          <img src={logo} alt="Logo da Empresa" className={styles.logo} />
+        </div>
+
+        <h1 className={styles.title}>Fazer login</h1>
+        <p className={styles.subtitle}>Use sua Conta</p>
+
+        <form onSubmit={handleLogin} className={styles.loginForm}>
+          <div className={styles.inputGroup}>
+            <input 
+              type="email" 
+              id="email" 
+              className={styles.input} 
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              style={{ width: '100%', padding: '10px', borderRadius: '4px', border: '1px solid #ccc', boxSizing: 'border-box' }}
-              required
+              required 
             />
+            <label htmlFor="email" className={styles.label}>E-mail</label>
           </div>
-          <div style={{ marginBottom: '16px' }}>
-            <label htmlFor="senha" style={{ display: 'block', marginBottom: '8px' }}>Senha</label>
-            <input
-              type="password"
-              id="senha"
+
+          <div className={styles.inputGroup}>
+            <input 
+              type="password" 
+              id="senha" 
+              className={styles.input} 
               value={senha}
               onChange={(e) => setSenha(e.target.value)}
-              style={{ width: '100%', padding: '10px', borderRadius: '4px', border: '1px solid #ccc', boxSizing: 'border-box' }}
-              required
+              required 
             />
+            <label htmlFor="senha" className={styles.label}>Senha</label>
           </div>
-          {error && <p style={{ color: 'red', textAlign: 'center', marginBottom: '10px' }}>{error}</p>}
-          <button type="submit" style={{ width: '100%', padding: '12px', border: 'none', borderRadius: '4px', backgroundColor: '#007bff', color: 'white', cursor: 'pointer', fontSize: '16px' }} disabled={loading}>
-            {loading ? 'Entrando...' : 'Entrar'}
-          </button>
+
+          <div className={styles.buttonContainer}>
+            <button type="submit" className={styles.nextButton} disabled={loading}>
+              {loading ? 'Entrando...' : 'Avançar'}
+            </button>
+          </div>
         </form>
       </div>
     </div>
