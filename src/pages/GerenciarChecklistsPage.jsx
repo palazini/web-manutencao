@@ -84,7 +84,7 @@ const GerenciarChecklistsPage = () => {
             <ul className={styles.checklistList}>
               {checklists.map(cl => (
                 // O Link envolve o <li> para tornar tudo clicável, mas a aparência é de card
-                <Link to={`/editar-checklist/${cl.id}`} key={cl.id} className={styles.checklistItemLink}>
+                <Link to={`editar/${cl.id}`} key={cl.id} className={styles.checklistItemLink}>
                   <li className={styles.checklistItem}>
                     <span className={styles.templateName}>{cl.nome}</span>
                     <div className={styles.actions}>

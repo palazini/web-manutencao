@@ -134,7 +134,7 @@ const RelatorioChecklistPage = () => {
           {loading ? <p>Gerando relatório...</p> : (
             <ul className={styles.userList}>
               {relatorioOperadores.map(op => (
-                <Link to={`/historico-operador/${op.id}`} key={op.id} className={styles.userLink}>
+                <Link to={`historico-operador/${op.id}`} key={op.id} className={styles.userLink}>
                   <li className={styles.userItem}>
                     <span className={styles.userName}>{op.nome}</span>
                     <div className={op.enviouHoje ? `${styles.status} ${styles.completed}` : `${styles.status} ${styles.pending}`}>

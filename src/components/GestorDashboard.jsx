@@ -148,7 +148,7 @@ const GestorDashboard = ({ user }) => {
 
       <div className={styles.chamadoList}>
         {chamadosFiltrados.map((chamado) => (
-          <Link to={`/chamado/${chamado.id}`} key={chamado.id} className={styles.chamadoLink}>
+          <Link to={`/historico/chamado/${chamado.id}`} key={chamado.id} className={styles.chamadoLink}>
             <div className={styles.chamadoItem}>
               <div className={styles.chamadoInfo}>
                 <strong>Máquina: {chamado.maquina}</strong>

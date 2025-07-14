@@ -71,7 +71,7 @@ const PlanosPreditivosPage = () => {
         status: "Aberto",
         tipo: "preditiva",
         planoId: plano.id,
-        operadorNome: "Sistema",
+        operadorNome: "Sistema (Plano Preditivo)",
         dataAbertura: serverTimestamp(),
         dataConclusao: null,
         manutentorId: null,

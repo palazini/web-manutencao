@@ -58,7 +58,7 @@ const MaintainerDashboard = ({ user }) => {
                 {chamadosAbertos.map((chamado) => {
                   const { icon, className } = getChamadoStyle(chamado.tipo);
                   return (
-                    <Link to={`/chamado/${chamado.id}`} key={chamado.id} className={styles.chamadoLink}>
+                    <Link to={`/historico/chamado/${chamado.id}`} key={chamado.id} className={styles.chamadoLink}>
                       <li className={`${styles.chamadoItem} ${className}`}>
                         <div className={styles.chamadoInfo}>
                           <strong>{icon}Máquina: {chamado.maquina}</strong>
@@ -80,7 +80,7 @@ const MaintainerDashboard = ({ user }) => {
                 {chamadosEmAndamento.map((chamado) => {
                   const { icon, className } = getChamadoStyle(chamado.tipo);
                   return (
-                    <Link to={`/chamado/${chamado.id}`} key={chamado.id} className={styles.chamadoLink}>
+                    <Link to={`/historico/chamado/${chamado.id}`} key={chamado.id} className={styles.chamadoLink}>
                       <li className={`${styles.chamadoItem} ${className}`}>
                         <div className={styles.chamadoInfo}>
                           <strong>{icon}Máquina: {chamado.maquina}</strong>

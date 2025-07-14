@@ -104,7 +104,7 @@ const OperatorDashboard = ({ user }) => {
         ) : (
           <ul className={styles.chamadoList}>
             {chamados.map(chamado => (
-              <Link to={`/chamado/${chamado.id}`} key={chamado.id} className={styles.chamadoLink}>
+              <Link to={`/historico/chamado/${chamado.id}`} key={chamado.id} className={styles.chamadoLink}>
                 <li className={styles.chamadoItem}>
                   <div className={styles.chamadoInfo}>
                     <strong>Máquina: {chamado.maquina}</strong>

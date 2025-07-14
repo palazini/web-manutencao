@@ -1,7 +1,7 @@
 // src/pages/HistoricoPage.jsx
 
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link } from 'react-router-dom'; // Importa o Link
 import { db } from '../firebase';
 import { collection, query, where, onSnapshot, orderBy } from 'firebase/firestore';
 import styles from './HistoricoPage.module.css';
@@ -11,8 +11,6 @@ const HistoricoPage = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Consulta específica para buscar chamados ONDE o status é 'Concluído'
-    // Ordena pela data de conclusão, dos mais recentes para os mais antigos
     const q = query(
       collection(db, 'chamados'), 
       where('status', '==', 'Concluído'),
@@ -45,16 +43,16 @@ const HistoricoPage = () => {
           ) : (
             <ul className={styles.chamadoList}>
               {chamadosConcluidos.map((chamado) => (
-                <Link to={`/chamado/${chamado.id}`} key={chamado.id} className={styles.chamadoLink}>
+                // O link agora aponta para o caminho relativo correto
+                <Link to={`chamado/${chamado.id}`} key={chamado.id} className={styles.chamadoLink}>
                   <li className={styles.chamadoItem}>
                     <div className={styles.chamadoInfo}>
                       <strong>Máquina: {chamado.maquina}</strong>
-                      {/* Adicione a linha abaixo */}
                       <small>Atendido por: {chamado.manutentorNome || 'Não identificado'}</small>
                       <small>Concluído em: {chamado.dataConclusao ? new Date(chamado.dataConclusao.toDate()).toLocaleString() : '...'}</small>
                       <p className={styles.problemaPreview}><strong>Problema:</strong> {chamado.descricao || 'Não especificado'}</p>
                     </div>
-                </li>
+                  </li>
                 </Link>
               ))}
             </ul>
