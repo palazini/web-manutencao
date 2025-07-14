@@ -120,10 +120,10 @@ const RelatorioChecklistPage = () => {
           <h3>Modelos Existentes</h3>
           <ul className={styles.checklistTemplatesList}>
             {checklistTemplates.map(cl => (
-              <Link to={`/editar-checklist-diario/${cl.id}`} key={cl.id} className={styles.templateLink}>
-                  <li className={styles.templateItem}>
-                    {cl.nome}
-                  </li>
+              <Link to={`editar-checklist-diario/${cl.id}`} key={cl.id} className={styles.templateLink}>
+                <li className={styles.templateItem}>
+                  {cl.nome}
+                </li>
               </Link>
             ))}
           </ul>

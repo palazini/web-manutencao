@@ -18,7 +18,8 @@ import GerenciarChecklistsPage from '../pages/GerenciarChecklistsPage.jsx';
 import EditarChecklistPage from '../pages/EditarChecklistPage.jsx';
 import RelatorioChecklistPage from '../pages/RelatorioChecklistPage.jsx';
 import HistoricoOperadorPage from '../pages/HistoricoOperadorPage.jsx';
-import EditarChecklistDiarioPage from '../pages/EditarChecklistDiarioPage.jsx'; // 1. Importar a nova página
+import EditarChecklistDiarioPage from '../pages/EditarChecklistDiarioPage.jsx';
+import ChecklistsLayout from '../pages/ChecklistsLayout.jsx';
 
 const MainLayout = ({ user }) => {
   const handleLogout = () => {
@@ -93,9 +94,11 @@ const MainLayout = ({ user }) => {
       <main className={styles.mainContent}>
         <Routes>
           {/* 2. NOVA ROTA AQUI */}
-          <Route path="/editar-checklist-diario/:id" element={<EditarChecklistDiarioPage />} />
           <Route path="/historico-operador/:operadorId" element={<HistoricoOperadorPage />} />
-          <Route path="/checklists-colaboradores" element={<RelatorioChecklistPage />} />
+          <Route path="/checklists-colaboradores/*" element={<ChecklistsLayout />}>
+            <Route index element={<RelatorioChecklistPage />} />
+            <Route path="editar-checklist-diario/:id" element={<EditarChecklistDiarioPage />} />
+          </Route>
           <Route path="/editar-checklist/:id" element={<EditarChecklistPage />} />
           <Route path="/gerenciar-checklists" element={<GerenciarChecklistsPage />} />
           <Route path="/planos-preventivos" element={<PlanosPreventivosPage />} />
