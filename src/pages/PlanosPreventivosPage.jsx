@@ -17,7 +17,7 @@ const PlanosPreventivosPage = () => {
   const [frequencia, setFrequencia] = useState(30);
   const [checklistId, setChecklistId] = useState('');
 
-  const maquinasDisponiveis = ['TCN-12', 'TCN-17', 'TCN-18', 'TCN-19', 'TCN-20', 'CT-01', 'Compressor', 'Fresadora'];
+  const maquinasDisponiveis = ['TCN-12', 'TCN-17', 'TCN-18', 'TCN-19', 'TCN-20', 'CT-01', 'Compressor', 'Lapidadora'];
 
   useEffect(() => {
     const qPlanos = query(collection(db, 'planosPreventivos'), orderBy('maquina'));

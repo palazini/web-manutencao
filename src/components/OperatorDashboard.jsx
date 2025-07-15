@@ -14,7 +14,7 @@ const OperatorDashboard = ({ user }) => {
   const [listLoading, setListLoading] = useState(true);
 
   const maquinasDisponiveis = [
-    'TCN-12', 'TCN-17', 'TCN-18', 'TCN-19', 'TCN-20', 'CT-01', 'Compressor', 'Fresadora'
+    'TCN-12', 'TCN-17', 'TCN-18', 'TCN-19', 'TCN-20', 'CT-01', 'Compressor', 'Lapidadora'
   ];
 
   useEffect(() => {

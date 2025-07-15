@@ -14,7 +14,7 @@ const PlanosPreditivosPage = () => {
   const [descricao, setDescricao] = useState('');
   const [frequencia, setFrequencia] = useState(30);
 
-  const maquinasDisponiveis = ['TCN-12', 'TCN-17', 'TCN-18', 'TCN-19', 'TCN-20', 'CT-01', 'Compressor', 'Fresadora'];
+  const maquinasDisponiveis = ['TCN-12', 'TCN-17', 'TCN-18', 'TCN-19', 'TCN-20', 'CT-01', 'Compressor', 'Lapidadora'];
 
   // Busca os planos existentes em tempo real
   useEffect(() => {
