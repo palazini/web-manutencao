@@ -1,0 +1,235 @@
+/* src/pages/MaquinaDetalhePage.module.css */
+
+.header {
+  padding: 24px;
+  background-color: #ffffff;
+  border-bottom: 1px solid #e0e0e0;
+}
+.header h1 {
+  margin: 0;
+  font-size: 1.75rem;
+}
+.header p {
+  margin: 4px 0 0 0;
+  color: #555;
+}
+
+.tabs {
+  display: flex;
+  border-bottom: 1px solid #ccc;
+  background-color: #f9f9f9;
+}
+.tabButton {
+  padding: 14px 20px;
+  cursor: pointer;
+  border: none;
+  background-color: transparent;
+  font-size: 1rem;
+  font-weight: 500;
+  color: #555;
+  border-bottom: 3px solid transparent;
+}
+.tabButton.active {
+  color: #4B70E2;
+  border-bottom: 3px solid #4B70E2;
+}
+
+.tabContent {
+  padding: 20px;
+}
+
+/* --- Estilos para a lista de histórico --- */
+.chamadoList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px; 
+}
+.chamadoCard {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+}
+.chamadoItem {
+  background-color: #ffffff;
+  padding: 16px;
+  border-radius: 8px;
+  border: 1px solid #eef0f3;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  transition: box-shadow 0.2s, transform 0.2s;
+}
+.chamadoItem:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+}
+.chamadoItem strong {
+  display: block;
+  margin-bottom: 4px;
+}
+.chamadoItem p {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #666;
+}
+.chamadoItem small {
+  font-size: 0.8rem;
+  color: #888;
+  margin-top: 8px;
+  display: block;
+}
+
+/* --- Estilos para a aba de planos --- */
+.planSection {
+  background-color: #ffffff;
+  padding: 24px;
+  border-radius: 8px;
+  border: 1px solid #eef0f3;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  margin-bottom: 20px;
+}
+.planSection h3 {
+  margin-top: 0;
+  margin-bottom: 15px;
+  font-size: 1.25rem;
+}
+.planList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.planItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  background-color: #f9f9f9;
+  padding: 16px;
+  border-radius: 6px;
+  border: 1px solid #e9ecef;
+}
+.planItem strong {
+  font-weight: 500;
+  flex-grow: 1; 
+}
+.planItem span {
+  font-size: 0.9rem;
+  color: #666;
+  white-space: nowrap;
+}
+.planActions {
+  display: flex;
+  gap: 10px;
+}
+.actionButton {
+  padding: 8px 12px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  transition: background-color 0.2s;
+  text-decoration: none;
+  color: white;
+}
+.generateButton {
+  background-color: #28a745;
+}
+.editButton {
+  background-color: #0d6efd;
+}
+.deleteButton {
+  background-color: #dc3545;
+}
+.actionButton:hover {
+  opacity: 0.85;
+}
+
+/* --- ESTILOS PARA OS FORMULÁRIOS QUE FALTAVAM --- */
+.form {
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px dashed #ccc;
+}
+.form h4 {
+  margin-top: 0;
+  margin-bottom: 15px;
+}
+.formGroup {
+  margin-bottom: 15px;
+}
+.formGroup label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: 500;
+}
+.input, .select {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+.button {
+  padding: 10px 15px;
+  border: none;
+  border-radius: 4px;
+  background-color: #4B70E2;
+  color: white;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+/* --- Estilos para a aba de operadores --- */
+.assignmentContainer {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 30px;
+}
+.column h3 {
+  margin-top: 0;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 10px;
+}
+.operatorList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.operatorItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px;
+  border-radius: 6px;
+  margin-bottom: 8px;
+  background-color: #f9f9f9;
+  border: 1px solid #eef0f3;
+}
+.opActionButton {
+  background: none;
+  border: 1px solid #ccc;
+  border-radius: 50%;
+  width: 28px;
+  height: 28px;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: background-color 0.2s;
+}
+.addButton {
+  color: #28a745;
+}
+.removeButton {
+  color: #dc3545;
+}
+.opActionButton:hover {
+  background-color: #e9ecef;
+}

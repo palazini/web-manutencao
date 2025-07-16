@@ -1,0 +1,13 @@
+/* src/pages/InicioPage.module.css */
+
+.header {
+  padding: 24px;
+  background-color: #ffffff;
+  border-bottom: 1px solid #e0e0e0;
+}
+.header h1 {
+  margin: 0;
+}
+.content {
+  padding: 20px;
+}
