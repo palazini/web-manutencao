@@ -37,6 +37,7 @@
 .modalHeader h2 {
   margin: 0;
   font-size: 1.25rem;
+  color: #333;
 }
 
 .closeButton {

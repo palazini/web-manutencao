@@ -1,5 +1,4 @@
 /* src/pages/InicioPage.module.css */
-
 .header {
   padding: 24px;
   background-color: #ffffff;
@@ -7,7 +6,49 @@
 }
 .header h1 {
   margin: 0;
+  font-size: 1.75rem;
+}
+.header p {
+  margin: 4px 0 0 0;
+  color: #555;
 }
 .content {
   padding: 20px;
+}
+.actionsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 20px;
+  margin-top: 20px;
+}
+.actionCard {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 24px;
+  background-color: #ffffff;
+  border-radius: 8px;
+  border: 1px solid #eef0f3;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  text-decoration: none;
+  color: inherit;
+  transition: box-shadow 0.2s, transform 0.2s;
+}
+.actionCard:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+.cardIcon {
+  font-size: 2rem;
+  color: #4B70E2;
+}
+.cardTitle {
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin: 0;
+}
+.cardDescription {
+  font-size: 0.9rem;
+  color: #666;
+  flex-grow: 1;
 }

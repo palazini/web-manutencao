@@ -151,7 +151,7 @@
   opacity: 0.85;
 }
 
-/* --- ESTILOS PARA OS FORMULÁRIOS QUE FALTAVAM --- */
+/* --- ESTILOS PARA OS FORMULÁRIOS (SEÇÃO QUE FALTAVA) --- */
 .form {
   margin-top: 20px;
   padding-top: 20px;
@@ -232,4 +232,131 @@
 }
 .opActionButton:hover {
   background-color: #e9ecef;
+}
+
+.checklistEditor {
+  background-color: #ffffff;
+  padding: 24px;
+  border-radius: 8px;
+  border: 1px solid #eef0f3;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.checklistItemManage {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.checklistItemManage:last-child {
+  border-bottom: none;
+}
+
+.checklistItemManage span {
+  flex-grow: 1;
+}
+
+.checklistInputForm {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.checklistInput {
+  flex-grow: 1;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.checklistAddButton {
+  padding: 8px 15px;
+  border: none;
+  background-color: #28a745; /* Verde */
+  color: white;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.turnoSection {
+  margin-bottom: 40px;
+  padding: 20px;
+  border: 1px solid #eef0f3;
+  border-radius: 8px;
+  background-color: #fdfdff;
+}
+
+.turnoSection:last-child {
+  margin-bottom: 0;
+}
+
+.turnoSection h3 {
+  margin-top: 0;
+  color: #4B70E2;
+}
+
+.historyReport {
+  margin-top: 20px;
+}
+
+.dayEntry {
+  display: grid;
+  grid-template-columns: 1fr 2fr 2fr;
+  align-items: center;
+  padding: 12px 16px;
+  border-bottom: 1px solid #f0f0f0;
+}
+.dayEntry:last-child {
+  border-bottom: none;
+}
+
+.dayHeader {
+  font-weight: bold;
+  color: #333;
+}
+
+.turnStatus {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.turnStatus.completed {
+  color: #28a745;
+}
+
+.turnStatus.pending {
+  color: #dc3545;
+}
+
+.clickable {
+  cursor: pointer;
+  border-radius: 4px;
+  padding: 4px 8px;
+  transition: background-color 0.2s;
+}
+
+.clickable:hover {
+  background-color: #f0f2f5;
+}
+
+/* Estilos para o conteúdo do Modal */
+.detailsList {
+  list-style: none;
+  padding: 0;
+  margin-top: 10px;
+}
+
+.detailItem {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.detailItem:last-child {
+  border-bottom: none;
 }

@@ -9,13 +9,19 @@ const Modal = ({ isOpen, onClose, title, children }) => {
     return null;
   }
 
+  // A função de fechar o modal será chamada se o usuário clicar no fundo escuro
+  const handleOverlayClick = (e) => {
+    if (e.target === e.currentTarget) {
+      onClose();
+    }
+  };
+
   return (
-    // Fundo escuro que cobre a tela
-    <div className={styles.modalOverlay} onClick={onClose}>
+    <div className={styles.modalOverlay} onClick={handleOverlayClick}>
       {/* O card do modal em si */}
-      <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
+      <div className={styles.modalContent}>
         <div className={styles.modalHeader}>
-          <h2>{title}</h2>
+          <h2 className={styles.modalTitle}>{title}</h2>
           <button onClick={onClose} className={styles.closeButton}>
             <FiX size={24} />
           </button>

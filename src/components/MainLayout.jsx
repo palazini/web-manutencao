@@ -1,5 +1,3 @@
-// src/components/MainLayout.jsx
-
 import React from 'react';
 import { Routes, Route, NavLink, Link } from 'react-router-dom';
 import { auth } from '../firebase';
@@ -11,18 +9,18 @@ import styles from './MainLayout.module.css';
 import OperatorDashboard from './OperatorDashboard.jsx';
 import MaquinasPage from '../pages/MaquinasPage.jsx';
 import MaquinaDetalhePage from '../pages/MaquinaDetalhePage.jsx';
-import InicioPage from '../pages/InicioPage.jsx'; // 1. Importar a nova página inicial
+import InicioPage from '../pages/InicioPage.jsx';
 import ChamadoDetalhe from '../pages/ChamadoDetalhe.jsx';
 import HistoricoPage from '../pages/HistoricoPage.jsx';
 import PerfilPage from '../pages/PerfilPage.jsx';
 import GerenciarChecklistsPage from '../pages/GerenciarChecklistsPage.jsx';
 import EditarChecklistPage from '../pages/EditarChecklistPage.jsx';
-import RelatorioChecklistPage from '../pages/RelatorioChecklistPage.jsx';
-import HistoricoOperadorPage from '../pages/HistoricoOperadorPage.jsx';
-import EditarChecklistDiarioPage from '../pages/EditarChecklistDiarioPage.jsx';
 import EditarPlanoPreditivoPage from '../pages/EditarPlanoPreditivoPage.jsx';
 import EditarPlanoPreventivoPage from '../pages/EditarPlanoPreventivoPage.jsx';
-import ManutencaoLayout from '../pages/ManutencaoLayout.jsx';
+import ChecklistLayout from '../pages/ChecklistLayout.jsx';
+
+// Layouts
+import MaquinasLayout from '../pages/MaquinasLayout.jsx'; // O layout que tínhamos esquecido
 import ChecklistsLayout from '../pages/ChecklistsLayout.jsx';
 import HistoricoLayout from "../pages/HistoricoLayout.jsx";
 
@@ -40,18 +38,25 @@ const MainLayout = ({ user }) => {
           </Link>
         </div>
         <nav className={styles.nav}>
-          {/* 2. O link de "Início" agora é para todos e aponta para a nova página inicial */}
           <NavLink to="/" className={({ isActive }) => isActive ? `${styles.navLink} ${styles.activeLink}` : styles.navLink} end>
             <FiHome className={styles.navIcon} />
             <span>Início</span>
           </NavLink>
 
-          {/* O link para Máquinas agora tem sua própria rota */}
+          <NavLink to="/perfil" className={({ isActive }) => isActive ? `${styles.navLink} ${styles.activeLink}` : styles.navLink}>
+            <FiUser className={styles.navIcon} />
+            <span>Meu Perfil</span>
+          </NavLink>
+
+          {/* O link para Máquinas agora aponta para /maquinas */}
           {(user.role === 'manutentor' || user.role === 'gestor') && (
-            <NavLink to="/maquinas" className={({ isActive }) => isActive ? `${styles.navLink} ${styles.activeLink}` : styles.navLink}>
-              <FiServer className={styles.navIcon} />
-              <span>Máquinas</span>
-            </NavLink>
+            <>
+              <h3 className={styles.navSectionTitle}>Gerenciar Manutenção</h3>
+              <NavLink to="/maquinas" className={({ isActive }) => isActive ? `${styles.navLink} ${styles.activeLink}` : styles.navLink}>
+                <FiServer className={styles.navIcon} />
+                <span>Máquinas</span>
+              </NavLink>
+            </>
           )}
 
           {(user.role === 'manutentor' || user.role === 'gestor') && (
@@ -60,23 +65,12 @@ const MainLayout = ({ user }) => {
               <span>Histórico</span>
             </NavLink>
           )}
-          <NavLink to="/perfil" className={({ isActive }) => isActive ? `${styles.navLink} ${styles.activeLink}` : styles.navLink}>
-            <FiUser className={styles.navIcon} />
-            <span>Meu Perfil</span>
-          </NavLink>
 
           {user.role === 'gestor' && (
             <>
-              <h3 className={styles.navSectionTitle}>Gerenciar Manutenção</h3>
-              <NavLink to="/manutencao/checklists" className={({ isActive }) => isActive ? `${styles.navLink} ${styles.activeLink}` : styles.navLink}>
+              <NavLink to="/gerenciar-checklists" className={({ isActive }) => isActive ? `${styles.navLink} ${styles.activeLink}` : styles.navLink}>
                 <FiList className={styles.navIcon} />
                 <span>Checklists de Tarefas</span>
-              </NavLink>
-
-              <h3 className={styles.navSectionTitle}>Gerenciar Colaboradores</h3>
-              <NavLink to="/checklists-colaboradores" className={({ isActive }) => isActive ? `${styles.navLink} ${styles.activeLink}` : styles.navLink}>
-                <FiUsers className={styles.navIcon} />
-                <span>Checklists de Colaboradores</span>
               </NavLink>
             </>
           )}
@@ -91,13 +85,22 @@ const MainLayout = ({ user }) => {
 
       <main className={styles.mainContent}>
         <Routes>
-          {/* 3. A ROTA PRINCIPAL "/" AGORA MOSTRA A PÁGINA DE INÍCIO */}
-          <Route path="/" element={<InicioPage user={user} />} />
+          <Route path="/" element={
+            user.role === 'operador' ? (
+              <OperatorDashboard user={user} />
+            ) : (
+              <InicioPage user={user} />
+            )
+          } />
           
-          {/* A ROTA PARA MÁQUINAS AGORA É EXCLUSIVA */}
-          <Route path="/maquinas" element={<MaquinasPage />} />
-          <Route path="/maquinas/:id" element={<MaquinaDetalhePage user={user} />} />
-
+          {/* ROTA ANINHADA PARA MÁQUINAS */}
+          <Route path="/maquinas/*" element={<MaquinasLayout />}>
+            <Route index element={<MaquinasPage />} />
+            <Route path=":id" element={<MaquinaDetalhePage user={user} />} />
+            <Route path=":maquinaId/editar-plano-preditivo/:planoId" element={<EditarPlanoPreditivoPage />} />
+            <Route path=":maquinaId/editar-plano-preventivo/:planoId" element={<EditarPlanoPreventivoPage />} />
+          </Route>
+          
           <Route path="/perfil" element={<PerfilPage user={user} />} />
           
           <Route path="/historico/*" element={<HistoricoLayout />}>
@@ -105,18 +108,11 @@ const MainLayout = ({ user }) => {
             <Route path="chamado/:id" element={<ChamadoDetalhe user={user} />} />
           </Route>
           
-          <Route path="/manutencao/*" element={<ManutencaoLayout />}>
-            <Route path="checklists" element={<GerenciarChecklistsPage />} />
-            <Route path="checklists/editar/:id" element={<EditarChecklistPage />} />
-            <Route path="preditiva/editar/:id" element={<EditarPlanoPreditivoPage />} />
-            <Route path="preventiva/editar/:id" element={<EditarPlanoPreventivoPage />} />
+          <Route path="/gerenciar-checklists/*" element={<ChecklistLayout />}>
+            <Route index element={<GerenciarChecklistsPage />} />
+            <Route path="editar/:id" element={<EditarChecklistPage />} />
           </Route>
-
-          <Route path="/checklists-colaboradores/*" element={<ChecklistsLayout />}>
-            <Route index element={<RelatorioChecklistPage />} />
-            <Route path="editar-checklist-diario/:id" element={<EditarChecklistDiarioPage />} />
-            <Route path="historico-operador/:operadorId" element={<HistoricoOperadorPage />} />
-          </Route>
+          
         </Routes>
       </main>
     </div>

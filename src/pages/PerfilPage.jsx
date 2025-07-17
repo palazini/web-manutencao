@@ -64,7 +64,7 @@ const PerfilPage = ({ user }) => {
           <div className={styles.infoGrid}>
             <div className={styles.infoItem}><strong>Nome</strong><p>{user.nome}</p></div>
             <div className={styles.infoItem}><strong>Email</strong><p>{user.email}</p></div>
-            <div className={styles.infoItem}><strong>Função</strong><p style={{ textTransform: 'capitalize' }}>{user.role}</p></div>
+            <div className={styles.infoItem}><strong>Função</strong><p style={{ textTransform: 'capitalize' }}>{user.funcao}</p></div>
           </div>
         </div>
 

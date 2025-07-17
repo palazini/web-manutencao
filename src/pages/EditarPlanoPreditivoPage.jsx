@@ -8,41 +8,41 @@ import toast from 'react-hot-toast';
 import styles from './EditarPlanoPreditivoPage.module.css';
 
 const EditarPlanoPreditivoPage = () => {
-  const { id } = useParams(); // Pega o ID do plano da URL
-  const navigate = useNavigate(); // Hook para redirecionar após salvar
+  // AQUI ESTÁ A CORREÇÃO: trocamos 'id' por 'planoId' para corresponder à rota
+  const { planoId } = useParams(); 
+  const navigate = useNavigate();
 
-  // Estados para os campos do formulário
   const [descricao, setDescricao] = useState('');
   const [frequencia, setFrequencia] = useState(30);
-  const [maquinaNome, setMaquinaNome] = useState(''); // Para exibir o nome da máquina
+  const [maquinaNome, setMaquinaNome] = useState('');
   const [loading, setLoading] = useState(true);
   const [isUpdating, setIsUpdating] = useState(false);
 
-  // Busca os dados do plano ao carregar a página
   useEffect(() => {
     const fetchPlano = async () => {
-      const docRef = doc(db, 'planosPreditivos', id);
+      // Usamos 'planoId' para buscar o documento
+      const docRef = doc(db, 'planosPreditivos', planoId);
       const docSnap = await getDoc(docRef);
 
       if (docSnap.exists()) {
         const data = docSnap.data();
         setDescricao(data.descricao);
         setFrequencia(data.frequencia);
-        setMaquinaNome(data.maquina); // Guarda o nome da máquina
+        setMaquinaNome(data.maquina);
       } else {
         toast.error("Plano Preditivo não encontrado.");
-        navigate(-1); // Volta para a página anterior (detalhes da máquina)
+        navigate(-1);
       }
       setLoading(false);
     };
 
     fetchPlano();
-  }, [id, navigate]);
+  }, [planoId, navigate]);
 
   const handleUpdate = async (e) => {
     e.preventDefault();
     setIsUpdating(true);
-    const docRef = doc(db, 'planosPreditivos', id);
+    const docRef = doc(db, 'planosPreditivos', planoId);
 
     try {
       await updateDoc(docRef, {
@@ -50,10 +50,9 @@ const EditarPlanoPreditivoPage = () => {
         frequencia: Number(frequencia),
       });
       toast.success("Plano Preditivo atualizado com sucesso!");
-      navigate(-1); // Volta para a página anterior
+      navigate(-1);
     } catch (error) {
       toast.error("Não foi possível atualizar o plano.");
-      console.error("Erro ao atualizar o plano: ", error);
     } finally {
       setIsUpdating(false);
     }

@@ -31,7 +31,6 @@ const GerenciarChecklistsPage = () => {
       toast.error("Por favor, preencha o nome e pelo menos um item do checklist.");
       return;
     }
-
     try {
       await addDoc(collection(db, 'checklistTemplates'), {
         nome: nomeChecklist,
@@ -83,22 +82,17 @@ const GerenciarChecklistsPage = () => {
           {loading ? <p>Carregando...</p> : (
             <ul className={styles.checklistList}>
               {checklists.map(cl => (
-                // O Link envolve o <li> para tornar tudo clicável, mas a aparência é de card
-                <Link to={`editar/${cl.id}`} key={cl.id} className={styles.checklistItemLink}>
-                  <li className={styles.checklistItem}>
+                <li key={cl.id} className={styles.checklistItem}>
                     <span className={styles.templateName}>{cl.nome}</span>
-                    <div className={styles.actions}>
-                      {/* O botão de editar é o próprio link, mas mantemos o ícone */}
-                      <div className={styles.actionButton} title="Editar">
-                        <FiEdit />
-                      </div>
-                      {/* Adicionamos stopPropagation para o botão de excluir não ativar o link */}
-                      <button onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleExcluirChecklist(cl.id); }} className={`${styles.actionButton} ${styles.deleteButton}`} title="Excluir">
-                        <FiTrash2 />
-                      </button>
-                    </div>
-                  </li>
-                </Link>
+                  <div className={styles.actions}>
+                    <Link to={`/gerenciar-checklists/editar/${cl.id}`} className={`${styles.actionButton} ${styles.editButton}`} title="Editar">
+                      <FiEdit /> Editar
+                    </Link>
+                    <button onClick={() => handleExcluirChecklist(cl.id)} className={`${styles.actionButton} ${styles.deleteButton}`} title="Excluir">
+                      <FiTrash2 /> Excluir
+                    </button>
+                  </div>
+                </li>
               ))}
             </ul>
           )}

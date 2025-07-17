@@ -8,22 +8,22 @@ import toast from 'react-hot-toast';
 import styles from './EditarPlanoPreventivoPage.module.css';
 
 const EditarPlanoPreventivoPage = () => {
-  const { id } = useParams();
+  // AQUI ESTÁ A CORREÇÃO: trocamos 'id' por 'planoId'
+  const { planoId } = useParams();
   const navigate = useNavigate();
 
-  // Estados para os campos do formulário
   const [descricao, setDescricao] = useState('');
   const [frequencia, setFrequencia] = useState(30);
   const [checklistId, setChecklistId] = useState('');
-  const [checklistTemplates, setChecklistTemplates] = useState([]); // Para o seletor
+  const [checklistTemplates, setChecklistTemplates] = useState([]);
   const [maquinaNome, setMaquinaNome] = useState('');
   const [loading, setLoading] = useState(true);
   const [isUpdating, setIsUpdating] = useState(false);
 
-  // Busca os dados do plano e a lista de checklists
   useEffect(() => {
     const fetchPlano = async () => {
-      const docRef = doc(db, 'planosPreventivos', id);
+      // Usamos 'planoId' para buscar o documento
+      const docRef = doc(db, 'planosPreventivos', planoId);
       const docSnap = await getDoc(docRef);
 
       if (docSnap.exists()) {
@@ -39,7 +39,6 @@ const EditarPlanoPreventivoPage = () => {
       setLoading(false);
     };
 
-    // Ouve em tempo real as mudanças nos templates de checklist
     const qChecklists = query(collection(db, 'checklistTemplates'));
     const unsubscribe = onSnapshot(qChecklists, (snapshot) => {
       setChecklistTemplates(snapshot.docs.map(d => ({ id: d.id, ...d.data() })));
@@ -47,13 +46,13 @@ const EditarPlanoPreventivoPage = () => {
 
     fetchPlano();
 
-    return () => unsubscribe(); // Limpa o ouvinte dos checklists
-  }, [id, navigate]);
+    return () => unsubscribe();
+  }, [planoId, navigate]);
 
   const handleUpdate = async (e) => {
     e.preventDefault();
     setIsUpdating(true);
-    const docRef = doc(db, 'planosPreventivos', id);
+    const docRef = doc(db, 'planosPreventivos', planoId);
     const checklistSelecionado = checklistTemplates.find(c => c.id === checklistId);
 
     try {
@@ -64,10 +63,9 @@ const EditarPlanoPreventivoPage = () => {
         checklistNome: checklistSelecionado.nome,
       });
       toast.success("Plano Preventivo atualizado com sucesso!");
-      navigate(-1); // Volta para a página anterior
+      navigate(-1);
     } catch (error) {
       toast.error("Não foi possível atualizar o plano.");
-      console.error("Erro ao atualizar o plano: ", error);
     } finally {
       setIsUpdating(false);
     }
