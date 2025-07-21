@@ -14,14 +14,14 @@
 
 .header h1 {
   margin: 0;
-  font-size: 1.75rem; /* Aumenta o tamanho do título principal */
-  color: #202124; /* Cor mais escura para o título */
-  margin-bottom: 4px; /* Pequeno espaço abaixo do título */
+  font-size: 1.75rem;
+  color: #202124;
+  margin-bottom: 4px;
 }
 
 .header small {
   font-size: 0.9rem;
-  color: #5f6368; /* Cor mais suave para o subtítulo */
+  color: #5f6368;
 }
 
 .card {
@@ -68,47 +68,69 @@
   display: inline-block;
 }
 
-/* Cores dos status */
 .aberto { background-color: #007bff; }
 .emandamento { background-color: #ffc107; color: #333; }
 .concluído { background-color: #28a745; }
 
-/* Estilos do formulário de conclusão */
 .formGroup { margin-bottom: 16px; }
 .formGroup label { display: block; margin-bottom: 8px; font-weight: 500; }
 .textarea { width: 100%; padding: 10px; border-radius: 4px; border: 1px solid #ccc; font-family: inherit; font-size: 1rem; resize: vertical; }
 .button { padding: 10px 20px; border: none; border-radius: 4px; background-color: #007bff; color: white; cursor: pointer; font-size: 1rem; font-weight: bold; }
 .button:disabled { background-color: #ccc; }
 
+.historySection { margin-top: 20px; }
+.historyList { list-style: none; padding: 0; margin-top: 15px; border-top: 1px solid #eee; }
+.historyItem { padding: 15px 10px; border-bottom: 1px solid #eee; }
+.historyHeader { display: flex; justify-content: space-between; align-items: center; font-size: 0.8rem; color: #555; margin-bottom: 8px; }
+.historyHeader strong { font-weight: bold; }
+.historyContent { color: #333; white-space: pre-wrap; }
+
+/* --- NOVOS ESTILOS PARA O CHECKLIST --- */
 .checklistContainer {
-  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
 .checklistItem {
   display: flex;
+  justify-content: space-between;
   align-items: center;
-  gap: 15px;
-  padding: 12px 0;
-  border-bottom: 1px solid #f0f0f0;
+  padding: 12px;
+  background-color: #f9f9f9;
+  border-radius: 6px;
 }
 
-.checklistItem:last-child {
-  border-bottom: none;
+.itemLabel {
+  flex-grow: 1;
 }
 
-.checklistItem input[type="checkbox"] {
-  width: 18px;
-  height: 18px;
+/* Esconde o botão de rádio padrão */
+.radioGroup input[type="radio"] {
+  display: none;
+}
+
+.radioGroup label {
+  padding: 8px 20px;
+  border: 1px solid #ccc;
+  border-radius: 20px;
   cursor: pointer;
+  margin-left: 10px;
+  transition: all 0.2s ease-in-out;
+  font-weight: 500;
 }
 
-.checklistItem label {
-  flex: 1;
-  cursor: pointer;
+/* Estilo para quando o botão estiver selecionado */
+.radioGroup input[type="radio"]:checked + label {
+  color: #fff;
 }
 
-/* Estilo para o texto quando o item está marcado */
-.itemConcluido {
-  text-decoration: line-through;
-  color: #888;
+.radioGroup input[id*="sim"]:checked + label {
+  background-color: #28a745;
+  border-color: #28a745;
+}
+
+.radioGroup input[id*="nao"]:checked + label {
+  background-color: #dc3545;
+  border-color: #dc3545;
 }

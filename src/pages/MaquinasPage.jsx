@@ -3,64 +3,82 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { db } from '../firebase';
-import { collection, query, onSnapshot, orderBy, where } from 'firebase/firestore';
+import { collection, query, onSnapshot, orderBy, where, addDoc } from 'firebase/firestore';
+import toast from 'react-hot-toast';
 import styles from './MaquinasPage.module.css';
+import Modal from '../components/Modal.jsx';
+import { FiPlus } from 'react-icons/fi';
 
 const MaquinasPage = () => {
   const [maquinas, setMaquinas] = useState([]);
   const [chamadosAtivos, setChamadosAtivos] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [nomeNovaMaquina, setNomeNovaMaquina] = useState('');
 
   useEffect(() => {
-    // Busca a coleção 'maquinas'
     const qMaquinas = query(collection(db, 'maquinas'), orderBy('nome'));
     const unsubMaquinas = onSnapshot(qMaquinas, (snapshot) => {
-      const maquinasData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-      setMaquinas(maquinasData);
+      setMaquinas(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
     });
 
-    // Busca todos os chamados ATIVOS (Aberto ou Em Andamento)
     const qChamados = query(collection(db, 'chamados'), where('status', 'in', ['Aberto', 'Em Andamento']));
     const unsubChamados = onSnapshot(qChamados, (snapshot) => {
-      const chamadosData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-      setChamadosAtivos(chamadosData);
-      setLoading(false); // Move o loading para depois da segunda busca
+      setChamadosAtivos(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+      setLoading(false);
     });
     
-    // Limpa os ouvintes quando o componente é desmontado
     return () => {
       unsubMaquinas();
       unsubChamados();
     };
   }, []);
 
-  // Usamos useMemo para processar os dados apenas quando eles mudam
   const maquinasComStatus = useMemo(() => {
     const statusPorMaquina = {};
     const prioridade = { corretiva: 3, preventiva: 2, preditiva: 1 };
-
     chamadosAtivos.forEach(chamado => {
       const tipo = chamado.tipo || 'corretiva';
-      
       if (!statusPorMaquina[chamado.maquina] || prioridade[tipo] > prioridade[statusPorMaquina[chamado.maquina]]) {
         statusPorMaquina[chamado.maquina] = tipo;
       }
     });
-
     return maquinas.map(maquina => ({
       ...maquina,
       statusDestaque: statusPorMaquina[maquina.nome] || 'normal',
     }));
-
   }, [maquinas, chamadosAtivos]);
 
-  // Função para pegar a classe CSS correta
   const getStatusClass = (status) => {
     switch(status) {
       case 'corretiva': return styles.statusCorretiva;
       case 'preventiva': return styles.statusPreventiva;
       case 'preditiva': return styles.statusPreditiva;
       default: return styles.statusNormal;
+    }
+  };
+
+  const handleCriarMaquina = async (e) => {
+    e.preventDefault();
+    if (nomeNovaMaquina.trim() === '') {
+      toast.error("O nome da máquina não pode ser vazio.");
+      return;
+    }
+    try {
+      await addDoc(collection(db, 'maquinas'), {
+        nome: nomeNovaMaquina,
+        checklistDiario: [],
+        operadoresPorTurno: {
+          turno1: [],
+          turno2: [],
+        },
+      });
+      toast.success(`Máquina "${nomeNovaMaquina}" criada com sucesso!`);
+      setNomeNovaMaquina('');
+      setIsModalOpen(false);
+    } catch (error) {
+      toast.error("Erro ao criar a máquina.");
+      console.error(error);
     }
   };
 
@@ -74,7 +92,6 @@ const MaquinasPage = () => {
           <p>Carregando máquinas...</p>
         ) : (
           <>
-            {/* NOVA SEÇÃO DE LEGENDA */}
             <div className={styles.legendContainer}>
               <div className={styles.legendItem}>
                 <div className={`${styles.legendColorBox} ${styles.statusCorretiva}`}></div>
@@ -98,13 +115,44 @@ const MaquinasPage = () => {
                   className={`${styles.card} ${getStatusClass(maquina.statusDestaque)}`}
                 >
                   <h2>{maquina.nome}</h2>
-                  <p>Status: Operacional</p>
+                  <p>Clique para exibir detalhes</p>
                 </Link>
               ))}
+
+              {/* CARD DE ADICIONAR SIMPLIFICADO */}
+              <div 
+                className={`${styles.card} ${styles.addCard}`}
+                onClick={() => setIsModalOpen(true)}
+              >
+                <FiPlus className={styles.addIcon} />
+              </div>
             </div>
           </>
         )}
       </div>
+
+      <Modal 
+        isOpen={isModalOpen} 
+        onClose={() => setIsModalOpen(false)}
+        title="Criar Nova Máquina"
+      >
+        <form onSubmit={handleCriarMaquina}>
+          <div style={{marginBottom: '15px'}}>
+            <label htmlFor="nome-maquina" style={{display: 'block', marginBottom: '5px', fontWeight: '500'}}>Nome da Máquina</label>
+            <input 
+              id="nome-maquina"
+              type="text"
+              value={nomeNovaMaquina}
+              onChange={(e) => setNomeNovaMaquina(e.target.value)}
+              style={{width: '100%', padding: '8px', boxSizing: 'border-box'}}
+              required
+            />
+          </div>
+          <button type="submit" style={{padding: '10px 15px', border: 'none', borderRadius: '4px', backgroundColor: '#4B70E2', color: 'white', cursor: 'pointer'}}>
+            Salvar Máquina
+          </button>
+        </form>
+      </Modal>
     </>
   );
 };

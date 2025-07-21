@@ -1,41 +1,26 @@
 // src/pages/TarefasDiariasPage.jsx
 
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom'; // 1. Importar useNavigate
+import { Link } from 'react-router-dom';
 import { db } from '../firebase';
-import { collection, query, where, getDocs } from 'firebase/firestore';
-import { getTurnoAtual } from '../utils/dateUtils';
+import { collection, query, where, getDocs, onSnapshot } from 'firebase/firestore';
 import styles from './TarefasDiariasPage.module.css';
-import toast from 'react-hot-toast';
 
-const TarefasDiariasPage = ({ user }) => {
+// A página agora recebe 'dadosTurno' como prop
+const TarefasDiariasPage = ({ user, dadosTurno }) => {
   const [tarefasPendentes, setTarefasPendentes] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [turno, setTurno] = useState(null);
-  const navigate = useNavigate(); // Hook para navegação
 
   useEffect(() => {
-    const carregarTarefas = async () => {
-      const turnoAtual = getTurnoAtual();
-      if (!turnoAtual) {
-        setLoading(false);
-        return;
-      }
-      setTurno(turnoAtual);
+    if (!dadosTurno) return; // Não faz nada se os dados do turno ainda não chegaram
 
-      const qMaquinas = query(
-        collection(db, 'maquinas'),
-        where(`operadoresPorTurno.${turnoAtual}`, 'array-contains', user.uid)
-      );
+    const carregarTarefas = async () => {
+      // 1. Busca os dados completos das máquinas selecionadas
+      const qMaquinas = query(collection(db, 'maquinas'), where('__name__', 'in', dadosTurno.maquinas));
       const maquinasSnapshot = await getDocs(qMaquinas);
       const maquinasDoOperador = maquinasSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
-      if (maquinasDoOperador.length === 0) {
-        toast.error("Você não está atribuído a nenhuma máquina neste turno.");
-        setLoading(false);
-        return;
-      }
-      
+      // 2. Ouve em tempo real as submissões de hoje para verificar o que já foi feito
       const hoje = new Date();
       const inicioDoDia = new Date(hoje.getFullYear(), hoje.getMonth(), hoje.getDate());
       
@@ -44,22 +29,19 @@ const TarefasDiariasPage = ({ user }) => {
         where('operadorId', '==', user.uid),
         where('dataSubmissao', '>=', inicioDoDia)
       );
-      const submissoesSnapshot = await getDocs(qSubmissoes);
-      const maquinasJaFeitas = new Set(submissoesSnapshot.docs.map(doc => doc.data().maquinaId));
 
-      const pendentes = maquinasDoOperador.filter(maq => !maquinasJaFeitas.has(maq.id));
-      
-      setTarefasPendentes(pendentes);
-      setLoading(false);
+      const unsubscribe = onSnapshot(qSubmissoes, (submissoesSnapshot) => {
+        const maquinasJaFeitas = new Set(submissoesSnapshot.docs.map(doc => doc.data().maquinaId));
+        const pendentes = maquinasDoOperador.filter(maq => !maquinasJaFeitas.has(maq.id));
+        setTarefasPendentes(pendentes);
+        setLoading(false);
+      });
+
+      return () => unsubscribe();
     };
 
     carregarTarefas();
-  }, [user.uid]);
-
-  // Se todas as tarefas foram concluídas, redireciona para uma tela final
-  if (!loading && turno && tarefasPendentes.length === 0) {
-    navigate('/tarefas-concluidas'); // Uma nova rota que vamos criar
-  }
+  }, [user.uid, dadosTurno]);
 
   return (
     <div className={styles.pageContainer}>
@@ -70,14 +52,13 @@ const TarefasDiariasPage = ({ user }) => {
 
       {loading && <p>Verificando tarefas...</p>}
       
-      {!loading && !turno && (
-        <p>Fora do horário de turno. Nenhum checklist a ser preenchido no momento.</p>
+      {!loading && tarefasPendentes.length === 0 && (
+        <p>Você completou todos os seus checklists para este turno. Bom trabalho!</p>
       )}
-
+      
       {!loading && tarefasPendentes.length > 0 && (
         <ul className={styles.taskList}>
           {tarefasPendentes.map(maquina => (
-            // O link agora leva para a página de checklist da máquina
             <Link to={`/checklist/${maquina.id}`} key={maquina.id} className={styles.taskItem}>
               <div className={styles.taskInfo}>
                 <strong>{maquina.nome}</strong>

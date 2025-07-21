@@ -11,10 +11,13 @@ import LoginPage from './components/LoginPage.jsx';
 import MainLayout from './components/MainLayout.jsx';
 import OperatorFlow from './pages/OperatorFlow.jsx'; // 1. Importar nosso novo componente
 import ChecklistPage from './pages/ChecklistPage.jsx';
+import InicioTurnoPage from './pages/InicioTurnoPage.jsx';
 
 function App() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [turnoConfirmado, setTurnoConfirmado] = useState(false);
+  const [dadosTurno, setDadosTurno] = useState(null);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
@@ -28,11 +31,18 @@ function App() {
         }
       } else {
         setUser(null);
+        setTurnoConfirmado(false);
+        setDadosTurno(null);
       }
       setLoading(false);
     });
     return () => unsubscribe();
   }, []);
+  
+  const handleTurnoConfirmado = (selecao) => {
+    setDadosTurno(selecao);
+    setTurnoConfirmado(true);
+  };
 
   if (loading) {
     return <div style={{ padding: '20px' }}>Carregando...</div>;
@@ -43,19 +53,24 @@ function App() {
       <Toaster position="top-right" />
       <Routes>
         {user ? (
-          // Se o usuário está logado
           user.role === 'operador' ? (
-            // Se for operador, o fluxo dele é especial
             <>
-              <Route path="/*" element={<OperatorFlow user={user} />} />
+              <Route 
+                path="/*" 
+                element={
+                  turnoConfirmado ? (
+                    <OperatorFlow user={user} dadosTurno={dadosTurno} />
+                  ) : (
+                    <InicioTurnoPage user={user} onTurnoConfirmado={handleTurnoConfirmado} />
+                  )
+                } 
+              />
               <Route path="/checklist/:maquinaId" element={<ChecklistPage user={user} />} />
             </>
           ) : (
-            // Para gestor e manutentor, usa o MainLayout normal
             <Route path="/*" element={<MainLayout user={user} />} />
           )
         ) : (
-          // Se não há usuário, mostra a página de login
           <Route path="/*" element={<LoginPage />} />
         )}
       </Routes>

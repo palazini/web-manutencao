@@ -7,6 +7,7 @@
 }
 
 .card {
+  height: 55px;
   background-color: #ffffff;
   border-radius: 8px;
   padding: 24px;
@@ -17,6 +18,11 @@
   transition: box-shadow 0.2s, transform 0.2s;
   border: 1px solid #eef0f3;
   border-left-width: 5px;
+  /* Adicionamos display flex para ajudar a alinhar o conteúdo interno */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center
 }
 
 .card:hover {
@@ -40,20 +46,17 @@
 .statusNormal {
   border-left-color: #eef0f3;
 }
-
 .statusCorretiva {
-  border-left-color: #dc3545; /* Vermelho */
+  border-left-color: #dc3545;
 }
-
 .statusPreventiva {
-  border-left-color: #0d6efd; /* Azul */
+  border-left-color: #0d6efd;
 }
-
 .statusPreditiva {
-  border-left-color: #ffc107; /* Amarelo */
+  border-left-color: #ffc107;
 }
 
-/* Estilos da Legenda */
+/* Legenda */
 .legendContainer {
   display: flex;
   justify-content: flex-start;
@@ -64,20 +67,16 @@
   background-color: #ffffff;
   border: 1px solid #eef0f3;
 }
-
 .legendItem {
   display: flex;
   align-items: center;
   gap: 8px;
 }
-
 .legendColorBox {
   width: 15px;
   height: 15px;
   border-radius: 4px;
 }
-
-/* Adiciona as cores de fundo às caixas da legenda */
 .legendColorBox.statusCorretiva {
   background-color: #dc3545;
 }
@@ -86,4 +85,24 @@
 }
 .legendColorBox.statusPreditiva {
   background-color: #ffc107;
+}
+
+/* --- ESTILO ATUALIZADO PARA O CARD DE ADICIONAR --- */
+.addCard {
+  background-color: transparent;
+  border: 2px dashed #dee2e6;
+  cursor: pointer;
+}
+
+.addIcon {
+  font-size: 4rem;
+  color: #adb5bd;
+}
+
+.addCard:hover {
+  background-color: #f8f9fa;
+  border-color: #adb5bd;
+  color: #495057;
+  transform: none; /* Remove o efeito de levantar para este card */
+  box-shadow: none;
 }

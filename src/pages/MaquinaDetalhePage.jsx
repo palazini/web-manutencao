@@ -21,15 +21,15 @@ const MaquinaDetalhePage = ({ user }) => {
   const [historicoChecklist, setHistoricoChecklist] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('ativos');
+  const [selectedSubmission, setSelectedSubmission] = useState(null);
 
+  // Formulários
   const [freqPreditiva, setFreqPreditiva] = useState(30);
   const [descPreditiva, setDescPreditiva] = useState('');
   const [freqPreventiva, setFreqPreventiva] = useState(30);
   const [descPreventiva, setDescPreventiva] = useState('');
   const [checklistId, setChecklistId] = useState('');
   const [novoItemChecklist, setNovoItemChecklist] = useState('');
-
-  const [selectedSubmission, setSelectedSubmission] = useState(null);
 
   useEffect(() => {
     const maquinaDocRef = doc(db, 'maquinas', id);
@@ -69,50 +69,13 @@ const MaquinaDetalhePage = ({ user }) => {
         setMaquina(null); setLoading(false);
       }
     });
-
-    const operadoresQuery = query(collection(db, 'usuarios'), where('role', '==', 'operador'));
-    const unsubOperadores = onSnapshot(operadoresQuery, (snapshot) => setTodosOperadores(snapshot.docs.map(d => ({ id: d.id, ...d.data() }))));
     
     const checklistsQuery = query(collection(db, 'checklistTemplates'));
     const unsubChecklists = onSnapshot(checklistsQuery, (snapshot) => setChecklistTemplates(snapshot.docs.map(d => ({ id: d.id, ...d.data() }))));
     
-    return () => { unsubMaquina(); unsubOperadores(); unsubChecklists(); };
+    return () => { unsubMaquina(); unsubChecklists(); };
   }, [id]);
   
-  // NOVA LÓGICA para separar os operadores por turno
-  const operadoresPorTurno = useMemo(() => {
-    if (!maquina || !todosOperadores.length) {
-      return { turno1: {}, turno2: {} };
-    }
-
-    const idsTurno1 = new Set(maquina.operadoresPorTurno?.turno1 || []);
-    const idsTurno2 = new Set(maquina.operadoresPorTurno?.turno2 || []);
-
-    const atribuidosT1 = todosOperadores.filter(op => idsTurno1.has(op.id));
-    const atribuidosT2 = todosOperadores.filter(op => idsTurno2.has(op.id));
-    
-    const disponiveis = todosOperadores.filter(op => !idsTurno1.has(op.id) && !idsTurno2.has(op.id));
-
-    return {
-      turno1: { atribuidos: atribuidosT1, disponiveis },
-      turno2: { atribuidos: atribuidosT2, disponiveis },
-    };
-  }, [maquina, todosOperadores]);
-
-  // FUNÇÕES ATUALIZADAS para mover os operadores por TURNO
-  const handleAtribuirOperador = async (operadorId, turno) => {
-    const maquinaRef = doc(db, 'maquinas', id);
-    await updateDoc(maquinaRef, {
-      [`operadoresPorTurno.${turno}`]: arrayUnion(operadorId)
-    });
-  };
-
-  const handleRemoverOperador = async (operadorId, turno) => {
-    const maquinaRef = doc(db, 'maquinas', id);
-    await updateDoc(maquinaRef, {
-      [`operadoresPorTurno.${turno}`]: arrayRemove(operadorId)
-    });
-  };
 
   const handleCriarPlanoPreditivo = async (e) => {
     e.preventDefault();
@@ -264,6 +227,15 @@ const MaquinaDetalhePage = ({ user }) => {
     }
   };
 
+  const getStatusClass = (tipo) => {
+    switch(tipo) {
+      case 'corretiva': return styles.corretiva;
+      case 'preventiva': return styles.preventiva;
+      case 'preditiva': return styles.preditiva;
+      default: return styles.normal;
+    }
+  };
+
 
   if (loading) return <p style={{ padding: '20px' }}>Carregando dados da máquina...</p>;
   if (!maquina) return <p style={{ padding: '20px' }}>Máquina não encontrada.</p>;
@@ -279,7 +251,7 @@ const MaquinaDetalhePage = ({ user }) => {
         <ul className={styles.chamadoList}>
           {chamados.map(chamado => (
             <Link to={`/historico/chamado/${chamado.id}`} key={chamado.id} className={styles.chamadoCard}>
-              <li className={styles.chamadoItem}>
+              <li className={`${styles.chamadoItem} ${getStatusClass(tipoChamado)}`}>
                 <strong>{chamado.descricao}</strong>
                 <p>Status: {chamado.status}</p>
                 <small>Aberto em: {chamado.dataAbertura ? new Date(chamado.dataAbertura.toDate()).toLocaleDateString('pt-BR') : 'N/A'}</small>
@@ -296,56 +268,25 @@ const MaquinaDetalhePage = ({ user }) => {
       <h2>{titulo}</h2>
       {lista.length === 0 ? <p>{mensagemVazia}</p> : (
         <ul className={styles.chamadoList}>
-          {lista.map(chamado => (
-            <Link to={`/historico/chamado/${chamado.id}`} key={chamado.id} className={styles.chamadoCard}>
-              <li className={styles.chamadoItem}>
-                <strong>{chamado.descricao}</strong>
-                <p>Status: {chamado.status}</p>
-                <small>Aberto em: {chamado.dataAbertura ? new Date(chamado.dataAbertura.toDate()).toLocaleDateString('pt-BR') : 'N/A'}</small>
-              </li>
-            </Link>
-          ))}
+          {lista.map(chamado => {
+            // Se o tipo não existir, consideramos como 'corretiva'
+            const tipoChamado = chamado.tipo || 'corretiva';
+            return (
+              <Link to={`/historico/chamado/${chamado.id}`} key={chamado.id} className={styles.chamadoCard}>
+                {/* Aplicamos a classe de cor dinâmica aqui */}
+                <li className={`${styles.chamadoItem} ${getStatusClass(tipoChamado)}`}>
+                  <strong>{chamado.descricao}</strong>
+                  <p>Status: {chamado.status}</p>
+                  <small>Aberto em: {chamado.dataAbertura ? new Date(chamado.dataAbertura.toDate()).toLocaleDateString('pt-BR') : 'N/A'}</small>
+                </li>
+              </Link>
+            );
+          })}
         </ul>
       )}
     </div>
   );
   
-  // Componente reutilizável para a interface de atribuição de um turno
-  const TurnoUI = ({ nomeTurno, numeroTurno, dados }) => (
-    <div className={styles.turnoSection}>
-      <h3>{nomeTurno}</h3>
-      <div className={styles.assignmentContainer}>
-        <div className={styles.column}>
-          <h4>Operadores Atribuídos</h4>
-          <ul className={styles.operatorList}>
-            {dados.atribuidos.map(op => (
-              <li key={op.id} className={styles.operatorItem}>
-                <span>{op.nome}</span>
-                <button onClick={() => handleRemoverOperador(op.id, `turno${numeroTurno}`)} className={`${styles.opActionButton} ${styles.removeButton}`} title="Remover">
-                  <FiMinus />
-                </button>
-              </li>
-            ))}
-            {dados.atribuidos.length === 0 && <p>Nenhum operador neste turno.</p>}
-          </ul>
-        </div>
-        <div className={styles.column}>
-          <h4>Operadores Disponíveis</h4>
-          <ul className={styles.operatorList}>
-            {dados.disponiveis.map(op => (
-              <li key={op.id} className={styles.operatorItem}>
-                <span>{op.nome}</span>
-                <button onClick={() => handleAtribuirOperador(op.id, `turno${numeroTurno}`)} className={`${styles.opActionButton} ${styles.addButton}`} title="Adicionar">
-                  <FiPlus />
-                </button>
-              </li>
-            ))}
-            {dados.disponiveis.length === 0 && <p>Todos os operadores já foram atribuídos.</p>}
-          </ul>
-        </div>
-      </div>
-    </div>
-  );
 
 
   return (
@@ -361,65 +302,65 @@ const MaquinaDetalhePage = ({ user }) => {
           <nav className={styles.tabs}>
             <button className={`${styles.tabButton} ${activeTab === 'ativos' ? styles.active : ''}`} onClick={() => setActiveTab('ativos')}>Chamados Ativos</button>
             <button className={`${styles.tabButton} ${activeTab === 'historico' ? styles.active : ''}`} onClick={() => setActiveTab('historico')}>Histórico</button>
-            <button className={`${styles.tabButton} ${activeTab === 'planos' ? styles.active : ''}`} onClick={() => setActiveTab('planos')}>Planos de Manutenção</button>
+            <button className={`${styles.tabButton} ${activeTab === 'preditiva' ? styles.active : ''}`} onClick={() => setActiveTab('preditiva')}>Preditiva</button>
+            <button className={`${styles.tabButton} ${activeTab === 'preventiva' ? styles.active : ''}`} onClick={() => setActiveTab('preventiva')}>Preventiva</button>
             <button className={`${styles.tabButton} ${activeTab === 'checklist' ? styles.active : ''}`} onClick={() => setActiveTab('checklist')}>Checklist Diário</button>
-            <button className={`${styles.tabButton} ${activeTab === 'operadores' ? styles.active : ''}`} onClick={() => setActiveTab('operadores')}>Operadores</button>
           </nav>
-
           <div className={styles.tabContent}>
             {activeTab === 'ativos' && <ListaDeChamados lista={chamadosAtivos} titulo={`Chamados Ativos da ${maquina.nome}`} mensagemVazia="Nenhum chamado ativo." />}
             {activeTab === 'historico' && <ListaDeChamados lista={chamadosConcluidos} titulo={`Histórico da ${maquina.nome}`} mensagemVazia="Nenhum chamado concluído." />}
-            {activeTab === 'planos' && (
-              <div>
-                <div className={styles.planSection}>
-                  <h3>Planos Preditivos</h3>
-                  {planosPreditivos.length === 0 ? <p>Nenhum plano preditivo criado.</p> : (
-                    <ul className={styles.planList}>
-                      {planosPreditivos.map(plano => (
-                        <li key={plano.id} className={styles.planItem}>
-                          <strong>{plano.descricao}</strong>
-                          <span>A cada {plano.frequencia} dias</span>
-                          <div className={styles.planActions}>
-                            <button onClick={() => handleGerarChamado(plano, 'preditiva')} className={`${styles.actionButton} ${styles.generateButton}`}><FiSend /> Gerar</button>
-                            <Link to={`editar-plano-preditivo/${plano.id}`} className={`${styles.actionButton} ${styles.editButton}`}><FiEdit /> Editar</Link>
-                            <button onClick={() => handleExcluirPlano(plano.id, 'preditiva')} className={`${styles.actionButton} ${styles.deleteButton}`}><FiTrash2 /> Excluir</button>
-                          </div>
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                  <form onSubmit={handleCriarPlanoPreditivo} className={styles.form}>
-                    <h4>Criar Novo Plano Preditivo</h4>
-                    <div className={styles.formGroup}><label>Descrição da Tarefa</label><input value={descPreditiva} onChange={(e) => setDescPreditiva(e.target.value)} className={styles.input} required /></div>
-                    <div className={styles.formGroup}><label>Frequência (dias)</label><input type="number" value={freqPreditiva} onChange={(e) => setFreqPreditiva(e.target.value)} className={styles.input} required min="1" /></div>
-                    <button type="submit" className={styles.button}>Adicionar Plano</button>
-                  </form>
-                </div>
-                <div className={styles.planSection}>
-                  <h3>Planos Preventivos</h3>
-                  {planosPreventivos.length === 0 ? <p>Nenhum plano preventivo criado.</p> : (
-                    <ul className={styles.planList}>
-                      {planosPreventivos.map(plano => (
-                        <li key={plano.id} className={styles.planItem}>
-                          <strong>{plano.descricao}</strong>
-                          <span>Checklist: {plano.checklistNome}</span>
-                          <div className={styles.planActions}>
-                            <button onClick={() => handleGerarChamado(plano, 'preventiva')} className={`${styles.actionButton} ${styles.generateButton}`}><FiSend /> Gerar</button>
-                            <Link to={`editar-plano-preventivo/${plano.id}`} className={`${styles.actionButton} ${styles.editButton}`}><FiEdit /> Editar</Link>
-                            <button onClick={() => handleExcluirPlano(plano.id, 'preventiva')} className={`${styles.actionButton} ${styles.deleteButton}`}><FiTrash2 /> Excluir</button>
-                          </div>
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                  <form onSubmit={handleCriarPlanoPreventivo} className={styles.form}>
-                    <h4>Criar Novo Plano Preventivo</h4>
-                    <div className={styles.formGroup}><label>Checklist a ser usado</label><select value={checklistId} onChange={(e) => setChecklistId(e.target.value)} className={styles.select} required><option value="" disabled>Selecione...</option>{checklistTemplates.map(t => <option key={t.id} value={t.id}>{t.nome}</option>)}</select></div>
-                    <div className={styles.formGroup}><label>Descrição da Tarefa</label><input value={descPreventiva} onChange={(e) => setDescPreventiva(e.target.value)} className={styles.input} required /></div>
-                    <div className={styles.formGroup}><label>Frequência (dias)</label><input type="number" value={freqPreventiva} onChange={(e) => setFreqPreventiva(e.target.value)} className={styles.input} required min="1" /></div>
-                    <button type="submit" className={styles.button}>Adicionar Plano</button>
-                  </form>
-                </div>
+            
+            {activeTab === 'preditiva' && (
+              <div className={styles.planSection}>
+                <h3>Planos de Manutenção Preditiva</h3>
+                {planosPreditivos.length === 0 ? <p>Nenhum plano preditivo criado.</p> : (
+                  <ul className={styles.planList}>
+                    {planosPreditivos.map(plano => (
+                      <li key={plano.id} className={styles.planItem}>
+                        <strong>{plano.descricao}</strong>
+                        <span>A cada {plano.frequencia} dias</span>
+                        <div className={styles.planActions}>
+                          <button onClick={() => handleGerarChamado(plano, 'preditiva')} className={`${styles.actionButton} ${styles.generateButton}`}><FiSend /> Gerar</button>
+                          <Link to={`/editar-plano-preditivo/${plano.id}`} className={`${styles.actionButton} ${styles.editButton}`}><FiEdit /> Editar</Link>
+                          <button onClick={() => handleExcluirPlano(plano.id, 'preditiva')} className={`${styles.actionButton} ${styles.deleteButton}`}><FiTrash2 /> Excluir</button>
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+                <form onSubmit={handleCriarPlanoPreditivo} className={styles.form}>
+                  <h4>Criar Novo Plano Preditivo</h4>
+                  <div className={styles.formGroup}><label>Descrição da Tarefa</label><input value={descPreditiva} onChange={(e) => setDescPreditiva(e.target.value)} className={styles.input} required /></div>
+                  <div className={styles.formGroup}><label>Frequência (dias)</label><input type="number" value={freqPreditiva} onChange={(e) => setFreqPreditiva(e.target.value)} className={styles.input} required min="1" /></div>
+                  <button type="submit" className={styles.button}>Adicionar Plano</button>
+                </form>
+              </div>
+            )}
+            {activeTab === 'preventiva' && (
+              <div className={styles.planSection}>
+                <h3>Planos de Manutenção Preventiva</h3>
+                {planosPreventivos.length === 0 ? <p>Nenhum plano preventivo criado.</p> : (
+                  <ul className={styles.planList}>
+                    {planosPreventivos.map(plano => (
+                      <li key={plano.id} className={styles.planItem}>
+                        <strong>{plano.descricao}</strong>
+                        <span>Checklist: {plano.checklistNome}</span>
+                        <div className={styles.planActions}>
+                          <button onClick={() => handleGerarChamado(plano, 'preventiva')} className={`${styles.actionButton} ${styles.generateButton}`}><FiSend /> Gerar</button>
+                          <Link to={`/editar-plano-preventivo/${plano.id}`} className={`${styles.actionButton} ${styles.editButton}`}><FiEdit /> Editar</Link>
+                          <button onClick={() => handleExcluirPlano(plano.id, 'preventiva')} className={`${styles.actionButton} ${styles.deleteButton}`}><FiTrash2 /> Excluir</button>
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+                <form onSubmit={handleCriarPlanoPreventivo} className={styles.form}>
+                  <h4>Criar Novo Plano Preventivo</h4>
+                  <div className={styles.formGroup}><label>Checklist a ser usado</label><select value={checklistId} onChange={(e) => setChecklistId(e.target.value)} className={styles.select} required><option value="" disabled>Selecione...</option>{checklistTemplates.map(t => <option key={t.id} value={t.id}>{t.nome}</option>)}</select></div>
+                  <div className={styles.formGroup}><label>Descrição da Tarefa</label><input value={descPreventiva} onChange={(e) => setDescPreventiva(e.target.value)} className={styles.input} required /></div>
+                  <div className={styles.formGroup}><label>Frequência (dias)</label><input type="number" value={freqPreventiva} onChange={(e) => setFreqPreventiva(e.target.value)} className={styles.input} required min="1" /></div>
+                  <button type="submit" className={styles.button}>Adicionar Plano</button>
+                </form>
               </div>
             )}
 
@@ -482,13 +423,6 @@ const MaquinaDetalhePage = ({ user }) => {
               </div>
             </div>
           )}
-
-            {activeTab === 'operadores' && (
-              <div>
-                <TurnoUI nomeTurno="1º Turno (05:30 - 15:18)" numeroTurno={1} dados={operadoresPorTurno.turno1} />
-                <TurnoUI nomeTurno="2º Turno (15:18 - 00:48)" numeroTurno={2} dados={operadoresPorTurno.turno2} />
-              </div>
-            )}
           </div>
         </div>
       ) : (

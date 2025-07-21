@@ -87,7 +87,7 @@
   border-radius: 8px;
   border: 1px solid #eef0f3;
   box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-  margin-bottom: 20px;
+  /* A margem inferior foi removida, pois a aba já faz a separação */
 }
 .planSection h3 {
   margin-top: 0;
@@ -134,7 +134,7 @@
   display: flex;
   align-items: center;
   gap: 5px;
-  transition: background-color 0.2s;
+  transition: opacity 0.2s;
   text-decoration: none;
   color: white;
 }
@@ -150,8 +150,6 @@
 .actionButton:hover {
   opacity: 0.85;
 }
-
-/* --- ESTILOS PARA OS FORMULÁRIOS (SEÇÃO QUE FALTAVA) --- */
 .form {
   margin-top: 20px;
   padding-top: 20px;
@@ -186,13 +184,124 @@
   font-weight: bold;
 }
 
+/* --- Estilos para a aba de checklist --- */
+.checklistEditor {
+  background-color: #ffffff;
+  padding: 24px;
+  border-radius: 8px;
+  border: 1px solid #eef0f3;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+.checklistItemManage {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px;
+  border-bottom: 1px solid #f0f0f0;
+}
+.checklistItemManage:last-child {
+  border-bottom: none;
+}
+.checklistItemManage span {
+  flex-grow: 1;
+}
+.checklistInputForm {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+}
+.checklistInput {
+  flex-grow: 1;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+.checklistAddButton {
+  padding: 8px 15px;
+  border: none;
+  background-color: #28a745;
+  color: white;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+}
+.historyReport {
+  margin-top: 30px;
+  padding-top: 20px;
+  border-top: 1px dashed #ccc;
+}
+.dayEntry {
+  display: grid;
+  grid-template-columns: 1fr 2fr 2fr;
+  align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+.dayEntry:last-child {
+  border-bottom: none;
+}
+.dayHeader {
+  font-weight: bold;
+  color: #333;
+}
+.turnStatus {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.turnStatus.completed {
+  color: #28a745;
+}
+.turnStatus.pending {
+  color: #dc3545;
+}
+.clickable {
+  cursor: pointer;
+  border-radius: 4px;
+  padding: 4px 8px;
+  transition: background-color 0.2s;
+}
+.clickable:hover {
+  background-color: #f0f2f5;
+}
+.detailsList {
+  list-style: none;
+  padding: 0;
+  margin-top: 10px;
+}
+.detailItem {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+.detailItem:last-child {
+  border-bottom: none;
+}
+
 /* --- Estilos para a aba de operadores --- */
 .assignmentContainer {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 30px;
 }
-.column h3 {
+.turnoSection {
+  margin-bottom: 40px;
+  padding: 20px;
+  border: 1px solid #eef0f3;
+  border-radius: 8px;
+  background-color: #fdfdff;
+}
+.turnoSection:last-child {
+  margin-bottom: 0;
+}
+.turnoSection h3 {
+  margin-top: 0;
+  color: #4B70E2;
+  border-bottom: 1px solid #e0e0e0;
+  padding-bottom: 10px;
+}
+.column h4 {
   margin-top: 0;
   border-bottom: 1px solid #eee;
   padding-bottom: 10px;
@@ -234,129 +343,22 @@
   background-color: #e9ecef;
 }
 
-.checklistEditor {
-  background-color: #ffffff;
-  padding: 24px;
-  border-radius: 8px;
-  border: 1px solid #eef0f3;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+.corretiva {
+  border-left-color: #dc3545; 
+  border-left-width: 6px;
 }
 
-.checklistItemManage {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 8px;
-  border-bottom: 1px solid #f0f0f0;
+.preventiva {
+  border-left-color: #0d6efd; 
+  border-left-width: 6px;
 }
 
-.checklistItemManage:last-child {
-  border-bottom: none;
+.preditiva {
+  border-left-color: #ffc107; 
+  border-left-width: 6px;
 }
 
-.checklistItemManage span {
-  flex-grow: 1;
-}
-
-.checklistInputForm {
-  display: flex;
-  gap: 10px;
-  margin-top: 20px;
-}
-
-.checklistInput {
-  flex-grow: 1;
-  padding: 8px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-}
-
-.checklistAddButton {
-  padding: 8px 15px;
-  border: none;
-  background-color: #28a745; /* Verde */
-  color: white;
-  border-radius: 4px;
-  cursor: pointer;
-  font-weight: bold;
-}
-
-.turnoSection {
-  margin-bottom: 40px;
-  padding: 20px;
-  border: 1px solid #eef0f3;
-  border-radius: 8px;
-  background-color: #fdfdff;
-}
-
-.turnoSection:last-child {
-  margin-bottom: 0;
-}
-
-.turnoSection h3 {
-  margin-top: 0;
-  color: #4B70E2;
-}
-
-.historyReport {
-  margin-top: 20px;
-}
-
-.dayEntry {
-  display: grid;
-  grid-template-columns: 1fr 2fr 2fr;
-  align-items: center;
-  padding: 12px 16px;
-  border-bottom: 1px solid #f0f0f0;
-}
-.dayEntry:last-child {
-  border-bottom: none;
-}
-
-.dayHeader {
-  font-weight: bold;
-  color: #333;
-}
-
-.turnStatus {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.turnStatus.completed {
-  color: #28a745;
-}
-
-.turnStatus.pending {
-  color: #dc3545;
-}
-
-.clickable {
-  cursor: pointer;
-  border-radius: 4px;
-  padding: 4px 8px;
-  transition: background-color 0.2s;
-}
-
-.clickable:hover {
-  background-color: #f0f2f5;
-}
-
-/* Estilos para o conteúdo do Modal */
-.detailsList {
-  list-style: none;
-  padding: 0;
-  margin-top: 10px;
-}
-
-.detailItem {
-  display: flex;
-  justify-content: space-between;
-  padding: 8px 0;
-  border-bottom: 1px solid #f0f0f0;
-}
-
-.detailItem:last-child {
-  border-bottom: none;
+.normal {
+  border-left-color: #eef0f3; 
+  border-left-width: 6px;
 }
