@@ -24,6 +24,8 @@ import MaquinasLayout from '../pages/MaquinasLayout.jsx'; // O layout que tínha
 import ChecklistsLayout from '../pages/ChecklistsLayout.jsx';
 import HistoricoLayout from "../pages/HistoricoLayout.jsx";
 
+import logo from '../assets/logo-sidebar.png';
+
 const MainLayout = ({ user }) => {
   const handleLogout = () => {
     signOut(auth).catch((error) => console.error('Erro no logout: ', error));
@@ -34,7 +36,7 @@ const MainLayout = ({ user }) => {
       <aside className={styles.sidebar}>
         <div className={styles.sidebarHeader}>
           <Link to="/" style={{ textDecoration: 'none', color: 'inherit' }}>
-            <h2 className={styles.sidebarTitle}>Manutenção</h2>
+            <img src={logo} alt="Logo da Empresa" className={styles.sidebarLogo} />
           </Link>
         </div>
         <nav className={styles.nav}>

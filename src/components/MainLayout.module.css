@@ -117,3 +117,10 @@
   padding: 20px;
   flex: 1;
 }
+
+.sidebarLogo {
+  height: 70px; /* Ajuste a altura conforme necessário */
+  width: auto; /* A largura se ajustará automaticamente */
+  display: block;
+  margin: 0 auto; /* Centraliza o logo no cabeçalho */
+}
