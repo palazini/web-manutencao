@@ -1,66 +1,58 @@
 /* src/components/MainLayout.module.css */
 
-/* O contêiner principal agora ocupa 100% da tela e esconde o overflow */
 .layout {
   display: flex;
-  height: 100vh; /* Ocupa 100% da altura da tela */
-  overflow: hidden; /* Impede que o layout inteiro role */
+  height: 100vh;
+  overflow: hidden;
   background-color: #f7f8fc;
 }
 
-/* A sidebar agora tem uma altura fixa e não encolhe */
+/* --- BARRA LATERAL (VISÍVEL APENAS EM DESKTOPS) --- */
 .sidebar {
-  width: 250px;
+  width: 260px; /* Um pouco mais larga para melhor visualização */
   background-color: #ffffff;
   display: flex;
   flex-direction: column;
   border-right: 1px solid #e0e0e0;
-  flex-shrink: 0; /* Impede que a sidebar encolha */
+  flex-shrink: 0;
+  transition: width 0.3s ease; /* Animação suave */
 }
-
 .sidebarHeader {
   padding: 20px;
   border-bottom: 1px solid #e0e0e0;
+  text-align: center; /* Centraliza o logo/título */
 }
-
-.sidebarTitle {
-  margin: 0;
-  color: #333;
-  text-align: center;
+.sidebarLogo {
+  height: 70px;
+  width: auto;
 }
-
 .nav {
   flex-grow: 1;
-  padding: 20px 0;
+  padding: 15px 0;
 }
-
 .navLink {
   display: flex;
   align-items: center;
   padding: 12px 20px;
   text-decoration: none;
   color: #555;
-  border-radius: 5px;
-  margin: 5px 10px;
+  border-radius: 6px;
+  margin: 4px 10px;
   transition: background-color 0.2s, color 0.2s;
 }
-
 .navLink:hover {
   background-color: #f0f2f5;
   color: #4B70E2;
 }
-
 .activeLink {
   background-color: #e6eefc;
   color: #4B70E2;
   font-weight: bold;
 }
-
 .navIcon {
-  margin-right: 10px;
-  font-size: 18px;
+  margin-right: 12px;
+  font-size: 20px;
 }
-
 .navSectionTitle {
   padding: 10px 20px 5px 20px;
   margin-top: 15px;
@@ -69,7 +61,6 @@
   color: #888;
   text-transform: uppercase;
 }
-
 .userInfo {
   padding: 20px;
   border-top: 1px solid #e0e0e0;
@@ -77,50 +68,105 @@
   align-items: center;
   justify-content: space-between;
 }
-
 .userEmail {
-  font-size: 12px;
-  color: #666;
+  font-size: 14px;
+  color: #333;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-
 .logoutButton {
   background: none;
   border: none;
   cursor: pointer;
   color: #d32f2f;
-  font-size: 20px;
+  font-size: 22px;
 }
 
-/* A área de conteúdo principal agora é a única que pode rolar */
+/* --- ÁREA DE CONTEÚDO PRINCIPAL --- */
 .mainContent {
   flex: 1;
   display: flex;
   flex-direction: column;
-  overflow-y: auto; /* Adiciona a barra de rolagem vertical APENAS aqui */
-  overflow-x: hidden; /* Garante que não haverá rolagem horizontal */
+  overflow-y: auto;
+  overflow-x: hidden;
 }
-
 .header {
-  padding: 20px;
+  padding: 15px 20px;
   background-color: #ffffff;
   border-bottom: 1px solid #e0e0e0;
-  /* Adicionamos position sticky para o cabeçalho ficar fixo ao rolar */
   position: sticky;
   top: 0;
   z-index: 10;
+  display: flex; /* Para alinhar o botão de menu */
+  align-items: center;
 }
-
+.header h1 {
+  margin: 0;
+  font-size: 1.5rem;
+}
 .content {
   padding: 20px;
   flex: 1;
 }
 
-.sidebarLogo {
-  height: 70px; /* Ajuste a altura conforme necessário */
-  width: auto; /* A largura se ajustará automaticamente */
-  display: block;
-  margin: 0 auto; /* Centraliza o logo no cabeçalho */
+/* --- ESTILOS PARA O MENU MOBILE (HAMBÚRGUER) --- */
+.hamburgerButton {
+  display: none; /* Escondido por padrão em telas grandes */
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  margin-right: 15px;
+  font-size: 24px;
+  color: #333;
+}
+.mobileNav {
+  display: none; /* Escondido por padrão */
+}
+
+/* ======================================================= */
+/* --- MEDIA QUERY: ESTILOS PARA TELAS PEQUENAS --- */
+/* ======================================================= */
+@media (max-width: 768px) {
+  /* Esconde a barra lateral do desktop */
+  .sidebar {
+    display: none;
+  }
+
+  /* Mostra o botão de hambúrguer no cabeçalho */
+  .hamburgerButton {
+    display: block;
+  }
+
+  /* Estiliza o menu mobile (que aparece ao clicar) */
+  .mobileNav {
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    top: 0;
+    left: -100%; /* Começa fora da tela */
+    width: 280px;
+    height: 100%;
+    background-color: #ffffff;
+    z-index: 1000;
+    transition: left 0.3s ease-in-out;
+    box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+  }
+
+  /* Classe para mostrar o menu mobile */
+  .mobileNav.open {
+    left: 0;
+  }
+
+  /* Fundo escuro atrás do menu mobile */
+  .overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.5);
+    z-index: 999;
+  }
 }

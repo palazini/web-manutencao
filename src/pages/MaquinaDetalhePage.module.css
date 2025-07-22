@@ -15,6 +15,8 @@
 }
 
 .tabs {
+  flex-wrap: wrap; /* Permite quebra em telas pequenas */
+  gap: 8px; /* Espaço entre eles */
   display: flex;
   border-bottom: 1px solid #ccc;
   background-color: #f9f9f9;
@@ -361,4 +363,71 @@
 .normal {
   border-left-color: #eef0f3; 
   border-left-width: 6px;
+}
+
+@media (max-width: 768px) {
+  .header h1 {
+    font-size: 1.5rem;
+  }
+
+  /* Transforma a grade de duas colunas em uma única coluna */
+  .assignmentContainer {
+    grid-template-columns: 1fr;
+  }
+
+  /* Ajusta o relatório de checklist para telas pequenas */
+  .dayEntry {
+    grid-template-columns: 1fr; /* Cada item ocupa uma linha */
+    gap: 10px;
+    text-align: center;
+    padding: 16px 8px;
+  }
+
+  .dayHeader {
+    display: none; /* Esconde o cabeçalho da tabela em telas pequenas */
+  }
+
+  .turnStatus::before {
+    font-weight: bold;
+    margin-right: 8px;
+  }
+
+  /* Adiciona um label de texto antes do status de cada turno */
+  .dayEntry .turnStatus:nth-of-type(1)::before {
+    content: '1º Turno:';
+  }
+  .dayEntry .turnStatus:nth-of-type(2)::before {
+    content: '2º Turno:';
+  }
+}
+
+@media (max-width: 768px) {
+  .planItem {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .planItem span {
+    margin-bottom: 8px;
+  }
+  .planActions {
+    width: 100%;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+  }
+}
+
+@media (max-width: 768px) {
+  .formGroup {
+    width: 100%;
+  }
+}
+
+@media (max-width: 768px) {
+  .checklistInputForm {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .checklistAddButton {
+    width: 100%;
+  }
 }

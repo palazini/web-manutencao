@@ -69,3 +69,30 @@
   font-size: 1rem;
   font-weight: bold;
 }
+
+@media (max-width: 500px) {
+  .header h1 {
+    font-size: 1.5rem;
+  }
+
+  .cardTitle {
+    font-size: 1rem;
+  }
+
+  .cardDescription {
+    font-size: 0.85rem;
+  }
+
+  .cardIcon {
+    font-size: 1.8rem;
+  }
+
+  .actionsGrid {
+    grid-template-columns: 1fr; /* Uma coluna apenas */
+    gap: 16px;
+  }
+
+  .actionCard {
+    padding: 16px;
+  }
+}
