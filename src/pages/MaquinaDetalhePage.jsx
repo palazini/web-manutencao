@@ -1,12 +1,12 @@
 // src/pages/MaquinaDetalhePage.jsx
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { db } from '../firebase.js';
 import { doc, onSnapshot, collection, query, where, orderBy, updateDoc, arrayUnion, arrayRemove, addDoc, serverTimestamp, deleteDoc, getDoc } from 'firebase/firestore';
 import toast from 'react-hot-toast';
 import styles from './MaquinaDetalhePage.module.css';
-import { FiPlus, FiMinus, FiSend, FiEdit, FiTrash2, FiCheckCircle, FiXCircle, FiPrinter } from 'react-icons/fi';
+import { FiPlus, FiMinus, FiSend, FiEdit, FiTrash2, FiCheckCircle, FiXCircle, FiDownload } from 'react-icons/fi';
 import { AiOutlineQrcode } from 'react-icons/ai';
 import { QRCodeCanvas } from 'qrcode.react';
 import Modal from '../components/Modal.jsx'; 
@@ -24,6 +24,8 @@ const MaquinaDetalhePage = ({ user }) => {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('ativos');
   const [selectedSubmission, setSelectedSubmission] = useState(null);
+
+  const qrCodeRef = useRef(null);
 
   // Formulários
   const [freqPreditiva, setFreqPreditiva] = useState(30);
@@ -238,14 +240,18 @@ const MaquinaDetalhePage = ({ user }) => {
     }
   };
 
-  const handlePrintQRCode = () => {
-    const printArea = document.getElementById('qrCodePrintArea');
-    if (printArea) {
-      const originalContents = document.body.innerHTML;
-      document.body.innerHTML = printArea.innerHTML;
-      window.print();
-      document.body.innerHTML = originalContents;
-      window.location.reload();
+  const handleDownloadQRCode = () => {
+    const canvas = qrCodeRef.current.querySelector('canvas');
+    if (canvas) {
+      const pngUrl = canvas
+        .toDataURL("image/png")
+        .replace("image/png", "image/octet-stream");
+      let downloadLink = document.createElement("a");
+      downloadLink.href = pngUrl;
+      downloadLink.download = `${maquina.nome}-QRCode.png`;
+      document.body.appendChild(downloadLink);
+      downloadLink.click();
+      document.body.removeChild(downloadLink);
     }
   };
 
@@ -317,7 +323,7 @@ const MaquinaDetalhePage = ({ user }) => {
             <button className={`${styles.tabButton} ${activeTab === 'preventiva' ? styles.active : ''}`} onClick={() => setActiveTab('preventiva')}>Preventiva</button>
             <button className={`${styles.tabButton} ${activeTab === 'checklist' ? styles.active : ''}`} onClick={() => setActiveTab('checklist')}>Checklist Diário</button>
             {user.role === 'gestor' && (
-              <button className={`${styles.tabButton} ${activeTab === 'qrcode' ? styles.active : ''}`} onClick={() => setActiveTab('qrcode')}><AiOutlineQrcode /></button>
+              <button className={`${styles.tabButton} ${activeTab === 'qrcode' ? styles.active : ''}`} onClick={() => setActiveTab('qrcode')}>QR Code</button>
             )}
           </nav>
           <div className={styles.tabContent}>
@@ -441,9 +447,9 @@ const MaquinaDetalhePage = ({ user }) => {
           {activeTab === 'qrcode' && (
             <div className={styles.qrCodeSection}>
               <h3>QR Code para Acesso Rápido</h3>
-              <p>Escaneie este código com um telemóvel para abrir diretamente esta página.</p>
-              <div id="qrCodePrintArea" className={styles.printArea}>
-                <h2>{maquina.nome}</h2>
+              <p>Baixe este código e cole na máquina para acesso rápido ao prontuário.</p>
+              
+              <div ref={qrCodeRef} className={styles.qrCodeCanvas}>
                 <QRCodeCanvas 
                   value={`${window.location.origin}/maquinas/${id}`} 
                   size={256}
@@ -451,11 +457,11 @@ const MaquinaDetalhePage = ({ user }) => {
                   fgColor={"#000000"}
                   level={"L"}
                   includeMargin={true}
-                  className={styles.qrCodeCanvas}
                 />
               </div>
-              <button onClick={handlePrintQRCode} className={styles.printButton}>
-                <FiPrinter /> Imprimir Etiqueta
+
+              <button onClick={handleDownloadQRCode} className={styles.downloadButton}>
+                <FiDownload /> Baixar QR Code
               </button>
             </div>
           )}

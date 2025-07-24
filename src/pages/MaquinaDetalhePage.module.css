@@ -433,40 +433,39 @@
 }
 
 .qrCodeSection {
-  margin-top: 20px;
-  padding: 20px;
-  background-color: #f9f9f9;
-  border-radius: 8px;
+  display: flex; /* Adicionamos flexbox */
+  flex-direction: column; /* Para alinhar os itens em coluna */
+  align-items: center; /* Para centralizar horizontalmente */
+  gap: 0px; /* Espaço entre o QR Code e o botão */
   text-align: center;
+  padding: 20px;
+  background-color: #ffffff;
+  border-radius: 8px;
+  border: 1px solid #eef0f3;
+}
+
+.qrCodeSection h3 {
+  margin-top: 0;
 }
 
 .qrCodeCanvas {
-  padding: 10px;
+  padding: 15px;
   background-color: white;
   border-radius: 8px;
+  display: inline-block;
+  border: 1px solid #eee;
 }
 
-.printButton {
-  margin-top: 15px;
+.downloadButton { /* Renomeado de printButton para clareza */
+  margin-top: 20px;
   padding: 10px 20px;
   border: none;
   border-radius: 4px;
-  background-color: #007bff;
+  background-color: #4B70E2;
   color: white;
   cursor: pointer;
-}
-
-/* Estilos que só se aplicam durante a impressão */
-@media print {
-  body * {
-    visibility: hidden; /* Esconde tudo na página */
-  }
-  .printArea, .printArea * {
-    visibility: visible; /* Mostra apenas a área de impressão */
-  }
-  .printArea {
-    position: absolute;
-    left: 0;
-    top: 0;
-  }
+  font-weight: bold;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
 }
