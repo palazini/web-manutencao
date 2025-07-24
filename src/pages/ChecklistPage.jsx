@@ -59,7 +59,7 @@ const ChecklistPage = ({ user }) => {
             maquina: maquina.nome,
             descricao: `Item do checklist diário reportado como "Não": "${pergunta}"`,
             status: "Aberto",
-            tipo: "corretiva",
+            tipo: "preditiva",
             operadorId: user.uid,
             operadorNome: user.nome,
             dataAbertura: serverTimestamp(),
