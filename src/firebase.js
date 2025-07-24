@@ -25,4 +25,7 @@ const auth = getAuth(app);
 
 const db = getFirestore(app); // 2. INICIALIZAR O FIRESTORE
 
-export { auth, db }; // 3. EXPORTAR O 'db' JUNTO COM O 'auth'
+const secondaryApp = initializeApp(firebaseConfig, "Secondary");
+const secondaryAuth = getAuth(secondaryApp);
+
+export { auth, db, secondaryAuth };

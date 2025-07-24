@@ -20,6 +20,7 @@ import ChecklistLayout from '../pages/ChecklistLayout.jsx';
 import MaquinasLayout from '../pages/MaquinasLayout.jsx';
 import HistoricoLayout from "../pages/HistoricoLayout.jsx";
 import AnaliseFalhasPage from '../pages/AnaliseFalhasPage.jsx'; // NOVO
+import GerirUtilizadoresPage from '../pages/GerirUtilizadoresPage.jsx';
 
 import logo from '../assets/logo-sidebar.png';
 
@@ -79,6 +80,12 @@ const MainLayout = ({ user }) => {
           <NavLink to="/analise-falhas" className={({ isActive }) => isActive ? `${styles.navLink} ${styles.activeLink}` : styles.navLink}>
             <FiBarChart2 className={styles.navIcon} />
             <span>Análise de Falhas</span>
+          </NavLink>
+
+          <h3 className={styles.navSectionTitle}>Gerenciar Colaboradores</h3>
+          <NavLink to="/gerir-utilizadores" className={({ isActive }) => isActive ? `${styles.navLink} ${styles.activeLink}` : styles.navLink}>
+            <FiUsers className={styles.navIcon} />
+            <span>Gerir Utilizadores</span>
           </NavLink>
         </>
       )}
@@ -163,8 +170,10 @@ const MainLayout = ({ user }) => {
             <Route path="editar/:id" element={<EditarChecklistPage />} />
           </Route>
 
-          {/* NOVA ROTA */}
           <Route path="/analise-falhas" element={<AnaliseFalhasPage />} />
+
+          <Route path="/gerir-utilizadores" element={<GerirUtilizadoresPage />} />
+
         </Routes>
       </main>
     </div>
