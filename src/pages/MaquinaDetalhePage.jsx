@@ -445,7 +445,7 @@ const MaquinaDetalhePage = ({ user }) => {
               <div id="qrCodePrintArea" className={styles.printArea}>
                 <h2>{maquina.nome}</h2>
                 <QRCodeCanvas 
-                  value={`${window.location.origin}/maquina/${id}`} 
+                  value={`${window.location.origin}/maquinas/${id}`} 
                   size={256}
                   bgColor={"#ffffff"}
                   fgColor={"#000000"}
