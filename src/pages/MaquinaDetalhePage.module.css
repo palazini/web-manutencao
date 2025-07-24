@@ -431,3 +431,42 @@
     width: 100%;
   }
 }
+
+.qrCodeSection {
+  margin-top: 20px;
+  padding: 20px;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  text-align: center;
+}
+
+.qrCodeCanvas {
+  padding: 10px;
+  background-color: white;
+  border-radius: 8px;
+}
+
+.printButton {
+  margin-top: 15px;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 4px;
+  background-color: #007bff;
+  color: white;
+  cursor: pointer;
+}
+
+/* Estilos que só se aplicam durante a impressão */
+@media print {
+  body * {
+    visibility: hidden; /* Esconde tudo na página */
+  }
+  .printArea, .printArea * {
+    visibility: visible; /* Mostra apenas a área de impressão */
+  }
+  .printArea {
+    position: absolute;
+    left: 0;
+    top: 0;
+  }
+}

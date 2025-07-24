@@ -46,6 +46,7 @@ const OperatorDashboard = ({ user }) => {
         maquina,
         descricao,
         status: 'Aberto',
+        tipo: 'corretiva',
         operadorId: user.uid,
         operadorEmail: user.email,
         operadorNome: user.nome,

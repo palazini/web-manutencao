@@ -2,7 +2,7 @@ import React, { useState } from 'react'; // Adicionado useState
 import { Routes, Route, NavLink, Link } from 'react-router-dom';
 import { auth } from '../firebase';
 import { signOut } from 'firebase/auth';
-import { FiHome, FiLogOut, FiCheckSquare, FiUser, FiCalendar, FiList, FiClock, FiUsers, FiServer, FiEdit, FiCheckCircle, FiMenu, FiX } from 'react-icons/fi';
+import { FiHome, FiLogOut, FiCheckSquare, FiUser, FiCalendar, FiList, FiClock, FiUsers, FiServer, FiEdit, FiCheckCircle, FiMenu, FiX, FiBarChart2 } from 'react-icons/fi';
 import styles from './MainLayout.module.css';
 
 import OperatorDashboard from './OperatorDashboard.jsx';
@@ -19,6 +19,7 @@ import EditarPlanoPreventivoPage from '../pages/EditarPlanoPreventivoPage.jsx';
 import ChecklistLayout from '../pages/ChecklistLayout.jsx';
 import MaquinasLayout from '../pages/MaquinasLayout.jsx';
 import HistoricoLayout from "../pages/HistoricoLayout.jsx";
+import AnaliseFalhasPage from '../pages/AnaliseFalhasPage.jsx'; // NOVO
 
 import logo from '../assets/logo-sidebar.png';
 
@@ -66,10 +67,20 @@ const MainLayout = ({ user }) => {
       )}
 
       {user.role === 'gestor' && (
-        <NavLink to="/gerenciar-checklists" className={({ isActive }) => isActive ? `${styles.navLink} ${styles.activeLink}` : styles.navLink}>
-          <FiList className={styles.navIcon} />
-          <span>Checklists de Tarefas</span>
-        </NavLink>
+        <>
+          <h3 className={styles.navSectionTitle}>Checklists</h3>
+          <NavLink to="/gerenciar-checklists" className={({ isActive }) => isActive ? `${styles.navLink} ${styles.activeLink}` : styles.navLink}>
+            <FiList className={styles.navIcon} />
+            <span>Checklists de Tarefas</span>
+          </NavLink>
+
+          {/* NOVA SEÇÃO DE ANÁLISE */}
+          <h3 className={styles.navSectionTitle}>Análises e KPIs</h3>
+          <NavLink to="/analise-falhas" className={({ isActive }) => isActive ? `${styles.navLink} ${styles.activeLink}` : styles.navLink}>
+            <FiBarChart2 className={styles.navIcon} />
+            <span>Análise de Falhas</span>
+          </NavLink>
+        </>
       )}
     </>
   );
@@ -151,6 +162,9 @@ const MainLayout = ({ user }) => {
             <Route index element={<GerenciarChecklistsPage />} />
             <Route path="editar/:id" element={<EditarChecklistPage />} />
           </Route>
+
+          {/* NOVA ROTA */}
+          <Route path="/analise-falhas" element={<AnaliseFalhasPage />} />
         </Routes>
       </main>
     </div>

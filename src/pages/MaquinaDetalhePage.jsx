@@ -6,7 +6,9 @@ import { db } from '../firebase.js';
 import { doc, onSnapshot, collection, query, where, orderBy, updateDoc, arrayUnion, arrayRemove, addDoc, serverTimestamp, deleteDoc, getDoc } from 'firebase/firestore';
 import toast from 'react-hot-toast';
 import styles from './MaquinaDetalhePage.module.css';
-import { FiPlus, FiMinus, FiSend, FiEdit, FiTrash2, FiCheckCircle, FiXCircle } from 'react-icons/fi';
+import { FiPlus, FiMinus, FiSend, FiEdit, FiTrash2, FiCheckCircle, FiXCircle, FiPrinter } from 'react-icons/fi';
+import { AiOutlineQrcode } from 'react-icons/ai';
+import { QRCodeCanvas } from 'qrcode.react';
 import Modal from '../components/Modal.jsx'; 
 
 const MaquinaDetalhePage = ({ user }) => {
@@ -236,11 +238,20 @@ const MaquinaDetalhePage = ({ user }) => {
     }
   };
 
+  const handlePrintQRCode = () => {
+    const printArea = document.getElementById('qrCodePrintArea');
+    if (printArea) {
+      const originalContents = document.body.innerHTML;
+      document.body.innerHTML = printArea.innerHTML;
+      window.print();
+      document.body.innerHTML = originalContents;
+      window.location.reload();
+    }
+  };
+
 
   if (loading) return <p style={{ padding: '20px' }}>Carregando dados da máquina...</p>;
   if (!maquina) return <p style={{ padding: '20px' }}>Máquina não encontrada.</p>;
-
-  console.log("Dados do Histórico de Checklist:", historicoChecklist);
 
   const HistoricoDaMaquina = () => (
     <div>
@@ -305,6 +316,9 @@ const MaquinaDetalhePage = ({ user }) => {
             <button className={`${styles.tabButton} ${activeTab === 'preditiva' ? styles.active : ''}`} onClick={() => setActiveTab('preditiva')}>Preditiva</button>
             <button className={`${styles.tabButton} ${activeTab === 'preventiva' ? styles.active : ''}`} onClick={() => setActiveTab('preventiva')}>Preventiva</button>
             <button className={`${styles.tabButton} ${activeTab === 'checklist' ? styles.active : ''}`} onClick={() => setActiveTab('checklist')}>Checklist Diário</button>
+            {user.role === 'gestor' && (
+              <button className={`${styles.tabButton} ${activeTab === 'qrcode' ? styles.active : ''}`} onClick={() => setActiveTab('qrcode')}><AiOutlineQrcode /></button>
+            )}
           </nav>
           <div className={styles.tabContent}>
             {activeTab === 'ativos' && <ListaDeChamados lista={chamadosAtivos} titulo={`Chamados Ativos da ${maquina.nome}`} mensagemVazia="Nenhum chamado ativo." />}
@@ -423,6 +437,29 @@ const MaquinaDetalhePage = ({ user }) => {
               </div>
             </div>
           )}
+
+          {activeTab === 'qrcode' && (
+            <div className={styles.qrCodeSection}>
+              <h3>QR Code para Acesso Rápido</h3>
+              <p>Escaneie este código com um telemóvel para abrir diretamente esta página.</p>
+              <div id="qrCodePrintArea" className={styles.printArea}>
+                <h2>{maquina.nome}</h2>
+                <QRCodeCanvas 
+                  value={`${window.location.origin}/maquina/${id}`} 
+                  size={256}
+                  bgColor={"#ffffff"}
+                  fgColor={"#000000"}
+                  level={"L"}
+                  includeMargin={true}
+                  className={styles.qrCodeCanvas}
+                />
+              </div>
+              <button onClick={handlePrintQRCode} className={styles.printButton}>
+                <FiPrinter /> Imprimir Etiqueta
+              </button>
+            </div>
+          )}
+
           </div>
         </div>
       ) : (

@@ -1,0 +1,13 @@
+/* src/pages/AnaliseFalhasPage.module.css */
+
+.card {
+  background-color: #ffffff;
+  border-radius: 8px;
+  padding: 24px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.chartContainer {
+  height: 500px; /* Define uma altura para o container do gráfico */
+  position: relative;
+}
