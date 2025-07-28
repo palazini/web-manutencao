@@ -1,0 +1,81 @@
+.planSection {
+  padding: 0 20px;
+}
+
+.legend {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 8px;
+}
+
+.legendBox {
+  width: 16px;
+  height: 16px;
+  display: inline-block;
+  margin-right: 4px;
+}
+
+/* remove a marcação azul do "hoje" */
+:global(.rbc-today) {
+  background-color: transparent !important;
+}
+
+/* opcional, para garantir o wrapper */
+.calendarWrapper {
+  padding-bottom: 20px;
+}
+
+/* estilização básica do evento */
+.eventoNoCalendario {
+  padding: 2px 4px;
+  font-size: 0.85em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+
+.legend      { display:flex; gap:1rem; margin-bottom:1rem; }
+.legendBox   { width:16px; height:16px; display:inline-block; margin-right:4px; }
+
+.eventoNoCalendario { padding:2px 4px; font-size:0.85em; }
+
+.calendarContainer {
+  background: #fff;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 16px;
+  margin: 16px;   
+}
+
+/* empurra a legenda para perto do calendário */
+.legend {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 12px;
+}
+
+.legendBox {
+  width: 16px;
+  height: 16px;
+  display: inline-block;
+  margin-right: 4px;
+}
+
+:global(.rbc-agenda-time-header) {
+  display: none;
+}
+
+/* opcional: garante que as células de horário não ocupem espaço */
+:global(.rbc-agenda-time-cell) {
+  display: none;
+}
+
+:global(.rbc-agenda-view thead th:nth-child(2)) {
+  display: none;
+}
+
+/* já tínhamos isto para remover as células de hora */
+:global(.rbc-agenda-view .rbc-agenda-time-cell) {
+  display: none;
+}

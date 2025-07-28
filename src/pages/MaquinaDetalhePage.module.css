@@ -469,3 +469,86 @@
   align-items: center;
   gap: 8px;
 }
+
+.eventoNoCalendario {
+  font-size: 0.8rem;
+  padding: 2px 5px;
+}
+
+.modalDetails h4 {
+  margin-top: 0;
+  font-size: 1.1rem;
+  color: #333;
+}
+
+.modalDetails p {
+  font-size: 1rem;
+  color: #555;
+}
+
+.modalChecklist {
+  list-style: none;
+  padding: 0;
+  margin-top: 15px;
+}
+
+.modalChecklistItem {
+  padding: 8px 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+.modalChecklistItem:last-child {
+  border-bottom: none;
+}
+
+.modalButton {
+  width: 100%;
+  padding: 12px;
+  border: none;
+  border-radius: 4px;
+  background-color: #28a745; /* Verde para ação positiva */
+  color: white;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: bold;
+  margin-top: 20px;
+}
+
+.modalDetails { padding: 1rem; }
+.modalChecklist { list-style: disc; margin-left: 1.5rem; }
+.modalChecklistItem { margin-bottom: 0.5rem; }
+.modalButton { margin-top: 1rem; }
+
+.inlineForm {
+  background: #f9f9f9;
+  border: 1px solid #ddd;
+  padding: 1rem;
+  margin-top: 1rem;
+  border-radius: 4px;
+}
+.inlineButtons {
+  margin-top: 0.5rem;
+  display: flex;
+  gap: 0.5rem;
+}
+.buttonSecondary {
+  background: transparent;
+  border: 1px solid #ccc;
+}
+
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+.legendBox {
+  width: 16px;
+  height: 16px;
+  display: inline-block;
+  vertical-align: middle;
+  margin-right: 4px;
+}
+
+.rbc-toolbar .rbc-btn-group:nth-child(2) {
+  display: none;
+}

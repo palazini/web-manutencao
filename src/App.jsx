@@ -6,6 +6,8 @@ import { Toaster } from 'react-hot-toast';
 import { auth, db } from './firebase.js';
 import { onAuthStateChanged } from 'firebase/auth';
 import { doc, getDoc } from 'firebase/firestore';
+import { DndProvider } from 'react-dnd';
+import { HTML5Backend } from 'react-dnd-html5-backend';
 
 import LoginPage from './components/LoginPage.jsx';
 import MainLayout from './components/MainLayout.jsx';
@@ -49,7 +51,7 @@ function App() {
   }
   
   return (
-    <>
+    <DndProvider backend={HTML5Backend}>
       <Toaster position="top-right" />
       <Routes>
         {user ? (
@@ -74,7 +76,7 @@ function App() {
           <Route path="/*" element={<LoginPage />} />
         )}
       </Routes>
-    </>
+    </DndProvider>
   );
 }
 

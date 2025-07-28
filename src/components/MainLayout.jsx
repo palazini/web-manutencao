@@ -12,15 +12,11 @@ import InicioPage from '../pages/InicioPage.jsx';
 import ChamadoDetalhe from '../pages/ChamadoDetalhe.jsx';
 import HistoricoPage from '../pages/HistoricoPage.jsx';
 import PerfilPage from '../pages/PerfilPage.jsx';
-import GerenciarChecklistsPage from '../pages/GerenciarChecklistsPage.jsx';
-import EditarChecklistPage from '../pages/EditarChecklistPage.jsx';
-import EditarPlanoPreditivoPage from '../pages/EditarPlanoPreditivoPage.jsx';
-import EditarPlanoPreventivoPage from '../pages/EditarPlanoPreventivoPage.jsx';
-import ChecklistLayout from '../pages/ChecklistLayout.jsx';
 import MaquinasLayout from '../pages/MaquinasLayout.jsx';
 import HistoricoLayout from "../pages/HistoricoLayout.jsx";
 import AnaliseFalhasPage from '../pages/AnaliseFalhasPage.jsx'; // NOVO
 import GerirUtilizadoresPage from '../pages/GerirUtilizadoresPage.jsx';
+import CalendarioGeralPage from '../pages/CalendarioGeralPage.jsx';
 
 import logo from '../assets/logo-sidebar.png';
 
@@ -61,6 +57,13 @@ const MainLayout = ({ user }) => {
       )}
 
       {(user.role === 'manutentor' || user.role === 'gestor') && (
+            <NavLink to="/calendario-geral" className={({ isActive }) => isActive ? `${styles.navLink} ${styles.activeLink}` : styles.navLink}>
+              <FiCalendar className={styles.navIcon} />
+              <span>Calendário Geral</span>
+            </NavLink>
+      )}
+
+      {(user.role === 'manutentor' || user.role === 'gestor') && (
         <NavLink to="/historico" className={({ isActive }) => isActive ? `${styles.navLink} ${styles.activeLink}` : styles.navLink}>
           <FiCheckSquare className={styles.navIcon} />
           <span>Histórico</span>
@@ -69,12 +72,6 @@ const MainLayout = ({ user }) => {
 
       {user.role === 'gestor' && (
         <>
-          <h3 className={styles.navSectionTitle}>Checklists</h3>
-          <NavLink to="/gerenciar-checklists" className={({ isActive }) => isActive ? `${styles.navLink} ${styles.activeLink}` : styles.navLink}>
-            <FiList className={styles.navIcon} />
-            <span>Checklists de Tarefas</span>
-          </NavLink>
-
           {/* NOVA SEÇÃO DE ANÁLISE */}
           <h3 className={styles.navSectionTitle}>Análises e KPIs</h3>
           <NavLink to="/analise-falhas" className={({ isActive }) => isActive ? `${styles.navLink} ${styles.activeLink}` : styles.navLink}>
@@ -154,8 +151,6 @@ const MainLayout = ({ user }) => {
           <Route path="/maquinas/*" element={<MaquinasLayout />}>
             <Route index element={<MaquinasPage />} />
             <Route path=":id" element={<MaquinaDetalhePage user={user} />} />
-            <Route path=":maquinaId/editar-plano-preditivo/:planoId" element={<EditarPlanoPreditivoPage />} />
-            <Route path=":maquinaId/editar-plano-preventivo/:planoId" element={<EditarPlanoPreventivoPage />} />
           </Route>
 
           <Route path="/perfil" element={<PerfilPage user={user} />} />
@@ -165,12 +160,9 @@ const MainLayout = ({ user }) => {
             <Route path="chamado/:id" element={<ChamadoDetalhe user={user} />} />
           </Route>
 
-          <Route path="/gerenciar-checklists/*" element={<ChecklistLayout />}>
-            <Route index element={<GerenciarChecklistsPage />} />
-            <Route path="editar/:id" element={<EditarChecklistPage />} />
-          </Route>
-
           <Route path="/analise-falhas" element={<AnaliseFalhasPage />} />
+
+          <Route path="/calendario-geral" element={<CalendarioGeralPage />} />
 
           <Route path="/gerir-utilizadores" element={<GerirUtilizadoresPage />} />
 

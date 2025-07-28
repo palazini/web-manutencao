@@ -1,6 +1,6 @@
 // src/pages/MaquinaDetalhePage.jsx
 
-import React, { useState, useEffect, useMemo, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { db } from '../firebase.js';
 import { doc, onSnapshot, collection, query, where, orderBy, updateDoc, arrayUnion, arrayRemove, addDoc, serverTimestamp, deleteDoc, getDoc } from 'firebase/firestore';
@@ -10,16 +10,31 @@ import { FiPlus, FiMinus, FiSend, FiEdit, FiTrash2, FiCheckCircle, FiXCircle, Fi
 import { AiOutlineQrcode } from 'react-icons/ai';
 import { QRCodeCanvas } from 'qrcode.react';
 import Modal from '../components/Modal.jsx'; 
+import { Calendar } from 'react-big-calendar'
+import withDragAndDrop from 'react-big-calendar/lib/addons/dragAndDrop'
+import 'react-big-calendar/lib/addons/dragAndDrop/styles.css'
+import { dateFnsLocalizer } from 'react-big-calendar'
+import { ptBR } from 'date-fns/locale';
+import { format, parse, startOfWeek, getDay } from 'date-fns';
+import moment from 'moment';
+import 'moment/locale/pt-br';
+
+
+const locales = { 'pt-BR': ptBR };
+const localizer = dateFnsLocalizer({
+  format,
+  parse: (value, formatStr) => parse(value, formatStr, new Date(), { locale: ptBR }),
+  startOfWeek: () => startOfWeek(new Date(), { locale: ptBR }),
+  getDay,
+  locales,
+});
+const DnDCalendar = withDragAndDrop(Calendar)
 
 const MaquinaDetalhePage = ({ user }) => {
   const { id } = useParams();
   const [maquina, setMaquina] = useState(null);
   const [chamadosConcluidos, setChamadosConcluidos] = useState([]);
   const [chamadosAtivos, setChamadosAtivos] = useState([]);
-  const [todosOperadores, setTodosOperadores] = useState([]);
-  const [planosPreditivos, setPlanosPreditivos] = useState([]);
-  const [planosPreventivos, setPlanosPreventivos] = useState([]);
-  const [checklistTemplates, setChecklistTemplates] = useState([]);
   const [historicoChecklist, setHistoricoChecklist] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('ativos');
@@ -27,13 +42,18 @@ const MaquinaDetalhePage = ({ user }) => {
 
   const qrCodeRef = useRef(null);
 
+
   // Formulários
-  const [freqPreditiva, setFreqPreditiva] = useState(30);
-  const [descPreditiva, setDescPreditiva] = useState('');
-  const [freqPreventiva, setFreqPreventiva] = useState(30);
-  const [descPreventiva, setDescPreventiva] = useState('');
-  const [checklistId, setChecklistId] = useState('');
   const [novoItemChecklist, setNovoItemChecklist] = useState('');
+  const [eventosPreventivos, setEventosPreventivos] = useState([]);
+  const [agendamentos, setAgendamentos] = useState([]);
+  const [modalAgendamentoOpen, setModalAgendamentoOpen] = useState(false);
+  const [dadosAgendamento, setDadosAgendamento] = useState(null);
+  const [descAgendamento, setDescAgendamento] = useState('');
+  const [itensChecklistAgendamento, setItensChecklistAgendamento] = useState('');
+  const [eventoSelecionado, setEventoSelecionado] = useState(null);
+  const [currentDate, setCurrentDate] = useState(new Date());
+  const [view, setView]           = useState('month');
 
   useEffect(() => {
     const maquinaDocRef = doc(db, 'maquinas', id);
@@ -41,6 +61,22 @@ const MaquinaDetalhePage = ({ user }) => {
       if (doc.exists()) {
         const maquinaData = { id: doc.id, ...doc.data() };
         setMaquina(maquinaData);
+
+        const agendamentosQuery = query(collection(db, 'agendamentosPreventivos'), where('maquinaId', '==', maquinaData.id));
+        const unsubAgendamentos = onSnapshot(agendamentosQuery, (snapshot) => {
+          const eventos = snapshot.docs.map(d => {
+            const data = d.data();
+            return {
+              id: d.id,
+              title: data.descricao,
+              start: data.start.toDate(),
+              end: data.end.toDate(),
+              allDay: true,
+              resource: data, 
+            };
+          });
+          setAgendamentos(eventos);
+        });
 
         const ativosQuery = query(collection(db, 'chamados'), where('maquina', '==', maquinaData.nome), where('status', 'in', ['Aberto', 'Em Andamento']), orderBy('dataAbertura', 'desc'));
         const unsubAtivos = onSnapshot(ativosQuery, (snapshot) => {
@@ -52,11 +88,22 @@ const MaquinaDetalhePage = ({ user }) => {
           setChamadosConcluidos(snapshot.docs.map(d => ({ id: d.id, ...d.data() })));
         });
 
-        const preditivosQuery = query(collection(db, 'planosPreditivos'), where('maquina', '==', maquinaData.nome));
-        const unsubPreditivos = onSnapshot(preditivosQuery, (snapshot) => setPlanosPreditivos(snapshot.docs.map(d => ({ id: d.id, ...d.data() }))));
-
-        const preventivosQuery = query(collection(db, 'planosPreventivos'), where('maquina', '==', maquinaData.nome));
-        const unsubPreventivos = onSnapshot(preventivosQuery, (snapshot) => setPlanosPreventivos(snapshot.docs.map(d => ({ id: d.id, ...d.data() }))));
+        const planosQuery = query(collection(db, 'planosPreventivos'), where('maquina', '==', maquinaData.nome));
+        const unsubPlanos = onSnapshot(planosQuery, (snapshot) => {
+          const eventos = snapshot.docs.map((doc) => {
+            const data = doc.data();
+            const proximaData = data.proximaData?.toDate?.() || null;
+            return {
+              id: doc.id,
+              title: data.descricao,
+              start: proximaData || new Date(),
+              end: proximaData || new Date(),
+              allDay: true,
+              resource: data,
+            };
+          });
+          setEventosPreventivos(eventos);
+        });
 
         const hoje = new Date();
         const dataInicio = new Date();
@@ -68,98 +115,13 @@ const MaquinaDetalhePage = ({ user }) => {
         });
 
         setLoading(false);
-        return () => { unsubAtivos(); unsubConcluidos(); unsubPreditivos(); unsubPreventivos(); unsubSubmissoes(); };
+        return () => { unsubAtivos(); unsubConcluidos(); unsubPlanos(); unsubAgendamentos(); unsubSubmissoes(); };
       } else {
         setMaquina(null); setLoading(false);
       }
     });
-    
-    const checklistsQuery = query(collection(db, 'checklistTemplates'));
-    const unsubChecklists = onSnapshot(checklistsQuery, (snapshot) => setChecklistTemplates(snapshot.docs.map(d => ({ id: d.id, ...d.data() }))));
-    
-    return () => { unsubMaquina(); unsubChecklists(); };
+    return () => { unsubMaquina(); };
   }, [id]);
-  
-
-  const handleCriarPlanoPreditivo = async (e) => {
-    e.preventDefault();
-    if (!descPreditiva) return toast.error('A descrição é obrigatória.');
-    try {
-      await addDoc(collection(db, 'planosPreditivos'), {
-        maquina: maquina.nome,
-        descricao: descPreditiva,
-        frequencia: Number(freqPreditiva),
-        dataUltimaManutencao: null,
-        proximaData: null,
-        ativo: true,
-      });
-      toast.success('Plano Preditivo criado!');
-      setDescPreditiva('');
-    } catch (error) { toast.error('Erro ao criar plano.'); }
-  };
-
-  const handleCriarPlanoPreventivo = async (e) => {
-    e.preventDefault();
-    if (!descPreventiva || !checklistId) return toast.error('Todos os campos são obrigatórios.');
-    const checklistSelecionado = checklistTemplates.find(c => c.id === checklistId);
-    try {
-      await addDoc(collection(db, 'planosPreventivos'), {
-        maquina: maquina.nome,
-        descricao: descPreventiva,
-        frequencia: Number(freqPreventiva),
-        checklistId: checklistId,
-        checklistNome: checklistSelecionado.nome,
-        ativo: true,
-        proximaData: null,
-        dataUltimaManutencao: null,
-      });
-      toast.success('Plano Preventivo criado!');
-      setDescPreventiva('');
-      setChecklistId('');
-    } catch (error) { toast.error('Erro ao criar plano.'); }
-  };
-
-  const handleGerarChamado = async (plano, tipo) => {
-    const tipoChamado = tipo === 'preditiva' ? 'Preditiva' : 'Preventiva';
-    if (!window.confirm(`Gerar chamado para a manutenção ${tipoChamado.toLowerCase()} "${plano.descricao}"?`)) return;
-    try {
-      let novoChamado = {
-        maquina: plano.maquina,
-        descricao: `Manutenção ${tipo}: ${plano.descricao}`,
-        status: "Aberto",
-        tipo: tipo,
-        planoId: plano.id,
-        operadorNome: "Sistema (Plano)",
-        dataAbertura: serverTimestamp(),
-      };
-      if (tipo === 'preventiva') {
-        const checklistTemplateDoc = await getDoc(doc(db, "checklistTemplates", plano.checklistId));
-        if (checklistTemplateDoc.exists()) {
-          novoChamado.checklist = checklistTemplateDoc.data().itens.map(item => ({ item, concluido: false }));
-        } else {
-          toast.error("Modelo de checklist associado a este plano não foi encontrado!");
-          return;
-        }
-      }
-      await addDoc(collection(db, 'chamados'), novoChamado);
-      toast.success(`Chamado ${tipo} gerado com sucesso!`);
-    } catch (error) {
-      console.error("Erro ao gerar chamado: ", error);
-      toast.error("Erro ao gerar chamado.");
-    }
-  };
-
-  const handleExcluirPlano = async (planoId, tipo) => {
-    const collectionName = tipo === 'preditiva' ? 'planosPreditivos' : 'planosPreventivos';
-    if (!window.confirm("Tem certeza que deseja excluir este plano? Esta ação não pode ser desfeita.")) return;
-    try {
-      await deleteDoc(doc(db, collectionName, planoId));
-      toast.success("Plano excluído com sucesso.");
-    } catch (error) {
-      console.error("Erro ao excluir plano: ", error);
-      toast.error("Erro ao excluir plano.");
-    }
-  };
 
   const handleAdicionarItemChecklist = async () => {
     if (novoItemChecklist.trim() === '') {
@@ -235,7 +197,6 @@ const MaquinaDetalhePage = ({ user }) => {
     switch(tipo) {
       case 'corretiva': return styles.corretiva;
       case 'preventiva': return styles.preventiva;
-      case 'preditiva': return styles.preditiva;
       default: return styles.normal;
     }
   };
@@ -255,30 +216,95 @@ const MaquinaDetalhePage = ({ user }) => {
     }
   };
 
+  const handleSelectSlot = (slot) => {
+    if (user.role !== 'gestor') return;
+    setDadosAgendamento({ start: slot.start, end: slot.end });
+    setModalAgendamentoOpen(true);
+  };
+
+  const handleSelectEvent = (event) => {
+    setEventoSelecionado(event);
+  };
+
+  const handleCriarAgendamento = async (e) => {
+    e.preventDefault();
+    const itensArray = itensChecklistAgendamento.split('\n').filter(item => item.trim() !== '');
+    if (!descAgendamento || itensArray.length === 0) {
+      toast.error("Preencha a descrição e pelo menos um item do checklist.");
+      return;
+    }
+    try {
+      await addDoc(collection(db, 'agendamentosPreventivos'), {
+        maquinaId: id,
+        maquinaNome: maquina.nome,
+        descricao: descAgendamento,
+        itensChecklist: itensArray,
+        start: dadosAgendamento.start,
+        end: dadosAgendamento.end,
+        criadoEm: serverTimestamp(),
+        status: 'agendado', // Status inicial
+      });
+      toast.success("Manutenção preventiva agendada!");
+      setModalAgendamentoOpen(false);
+      setDescAgendamento('');
+      setItensChecklistAgendamento('');
+    } catch (error) {
+      toast.error("Erro ao agendar manutenção.");
+      console.error(error);
+    }
+  };
+
+  const handleIniciarManutencao = async (agendamento) => {
+    if (!window.confirm(`Tem certeza que deseja iniciar a manutenção "${agendamento.title}" agora?`))
+      return;
+
+    try {
+      // 1) Cria o chamado e obtém a referência
+      const chamadoRef = await addDoc(
+        collection(db, 'chamados'),
+        {
+          maquina: agendamento.resource.maquinaNome,
+          descricao: `Manutenção preventiva agendada: ${agendamento.title}`,
+          status: "Aberto",
+          tipo: "preventiva",
+          checklist: agendamento.resource.itensChecklist.map(item => ({ item, resposta: 'sim' })),
+          agendamentoId: agendamento.id,
+          operadorNome: `Sistema (Iniciado por ${user.nome})`,
+          dataAbertura: serverTimestamp(),
+        }
+      );
+
+      toast.success("Chamado de manutenção criado com sucesso!");
+
+      // 2) Marca imediatamente o agendamento como "iniciado"
+      const agRef = doc(db, 'agendamentosPreventivos', agendamento.id);
+      await updateDoc(agRef, { status: 'iniciado' });
+      console.log(`✅ Agendamento ${agendamento.id} marcado como iniciado.`);
+
+      // 3) Inscreve‑se num listener naquele chamado
+      const unsubscribe = onSnapshot(chamadoRef, (snap) => {
+        const data = snap.data();
+        // Quando o chamado for concluído, atualiza o agendamento para 'concluido'
+        if (data.status === 'Concluído') {
+          console.log('🔄 Concluído — atualizando agendamento...');
+          updateDoc(agRef, { status: 'concluido' });
+          // já fez o trabalho, cancele o listener
+          unsubscribe();
+        }
+      });
+
+      // Fecha o modal de detalhes
+      setEventoSelecionado(null);
+    } catch (error) {
+      console.error(error);
+      toast.error("Não foi possível iniciar a manutenção.");
+    }
+  };
+
+
 
   if (loading) return <p style={{ padding: '20px' }}>Carregando dados da máquina...</p>;
   if (!maquina) return <p style={{ padding: '20px' }}>Máquina não encontrada.</p>;
-
-  const HistoricoDaMaquina = () => (
-    <div>
-      <h2>Histórico de Manutenções da {maquina.nome}</h2>
-      {chamados.length === 0 ? (
-        <p>Nenhum chamado registrado para esta máquina.</p>
-      ) : (
-        <ul className={styles.chamadoList}>
-          {chamados.map(chamado => (
-            <Link to={`/historico/chamado/${chamado.id}`} key={chamado.id} className={styles.chamadoCard}>
-              <li className={`${styles.chamadoItem} ${getStatusClass(tipoChamado)}`}>
-                <strong>{chamado.descricao}</strong>
-                <p>Status: {chamado.status}</p>
-                <small>Aberto em: {chamado.dataAbertura ? new Date(chamado.dataAbertura.toDate()).toLocaleDateString('pt-BR') : 'N/A'}</small>
-              </li>
-            </Link>
-          ))}
-        </ul>
-      )}
-    </div>
-  );
 
   const ListaDeChamados = ({ lista, titulo, mensagemVazia }) => (
     <div>
@@ -303,6 +329,18 @@ const MaquinaDetalhePage = ({ user }) => {
       )}
     </div>
   );
+
+  function getContrastColor(hex) {
+    // Remove o ‘#’ se presente
+    hex = hex.replace('#','');
+    // Converte R, G e B para valores numéricos
+    const r = parseInt(hex.substring(0,2),16);
+    const g = parseInt(hex.substring(2,4),16);
+    const b = parseInt(hex.substring(4,6),16);
+    // Cálculo de luminância perceptual
+    const luminance = (0.299*r + 0.587*g + 0.114*b) / 255;
+    return luminance > 0.5 ? '#000000' : '#FFFFFF';
+  }
   
 
 
@@ -319,7 +357,7 @@ const MaquinaDetalhePage = ({ user }) => {
           <nav className={styles.tabs}>
             <button className={`${styles.tabButton} ${activeTab === 'ativos' ? styles.active : ''}`} onClick={() => setActiveTab('ativos')}>Chamados Ativos</button>
             <button className={`${styles.tabButton} ${activeTab === 'historico' ? styles.active : ''}`} onClick={() => setActiveTab('historico')}>Histórico</button>
-            <button className={`${styles.tabButton} ${activeTab === 'preditiva' ? styles.active : ''}`} onClick={() => setActiveTab('preditiva')}>Preditiva</button>
+
             <button className={`${styles.tabButton} ${activeTab === 'preventiva' ? styles.active : ''}`} onClick={() => setActiveTab('preventiva')}>Preventiva</button>
             <button className={`${styles.tabButton} ${activeTab === 'checklist' ? styles.active : ''}`} onClick={() => setActiveTab('checklist')}>Checklist Diário</button>
             {user.role === 'gestor' && (
@@ -330,60 +368,111 @@ const MaquinaDetalhePage = ({ user }) => {
             {activeTab === 'ativos' && <ListaDeChamados lista={chamadosAtivos} titulo={`Chamados Ativos da ${maquina.nome}`} mensagemVazia="Nenhum chamado ativo." />}
             {activeTab === 'historico' && <ListaDeChamados lista={chamadosConcluidos} titulo={`Histórico da ${maquina.nome}`} mensagemVazia="Nenhum chamado concluído." />}
             
-            {activeTab === 'preditiva' && (
-              <div className={styles.planSection}>
-                <h3>Planos de Manutenção Preditiva</h3>
-                {planosPreditivos.length === 0 ? <p>Nenhum plano preditivo criado.</p> : (
-                  <ul className={styles.planList}>
-                    {planosPreditivos.map(plano => (
-                      <li key={plano.id} className={styles.planItem}>
-                        <strong>{plano.descricao}</strong>
-                        <span>A cada {plano.frequencia} dias</span>
-                        <div className={styles.planActions}>
-                          <button onClick={() => handleGerarChamado(plano, 'preditiva')} className={`${styles.actionButton} ${styles.generateButton}`}><FiSend /> Gerar</button>
-                          <Link to={`/editar-plano-preditivo/${plano.id}`} className={`${styles.actionButton} ${styles.editButton}`}><FiEdit /> Editar</Link>
-                          <button onClick={() => handleExcluirPlano(plano.id, 'preditiva')} className={`${styles.actionButton} ${styles.deleteButton}`}><FiTrash2 /> Excluir</button>
-                        </div>
-                      </li>
-                    ))}
-                  </ul>
-                )}
-                <form onSubmit={handleCriarPlanoPreditivo} className={styles.form}>
-                  <h4>Criar Novo Plano Preditivo</h4>
-                  <div className={styles.formGroup}><label>Descrição da Tarefa</label><input value={descPreditiva} onChange={(e) => setDescPreditiva(e.target.value)} className={styles.input} required /></div>
-                  <div className={styles.formGroup}><label>Frequência (dias)</label><input type="number" value={freqPreditiva} onChange={(e) => setFreqPreditiva(e.target.value)} className={styles.input} required min="1" /></div>
-                  <button type="submit" className={styles.button}>Adicionar Plano</button>
-                </form>
-              </div>
-            )}
             {activeTab === 'preventiva' && (
               <div className={styles.planSection}>
-                <h3>Planos de Manutenção Preventiva</h3>
-                {planosPreventivos.length === 0 ? <p>Nenhum plano preventivo criado.</p> : (
-                  <ul className={styles.planList}>
-                    {planosPreventivos.map(plano => (
-                      <li key={plano.id} className={styles.planItem}>
-                        <strong>{plano.descricao}</strong>
-                        <span>Checklist: {plano.checklistNome}</span>
-                        <div className={styles.planActions}>
-                          <button onClick={() => handleGerarChamado(plano, 'preventiva')} className={`${styles.actionButton} ${styles.generateButton}`}><FiSend /> Gerar</button>
-                          <Link to={`/editar-plano-preventivo/${plano.id}`} className={`${styles.actionButton} ${styles.editButton}`}><FiEdit /> Editar</Link>
-                          <button onClick={() => handleExcluirPlano(plano.id, 'preventiva')} className={`${styles.actionButton} ${styles.deleteButton}`}><FiTrash2 /> Excluir</button>
+
+                {/* Legend */}
+                <div className={styles.legend}>
+                  <div>
+                    <span className={styles.legendBox} style={{ backgroundColor: '#8B0000' }}></span> Vencido
+                  </div>
+                  <div>
+                    <span className={styles.legendBox} style={{ backgroundColor: '#FFA500' }}></span> Hoje
+                  </div>
+                  <div>
+                    <span className={styles.legendBox} style={{ backgroundColor: '#90EE90' }}></span> Futuro
+                  </div>
+                  <div>
+                    <span className={styles.legendBox} style={{ backgroundColor: '#006400' }}></span> Iniciado
+                  </div>
+                  <div>
+                    <span className={styles.legendBox} style={{ backgroundColor: '#00008B' }}></span> Concluído
+                  </div>
+                </div>
+
+                {/* Calendar */}
+                <div style={{ height: 600, marginTop: 20 }}>
+                  <DnDCalendar
+                    localizer={localizer}
+
+                    /* ① controla a data mostrada */
+                    date={currentDate}
+                    onNavigate={setCurrentDate}
+
+                    /* ② controla qual aba está ativa */
+                    view={view}
+                    onView={setView}
+
+                    /* ③ suas views e range da Agenda */
+                    views={['month','agenda']}
+                    defaultView="month"
+                    length={30}
+
+                    toolbar
+                    events={agendamentos}
+                    startAccessor="start"
+                    endAccessor="end"
+                    selectable={user.role === 'gestor'}
+                    onSelectSlot={handleSelectSlot}
+                    onSelectEvent={handleSelectEvent}
+                    onEventDrop={({ event, start, end }) => {
+                      const agRef = doc(db, 'agendamentosPreventivos', event.id);
+                      updateDoc(agRef, { start, end }).catch(() => toast.error('Failed to reschedule'));
+                    }}
+                    messages={{
+                      next: "Próximo",
+                      previous: "Anterior",
+                      today: "Hoje",
+                      month: "Mês",
+                      week: "Semana",
+                      day: "Dia",
+                      agenda: "Agenda",
+                      date: "Data",
+                      time: "Hora",
+                      showMore: total => `+${total} mais`,
+                    }}
+                    formats={{
+                      // aqui sobrescrevemos só o intervalo da Agenda
+                      agendaHeaderFormat: ({ start, end }) =>
+                      `${moment(start).format('DD/MM/YYYY')} – ${moment(end).format('DD/MM/YYYY')}`
+                    }}
+                    eventPropGetter={event => {
+                      const today = new Date();
+                      today.setHours(0,0,0,0);
+                      const startDate = event.start;
+                      let bg;
+                      if (event.resource.status === 'iniciado') {
+                        bg = '#006400';
+                      } else if (event.resource.status === 'agendado') {
+                        if (startDate < today)               bg = '#8B0000';
+                        else if (startDate.toDateString() === today.toDateString()) bg = '#FFA500';
+                        else                                 bg = '#90EE90';
+                      } else if (event.resource.status === 'concluido') {
+                        bg = '#00008B';
+                      } else {
+                        bg = '#FFFFFF';
+                      }
+                      return {
+                        style: {
+                          backgroundColor: bg,
+                          color: getContrastColor(bg),
+                          borderRadius: '4px',
+                          border: '1px solid #aaa'
+                        }
+                      };
+                    }}
+                    components={{
+                      event: ({ event }) => (
+                        <div className={styles.eventoNoCalendario}>
+                          {event.title}
                         </div>
-                      </li>
-                    ))}
-                  </ul>
-                )}
-                <form onSubmit={handleCriarPlanoPreventivo} className={styles.form}>
-                  <h4>Criar Novo Plano Preventivo</h4>
-                  <div className={styles.formGroup}><label>Checklist a ser usado</label><select value={checklistId} onChange={(e) => setChecklistId(e.target.value)} className={styles.select} required><option value="" disabled>Selecione...</option>{checklistTemplates.map(t => <option key={t.id} value={t.id}>{t.nome}</option>)}</select></div>
-                  <div className={styles.formGroup}><label>Descrição da Tarefa</label><input value={descPreventiva} onChange={(e) => setDescPreventiva(e.target.value)} className={styles.input} required /></div>
-                  <div className={styles.formGroup}><label>Frequência (dias)</label><input type="number" value={freqPreventiva} onChange={(e) => setFreqPreventiva(e.target.value)} className={styles.input} required min="1" /></div>
-                  <button type="submit" className={styles.button}>Adicionar Plano</button>
-                </form>
+                      )
+                    }}
+                    style={{ backgroundColor: 'white', borderRadius: 8, padding: 10 }}
+                  />
+                </div>
               </div>
             )}
-
             {activeTab === 'checklist' && (
             <div className={styles.checklistEditor}>
               <h3>Itens do Checklist Diário da {maquina.nome}</h3>
@@ -469,13 +558,235 @@ const MaquinaDetalhePage = ({ user }) => {
           </div>
         </div>
       ) : (
-        // VISÃO DO MANUTENTOR
+        // VISÃO DO MANUTENTOR (agora com calendário)
         <div className={styles.tabContent}>
-          <ListaDeChamados lista={chamadosAtivos} titulo={`Chamados Ativos da ${maquina.nome}`} mensagemVazia="Nenhum chamado ativo." />
-          <hr style={{margin: '30px 0'}}/>
-          <ListaDeChamados lista={chamadosConcluidos} titulo={`Histórico da ${maquina.nome}`} mensagemVazia="Nenhum chamado concluído." />
+          <ListaDeChamados
+            lista={chamadosAtivos}
+            titulo={`Chamados Ativos da ${maquina.nome}`}
+            mensagemVazia="Nenhum chamado ativo."
+          />
+          <hr style={{ margin: '30px 0' }} />
+          <ListaDeChamados
+            lista={chamadosConcluidos}
+            titulo={`Histórico da ${maquina.nome}`}
+            mensagemVazia="Nenhum chamado concluído."
+          />
+          
+         {/* ––– visão do manutentor ––– */}
+          <hr style={{ margin: '30px 0' }} />
+
+          <div className={styles.planSection}>
+            <h3>Calendário de Manutenção Preventiva</h3>
+            <p>Visualize os agendamentos já criados.</p>
+
+            <div
+              style={{
+                padding: 16,
+                backgroundColor: '#ffffff',
+                border: '1px solid #e0e0e0',
+                borderRadius: 8,
+                marginTop: 20,
+              }}
+            >
+              {/* legenda dentro da mesma caixa */}
+              <div style={{ display: 'flex', gap: '1rem', marginBottom: 12 }}>
+                <div>
+                  <span
+                    style={{
+                      display: 'inline-block',
+                      width: 16,
+                      height: 16,
+                      backgroundColor: '#8B0000',
+                      marginRight: 4,
+                      verticalAlign: 'middle',
+                    }}
+                  />
+                  Vencido
+                </div>
+                <div>
+                  <span
+                    style={{
+                      display: 'inline-block',
+                      width: 16,
+                      height: 16,
+                      backgroundColor: '#FFA500',
+                      marginRight: 4,
+                      verticalAlign: 'middle',
+                    }}
+                  />
+                  Hoje
+                </div>
+                <div>
+                  <span
+                    style={{
+                      display: 'inline-block',
+                      width: 16,
+                      height: 16,
+                      backgroundColor: '#90EE90',
+                      marginRight: 4,
+                      verticalAlign: 'middle',
+                    }}
+                  />
+                  Futuro
+                </div>
+                <div>
+                  <span
+                    style={{
+                      display: 'inline-block',
+                      width: 16,
+                      height: 16,
+                      backgroundColor: '#006400',
+                      marginRight: 4,
+                      verticalAlign: 'middle',
+                    }}
+                  />
+                  Iniciado
+                </div>
+                <div>
+                  <span
+                    style={{
+                      display: 'inline-block',
+                      width: 16,
+                      height: 16,
+                      backgroundColor: '#00008B',
+                      marginRight: 4,
+                      verticalAlign: 'middle',
+                    }}
+                  />
+                  Concluído
+                </div>
+              </div>
+
+              {/* calendário */}
+              <Calendar
+                localizer={localizer}
+
+                /* para toolbar e agenda funcionarem */
+                date={currentDate}
+                onNavigate={setCurrentDate}
+                view={view}
+                onView={setView}
+
+                views={['month', 'agenda']}
+                defaultView="month"
+                toolbar
+
+                events={agendamentos}
+                startAccessor="start"
+                endAccessor="end"
+
+                selectable={false}
+                onSelectEvent={handleSelectEvent}
+
+                messages={{
+                  previous: 'Anterior',
+                  today: 'Hoje',
+                  next: 'Próximo',
+                  month: 'Mês',
+                  agenda: 'Agenda',
+                  showMore: total => `+${total} mais`,
+                }}
+
+                formats={{
+                  agendaHeaderFormat: ({ start, end }) =>
+                    `${moment(start).format('DD/MM/YYYY')} – ${moment(end).format('DD/MM/YYYY')}`,
+                }}
+
+                eventPropGetter={event => {
+                  const hoje = new Date(); hoje.setHours(0,0,0,0);
+                  const inicio = event.start;
+                  const s = event.resource.status;
+                  let bg = '#FFFFFF';
+                  if      (s === 'iniciado')                        bg = '#006400';
+                  else if (s === 'agendado' && inicio < hoje)       bg = '#8B0000';
+                  else if (s === 'agendado' &&
+                          inicio.toDateString() === hoje.toDateString()) bg = '#FFA500';
+                  else if (s === 'agendado')                        bg = '#90EE90';
+                  else if (s === 'concluido')                       bg = '#00008B';
+                  return { style: {
+                    backgroundColor: bg,
+                    color: getContrastColor(bg),
+                    borderRadius: 4,
+                    border: '1px solid #aaa'
+                  }};
+                }}
+
+                components={{
+                  event: ({ event }) => (
+                    <div className={styles.eventoNoCalendario}>{event.title}</div>
+                  ),
+                  agenda: {
+                    time: () => null,   // remove coluna “Time” na agenda
+                  }
+                }}
+
+                style={{
+                  height: 600,
+                  backgroundColor: '#fff',
+                  borderRadius: 8,
+                }}
+              />
+            </div>
+          </div>
         </div>
       )}
+      <Modal
+        isOpen={modalAgendamentoOpen}
+        onClose={() => setModalAgendamentoOpen(false)}
+        title="Agendar Manutenção Preventiva"
+      >
+        <form onSubmit={handleCriarAgendamento}>
+          <div className={styles.formGroup}>
+            <label>Descrição da Manutenção</label>
+            <input
+              value={descAgendamento}
+              onChange={e => setDescAgendamento(e.target.value)}
+              className={styles.input}
+              required
+            />
+          </div>
+          <div className={styles.formGroup}>
+            <label>Itens do Checklist (um por linha)</label>
+            <textarea
+              value={itensChecklistAgendamento}
+              onChange={e => setItensChecklistAgendamento(e.target.value)}
+              className={styles.textarea}
+              required
+              rows="5"
+            />
+          </div>
+          <button type="submit" className={styles.button}>
+            Salvar Agendamento
+          </button>
+        </form>
+      </Modal>
+
+      {/* Modal para VER DETALHES e INICIAR a manutenção */}
+      <Modal
+        isOpen={!!eventoSelecionado}
+        onClose={() => setEventoSelecionado(null)}
+        title={eventoSelecionado?.title}
+      >
+        {eventoSelecionado && (
+          <div className={styles.modalDetails}>
+            <p><strong>Máquina:</strong> {eventoSelecionado.resource.maquinaNome}</p>
+            <p><strong>Data:</strong> {eventoSelecionado.start.toLocaleDateString('pt-BR')}</p>
+            <h4>Checklist da Tarefa:</h4>
+            <ul className={styles.modalChecklist}>
+              {eventoSelecionado.resource.itensChecklist.map((item, i) => (
+                <li key={i} className={styles.modalChecklistItem}>{item}</li>
+              ))}
+            </ul>
+            <button
+              onClick={() => handleIniciarManutencao(eventoSelecionado)}
+              className={styles.modalButton}
+            >
+              Iniciar Manutenção Agora
+            </button>
+          </div>
+        )}
+      </Modal>
+
       <Modal 
         isOpen={!!selectedSubmission} 
         onClose={() => setSelectedSubmission(null)}
