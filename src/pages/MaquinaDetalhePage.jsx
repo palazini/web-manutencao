@@ -730,14 +730,14 @@ const MaquinaDetalhePage = ({ user }) => {
           </div>
         </div>
       )}
-      <Modal
+     <Modal
         isOpen={modalAgendamentoOpen}
         onClose={() => setModalAgendamentoOpen(false)}
-        title="Agendar Manutenção Preventiva"
+        title="Agendar Manutenção"
       >
         <form onSubmit={handleCriarAgendamento}>
           <div className={styles.formGroup}>
-            <label>Descrição da Manutenção</label>
+            <label>Descrição</label>
             <input
               value={descAgendamento}
               onChange={e => setDescAgendamento(e.target.value)}
@@ -751,8 +751,8 @@ const MaquinaDetalhePage = ({ user }) => {
               value={itensChecklistAgendamento}
               onChange={e => setItensChecklistAgendamento(e.target.value)}
               className={styles.textarea}
-              required
               rows="5"
+              required
             />
           </div>
           <button type="submit" className={styles.button}>
@@ -769,20 +769,33 @@ const MaquinaDetalhePage = ({ user }) => {
       >
         {eventoSelecionado && (
           <div className={styles.modalDetails}>
-            <p><strong>Máquina:</strong> {eventoSelecionado.resource.maquinaNome}</p>
-            <p><strong>Data:</strong> {eventoSelecionado.start.toLocaleDateString('pt-BR')}</p>
-            <h4>Checklist da Tarefa:</h4>
-            <ul className={styles.modalChecklist}>
-              {eventoSelecionado.resource.itensChecklist.map((item, i) => (
-                <li key={i} className={styles.modalChecklistItem}>{item}</li>
-              ))}
-            </ul>
-            <button
-              onClick={() => handleIniciarManutencao(eventoSelecionado)}
-              className={styles.modalButton}
-            >
-              Iniciar Manutenção Agora
-            </button>
+            <p>
+              <strong>Descrição:</strong> {eventoSelecionado.resource.descricao}
+            </p>
+            <p>
+              <strong>Data:</strong>{" "}
+              {eventoSelecionado.start.toLocaleDateString("pt-BR")}
+            </p>
+            <p><strong>Status:</strong> {eventoSelecionado.resource.status}</p>
+
+            {eventoSelecionado.resource.itensChecklist && (
+              <>
+                <h4>Checklist da Tarefa:</h4>
+                <ul>
+                  {eventoSelecionado.resource.itensChecklist.map((item, i) => (
+                    <li key={i}>{item}</li>
+                  ))}
+                </ul>
+              </>
+            )}
+            {eventoSelecionado.resource.status !== 'iniciado' && eventoSelecionado.resource.status !== 'concluido'&&(
+              <button
+                className={styles.modalButton}
+                onClick={() => handleIniciarManutencao(eventoSelecionado)}
+              >
+                Iniciar Manutenção Agora
+              </button>
+            )}
           </div>
         )}
       </Modal>

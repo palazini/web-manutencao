@@ -18,6 +18,8 @@ const ChamadoDetalhe = ({ user }) => {
   const [checklist, setChecklist] = useState([]);
   const [novaObservacao, setNovaObservacao] = useState('');
 
+  const [causa, setCausa] = useState(chamado?.causa || '');
+
   useEffect(() => {
     const docRef = doc(db, 'chamados', id);
     const unsubscribe = onSnapshot(docRef, (doc) => {
@@ -71,13 +73,14 @@ const ChamadoDetalhe = ({ user }) => {
       dataConclusao: serverTimestamp()
     };
 
+    dadosUpdate.causa = causa;
+
     try {
       if (chamado.tipo === 'preventiva') {
         dadosUpdate.checklist = checklist;
         const itensComFalha = checklist.filter(item => item.resposta === 'nao');
 
         if (itensComFalha.length > 0) {
-          // 1. Itera sobre cada item com falha para criar um chamado individual
           for (const item of itensComFalha) {
             await addDoc(collection(db, 'chamados'), {
               maquina: chamado.maquina,
@@ -88,7 +91,7 @@ const ChamadoDetalhe = ({ user }) => {
               dataAbertura: serverTimestamp(),
             });
           }
-          toast.success(`${itensComFalha.length} chamado(s) corretivo(s) foi/foram aberto(s) automaticamente.`);
+          toast.success(`${itensComFalha.length} chamado(s) corretivo(s) aberto(s) automaticamente.`);
         }
       } else {
         if (solucao.trim() === '') {
@@ -99,7 +102,17 @@ const ChamadoDetalhe = ({ user }) => {
         dadosUpdate.solucao = solucao;
       }
 
+      // atualiza o chamado
       await updateDoc(chamadoRef, dadosUpdate);
+
+      // ─────────── ADIÇÃO ───────────
+      // se esse chamado veio de um agendamento, marca o agendamento como concluído
+      if (chamado.agendamentoId) {
+        const agRef = doc(db, 'agendamentosPreventivos', chamado.agendamentoId);
+        await updateDoc(agRef, { status: 'concluido' });
+      }
+      // ───────────────────────────────
+
       toast.success("Chamado concluído com sucesso!");
 
       if (chamado.planoId) {
@@ -117,6 +130,7 @@ const ChamadoDetalhe = ({ user }) => {
           toast.success(`Plano ${chamado.tipo} atualizado.`);
         }
       }
+
       navigate('/');
     } catch (error) {
       console.error("Erro ao concluir: ", error);
@@ -125,6 +139,7 @@ const ChamadoDetalhe = ({ user }) => {
       setIsUpdating(false);
     }
   };
+
 
   const handleAdicionarObservacao = async () => {
     if (novaObservacao.trim() === '') {
@@ -205,6 +220,22 @@ const ChamadoDetalhe = ({ user }) => {
             <p>Nenhuma observação registrada.</p>
           )}
         </ul>
+        <div className={styles.formGroup}>
+          <label htmlFor="causa">Causa da Falha</label>
+          <select
+            id="causa"
+            value={causa}
+            onChange={e => setCausa(e.target.value)}
+            className={styles.select}
+            required
+          >
+            <option value="" disabled>Selecione a causa...</option>
+            <option value="corretiva">Corretiva</option>
+            <option value="preventiva">Preventiva</option>
+            <option value="preditiva">Preditiva</option>
+            <option value="hidraulica">Hidráulica</option>
+          </select>
+        </div>
       </div>
 
       {podeAtender && (

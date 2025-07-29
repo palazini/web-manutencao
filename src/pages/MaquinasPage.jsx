@@ -99,11 +99,11 @@ const MaquinasPage = () => {
               </div>
               <div className={styles.legendItem}>
                 <div className={`${styles.legendColorBox} ${styles.statusPreventiva}`}></div>
-                <span>Preventiva (Checklist)</span>
+                <span>Preventiva (Agendada)</span>
               </div>
               <div className={styles.legendItem}>
                 <div className={`${styles.legendColorBox} ${styles.statusPreditiva}`}></div>
-                <span>Preditiva (Agendada)</span>
+                <span>Preditiva (Checklist Operadores)</span>
               </div>
             </div>
 

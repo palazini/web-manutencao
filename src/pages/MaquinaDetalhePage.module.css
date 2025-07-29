@@ -96,24 +96,6 @@
   margin-bottom: 15px;
   font-size: 1.25rem;
 }
-.planList {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-.planItem {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 20px;
-  background-color: #f9f9f9;
-  padding: 16px;
-  border-radius: 6px;
-  border: 1px solid #e9ecef;
-}
 .planItem strong {
   font-weight: 500;
   flex-grow: 1; 
@@ -123,51 +105,12 @@
   color: #666;
   white-space: nowrap;
 }
-.planActions {
-  display: flex;
-  gap: 10px;
-}
-.actionButton {
-  padding: 8px 12px;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-weight: bold;
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  transition: opacity 0.2s;
-  text-decoration: none;
-  color: white;
-}
-.generateButton {
-  background-color: #28a745;
-}
-.editButton {
-  background-color: #0d6efd;
-}
-.deleteButton {
-  background-color: #dc3545;
-}
 .actionButton:hover {
   opacity: 0.85;
-}
-.form {
-  margin-top: 20px;
-  padding-top: 20px;
-  border-top: 1px dashed #ccc;
 }
 .form h4 {
   margin-top: 0;
   margin-bottom: 15px;
-}
-.formGroup {
-  margin-bottom: 15px;
-}
-.formGroup label {
-  display: block;
-  margin-bottom: 5px;
-  font-weight: 500;
 }
 .input, .select {
   width: 100%;
@@ -175,15 +118,6 @@
   border: 1px solid #ccc;
   border-radius: 4px;
   box-sizing: border-box;
-}
-.button {
-  padding: 10px 15px;
-  border: none;
-  border-radius: 4px;
-  background-color: #4B70E2;
-  color: white;
-  cursor: pointer;
-  font-weight: bold;
 }
 
 /* --- Estilos para a aba de checklist --- */
@@ -287,22 +221,6 @@
   grid-template-columns: 1fr 1fr;
   gap: 30px;
 }
-.turnoSection {
-  margin-bottom: 40px;
-  padding: 20px;
-  border: 1px solid #eef0f3;
-  border-radius: 8px;
-  background-color: #fdfdff;
-}
-.turnoSection:last-child {
-  margin-bottom: 0;
-}
-.turnoSection h3 {
-  margin-top: 0;
-  color: #4B70E2;
-  border-bottom: 1px solid #e0e0e0;
-  padding-bottom: 10px;
-}
 .column h4 {
   margin-top: 0;
   border-bottom: 1px solid #eee;
@@ -312,16 +230,6 @@
   list-style: none;
   padding: 0;
   margin: 0;
-}
-.operatorItem {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 12px;
-  border-radius: 6px;
-  margin-bottom: 8px;
-  background-color: #f9f9f9;
-  border: 1px solid #eef0f3;
 }
 .opActionButton {
   background: none;
@@ -334,9 +242,6 @@
   justify-content: center;
   align-items: center;
   transition: background-color 0.2s;
-}
-.addButton {
-  color: #28a745;
 }
 .removeButton {
   color: #dc3545;
@@ -355,11 +260,6 @@
   border-left-width: 6px;
 }
 
-.preditiva {
-  border-left-color: #ffc107; 
-  border-left-width: 6px;
-}
-
 .normal {
   border-left-color: #eef0f3; 
   border-left-width: 6px;
@@ -368,11 +268,6 @@
 @media (max-width: 768px) {
   .header h1 {
     font-size: 1.5rem;
-  }
-
-  /* Transforma a grade de duas colunas em uma única coluna */
-  .assignmentContainer {
-    grid-template-columns: 1fr;
   }
 
   /* Ajusta o relatório de checklist para telas pequenas */
@@ -475,65 +370,6 @@
   padding: 2px 5px;
 }
 
-.modalDetails h4 {
-  margin-top: 0;
-  font-size: 1.1rem;
-  color: #333;
-}
-
-.modalDetails p {
-  font-size: 1rem;
-  color: #555;
-}
-
-.modalChecklist {
-  list-style: none;
-  padding: 0;
-  margin-top: 15px;
-}
-
-.modalChecklistItem {
-  padding: 8px 0;
-  border-bottom: 1px solid #f0f0f0;
-}
-.modalChecklistItem:last-child {
-  border-bottom: none;
-}
-
-.modalButton {
-  width: 100%;
-  padding: 12px;
-  border: none;
-  border-radius: 4px;
-  background-color: #28a745; /* Verde para ação positiva */
-  color: white;
-  cursor: pointer;
-  font-size: 1rem;
-  font-weight: bold;
-  margin-top: 20px;
-}
-
-.modalDetails { padding: 1rem; }
-.modalChecklist { list-style: disc; margin-left: 1.5rem; }
-.modalChecklistItem { margin-bottom: 0.5rem; }
-.modalButton { margin-top: 1rem; }
-
-.inlineForm {
-  background: #f9f9f9;
-  border: 1px solid #ddd;
-  padding: 1rem;
-  margin-top: 1rem;
-  border-radius: 4px;
-}
-.inlineButtons {
-  margin-top: 0.5rem;
-  display: flex;
-  gap: 0.5rem;
-}
-.buttonSecondary {
-  background: transparent;
-  border: 1px solid #ccc;
-}
 
 .legend {
   display: flex;
@@ -549,6 +385,70 @@
   margin-right: 4px;
 }
 
-.rbc-toolbar .rbc-btn-group:nth-child(2) {
-  display: none;
+.formGroup {
+  margin-bottom: 16px;
 }
+.formGroup label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 4px;
+  color: #333;
+}
+.input,
+.textarea {
+  width: 100%;
+  padding: 8px 12px;
+  font-size: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+  transition: border-color 0.2s ease;
+}	
+.button {
+  display: inline-block;
+  background-color: #006400;
+  color: #fff;
+  border: none;
+  padding: 10px 20px;
+  font-size: 1rem;
+  font-weight: 600;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.button:hover {
+  background-color: #004d00;
+}
+
+.button:active {
+  transform: scale(0.98);
+}
+.textarea:focus {
+  outline: none;
+  border-color: #006400;
+}
+
+/* textarea um pouco maior */
+.textarea {
+  min-height: 100px;
+  resize: vertical;
+}
+
+.modalButton {
+  background-color: #006400;      /* verde escuro, mesmo tom de “iniciado” */
+  color: #fff;                    /* texto branco */
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  margin-top: 1rem;
+  transition: background-color 0.2s ease;
+  margin-left: 0.5rem;
+}
+
+.modalButton:hover {
+  background-color: #004d00;      /* um pouco mais escuro no hover */
+}
+

@@ -170,3 +170,25 @@
     z-index: 999;
   }
 }
+
+.alertLink {
+  background-color: #ffecea;  /* um fundo levemente avermelhado */
+  color: #d32f2f;             /* texto vermelho escuro */
+}
+
+/* opcional: sobrescreve também o ícone */
+.alertLink .navIcon {
+  color: #d32f2f;
+}
+
+/* se quiser um badgezinho, crie algo assim: */
+.alertBadge {
+  position: absolute;
+  top: 8px;
+  right: 18px;
+  width: 8px;
+  height: 8px;
+  background-color: #d32f2f;
+  border-radius: 50%;
+}
+

@@ -1,9 +1,11 @@
-import React, { useState } from 'react'; // Adicionado useState
+import React, { useState, useEffect } from 'react'; // Adicionado useState
 import { Routes, Route, NavLink, Link } from 'react-router-dom';
-import { auth } from '../firebase';
+import { auth, db } from '../firebase';
+import { collection, query, where, onSnapshot } from 'firebase/firestore';
 import { signOut } from 'firebase/auth';
 import { FiHome, FiLogOut, FiCheckSquare, FiUser, FiCalendar, FiList, FiClock, FiUsers, FiServer, FiEdit, FiCheckCircle, FiMenu, FiX, FiBarChart2 } from 'react-icons/fi';
 import styles from './MainLayout.module.css';
+import { FiPieChart } from 'react-icons/fi';
 
 import OperatorDashboard from './OperatorDashboard.jsx';
 import MaquinasPage from '../pages/MaquinasPage.jsx';
@@ -17,11 +19,49 @@ import HistoricoLayout from "../pages/HistoricoLayout.jsx";
 import AnaliseFalhasPage from '../pages/AnaliseFalhasPage.jsx'; // NOVO
 import GerirUtilizadoresPage from '../pages/GerirUtilizadoresPage.jsx';
 import CalendarioGeralPage from '../pages/CalendarioGeralPage.jsx';
+import CausasRaizPage from '../pages/CausasRaizPage.jsx';
 
 import logo from '../assets/logo-sidebar.png';
 
 const MainLayout = ({ user }) => {
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false); // Novo estado
+  
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [hasOpenCalls, setHasOpenCalls] = useState(false);
+  const [hasSoonDue, setHasSoonDue] = useState(false);
+
+  useEffect(() => {
+    // query para pegar todos chamados com status "Aberto" ou "Em Andamento"
+    const q = query(
+      collection(db, 'chamados'),
+      where('status', 'in', ['Aberto', 'Em Andamento'])
+    );
+    const unsub = onSnapshot(q, snap => {
+      // se vier pelo menos 1 doc, ligamos o alerta
+      setHasOpenCalls(snap.size > 0);
+    }, err => {
+      console.error('Erro ao ouvir chamados abertos:', err);
+    });
+    return () => unsub();
+  }, []);
+
+  useEffect(() => {
+    const daysAhead = 1;
+    const now = new Date();
+    const cutoff = new Date(now.getTime() + daysAhead * 24 * 60 * 60 * 1000);
+
+    // só event.status === 'agendado'
+    const q = query(
+      collection(db, 'agendamentosPreventivos'),
+      where('status', '==', 'agendado'),
+      where('start', '<=', cutoff)
+    );
+    const unsub = onSnapshot(q, snap => {
+      setHasSoonDue(snap.size > 0);
+    }, err => {
+      console.error('Erro ao ouvir próximos agendamentos:', err);
+    });
+    return () => unsub();
+  }, []);
 
   const handleLogout = () => {
     signOut(auth).catch((error) => console.error('Erro no logout: ', error));
@@ -49,17 +89,37 @@ const MainLayout = ({ user }) => {
       {(user.role === 'manutentor' || user.role === 'gestor') && (
         <>
           <h3 className={styles.navSectionTitle}>Gerenciar Manutenção</h3>
-          <NavLink to="/maquinas" className={({ isActive }) => isActive ? `${styles.navLink} ${styles.activeLink}` : styles.navLink}>
-            <FiServer className={styles.navIcon} />
+          <NavLink
+            to="/maquinas"
+            className={({ isActive }) => {
+              const base = styles.navLink;
+              // se está ativo *ou* tem chamados abertos, adiciona classe de alerta
+              if (isActive) return `${base} ${styles.activeLink}`;
+              if (hasOpenCalls) return `${base} ${styles.alertLink}`;
+              return base;
+            }}
+          >
+            <div style={{ position: 'relative' }}>
+              <FiServer className={styles.navIcon} />
+              {hasOpenCalls && <span className={styles.alertBadge} />}
+            </div>
             <span>Máquinas</span>
           </NavLink>
         </>
       )}
 
       {(user.role === 'manutentor' || user.role === 'gestor') && (
-            <NavLink to="/calendario-geral" className={({ isActive }) => isActive ? `${styles.navLink} ${styles.activeLink}` : styles.navLink}>
-              <FiCalendar className={styles.navIcon} />
-              <span>Calendário Geral</span>
+            <NavLink
+              to="/calendario-geral"
+              className={({ isActive }) => {
+                let cls = styles.navLink;
+                if (isActive) return `${cls} ${styles.activeLink}`;
+                if (hasSoonDue) return `${cls} ${styles.alertLink}`;
+                return cls;
+              }}
+            >
+                <FiCalendar className={styles.navIcon} />
+                <span>Calendário Geral</span>
             </NavLink>
       )}
 
@@ -77,6 +137,18 @@ const MainLayout = ({ user }) => {
           <NavLink to="/analise-falhas" className={({ isActive }) => isActive ? `${styles.navLink} ${styles.activeLink}` : styles.navLink}>
             <FiBarChart2 className={styles.navIcon} />
             <span>Análise de Falhas</span>
+          </NavLink>
+
+          <NavLink
+            to="/causas-raiz"
+            className={({ isActive }) =>
+              isActive
+                ? `${styles.navLink} ${styles.activeLink}`
+                : styles.navLink
+            }
+          >
+            <FiPieChart className={styles.navIcon} />
+            <span>Causas Raiz</span>
           </NavLink>
 
           <h3 className={styles.navSectionTitle}>Gerenciar Colaboradores</h3>
@@ -161,8 +233,13 @@ const MainLayout = ({ user }) => {
           </Route>
 
           <Route path="/analise-falhas" element={<AnaliseFalhasPage />} />
+          <Route path="/causas-raiz" element={<CausasRaizPage />} />
 
-          <Route path="/calendario-geral" element={<CalendarioGeralPage />} />
+          <Route
+            path="/calendario-geral"
+            element={<CalendarioGeralPage user={user} />}
+          />
+
 
           <Route path="/gerir-utilizadores" element={<GerirUtilizadoresPage />} />
 

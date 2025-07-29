@@ -39,6 +39,16 @@
   margin: 0;
 }
 
+.userListHeader {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr auto;
+  padding: 12px 16px;
+  font-weight: 600;
+  color: #333;
+  border-bottom: 1px solid #ddd;
+  background-color: #fafafa;
+}
+
 .userItem {
   display: grid;
   grid-template-columns: 2fr 1fr 1fr auto;
@@ -68,23 +78,28 @@
 }
 
 .actionButton {
-  padding: 8px;
-  border: 1px solid #ddd;
+  padding: 6px;
+  border: 1px solid #4B70E2;
   border-radius: 4px;
-  background-color: #f9f9f9;
+  background-color: transparent;
+  color: #4B70E2;
   cursor: pointer;
   display: flex;
   align-items: center;
-  color: #555;
   transition: background-color 0.2s;
 }
 
 .actionButton:hover {
-  background-color: #f0f0f0;
+  background-color: rgba(75, 112, 226, 0.1);
 }
 
 .deleteButton {
-  color: #dc3545;
+  border-color: #e74c3c;
+  color: #e74c3c;
+}
+
+.deleteButton:hover {
+  background-color: rgba(231, 76, 60, 0.1);
 }
 
 /* Estilos para o formulário no Modal */
@@ -102,4 +117,100 @@
   border: 1px solid #ccc;
   border-radius: 4px;
   box-sizing: border-box;
+}
+
+/* 1) Desktop (largura > 900px): grid de colunas */
+.userListHeader,
+.userItem {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr auto;
+  align-items: center;
+  gap: 16px;
+}
+
+/* Cabeçalho */
+.userListHeader {
+  padding: 16px;
+  background: #fafafa;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+/* Itens */
+.userItem {
+  padding: 12px 16px;
+  border-bottom: 1px solid #eee;
+}
+
+/* ===========================================
+   2) Tablet (≤ 900px): cartões empilhados
+   =========================================== */
+@media (max-width: 900px) {
+  /* Container com espaçamento extra */
+  .userListContainer {
+    padding: 16px;
+  }
+
+  /* Esconde cabeçalho de colunas */
+  .userListHeader {
+    display: none;
+  }
+
+  /* Cada item vira um cartão flex-column */
+  .userItem {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+    margin-bottom: 12px;
+    padding: 12px 16px;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  }
+
+  /* Nome completo em destaque */
+  .userItem > strong {
+    font-size: 1rem;
+    margin-bottom: 4px;
+  }
+
+  /* Username e função abaixo do nome */
+  .userItem > span:nth-of-type(1),
+  .userItem > span:nth-of-type(2) {
+    font-size: 0.9em;
+    color: #666;
+  }
+
+  /* Botões alinhados à direita no fim do cartão */
+  .actions {
+    align-self: flex-end;
+    margin-top: 8px;
+  }
+}
+
+/* ===========================================
+   3) Mobile (≤ 600px): simplificação extra
+   =========================================== */
+@media (max-width: 600px) {
+  /* Ainda mantém o estilo de cartão */
+  .userItem {
+    padding: 10px 12px;
+    gap: 2px;
+  }
+
+  /* Nome um pouco menor */
+  .userItem > strong {
+    font-size: 0.95rem;
+  }
+
+  /* Textos ainda mais sutis */
+  .userItem > span {
+    font-size: 0.85em;
+  }
+
+  /* Botões maiores tocáveis */
+  .actions button {
+    padding: 6px;
+    margin-right: 8px;
+  }
 }

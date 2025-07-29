@@ -160,11 +160,20 @@ const GerirUtilizadoresPage = () => {
         </div>
       </header>
 
-      <div style={{ padding: '20px' }}>
-        <div className={styles.userListContainer}>
-          {loading ? (
-            <p>A carregar utilizadores...</p>
-          ) : (
+      <div className={styles.userListContainer}>
+        {loading ? (
+          <p>A carregar utilizadores...</p>
+        ) : (
+          <>
+            {/* — Cabeçalho da lista — */}
+            <div className={styles.userListHeader}>
+              <span>Nome Completo</span>
+              <span>Usuário</span>
+              <span>Função</span>
+              <span style={{ textAlign: 'right' }}>Ações</span>
+            </div>
+
+            {/* — Itens da lista — */}
             <ul className={styles.userList}>
               {utilizadores.map(user => (
                 <li key={user.id} className={styles.userItem}>
@@ -172,7 +181,11 @@ const GerirUtilizadoresPage = () => {
                   <span>{user.usuario}</span>
                   <span>{user.funcao}</span>
                   <div className={styles.actions}>
-                    <button className={styles.actionButton} title="Editar" onClick={() => abrirModalEdicao(user)}>
+                    <button
+                      className={styles.actionButton}
+                      title="Editar"
+                      onClick={() => abrirModalEdicao(user)}
+                    >
                       <FiEdit />
                     </button>
                     <button
@@ -186,8 +199,8 @@ const GerirUtilizadoresPage = () => {
                 </li>
               ))}
             </ul>
-          )}
-        </div>
+          </>
+        )}
       </div>
 
       <Modal

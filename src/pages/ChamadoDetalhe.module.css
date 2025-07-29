@@ -134,3 +134,13 @@
   background-color: #dc3545;
   border-color: #dc3545;
 }
+
+.select {
+  width: 100%;
+  padding: 8px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  font-family: inherit;
+  font-size: 1rem;
+  margin-bottom: 16px;
+}

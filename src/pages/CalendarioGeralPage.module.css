@@ -79,3 +79,86 @@
 :global(.rbc-agenda-view .rbc-agenda-time-cell) {
   display: none;
 }
+
+.modalButton {
+  background-color: #006400;      /* verde escuro, mesmo tom de “iniciado” */
+  color: #fff;                    /* texto branco */
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  margin-top: 1rem;
+  transition: background-color 0.2s ease;
+  margin-left: 0.5rem;
+}
+
+.modalButton:hover {
+  background-color: #004d00;      /* um pouco mais escuro no hover */
+}
+
+.formGroup {
+  margin-bottom: 16px;
+}
+
+/* rótulo acima do campo */
+.formGroup label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 4px;
+  color: #333;
+}
+
+/* estilo base para input e textarea */
+.input,
+.select,
+.textarea {
+  width: 100%;
+  padding: 8px 12px;
+  font-size: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+  transition: border-color 0.2s ease;
+}
+
+.input:focus,
+.select:focus,
+.textarea:focus {
+  outline: none;
+  border-color: #006400;
+}
+
+/* textarea um pouco maior */
+.textarea {
+  min-height: 100px;
+  resize: vertical;
+}
+
+/* botão de ação */
+.button {
+  display: inline-block;
+  background-color: #006400;
+  color: #fff;
+  border: none;
+  padding: 10px 20px;
+  font-size: 1rem;
+  font-weight: 600;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.button:hover {
+  background-color: #004d00;
+}
+
+.button:active {
+  transform: scale(0.98);
+}
+
+/* opcional: limite a largura do form e centralize */
+.modalContent form {
+  max-width: 400px;
+  margin: 0 auto;
+}
