@@ -18,14 +18,17 @@ const ChamadoDetalhe = ({ user }) => {
   const [checklist, setChecklist] = useState([]);
   const [novaObservacao, setNovaObservacao] = useState('');
 
-  const [causa, setCausa] = useState(chamado?.causa || '');
+  const [causas, setCausas] = useState([]);
+  const [causa, setCausa]   = useState('');
 
+  // Carrega o chamado e inicializa a causa
   useEffect(() => {
     const docRef = doc(db, 'chamados', id);
-    const unsubscribe = onSnapshot(docRef, (doc) => {
-      if (doc.exists()) {
-        const data = { id: doc.id, ...doc.data() };
+    const unsubscribe = onSnapshot(docRef, (docSnap) => {
+      if (docSnap.exists()) {
+        const data = { id: docSnap.id, ...docSnap.data() };
         setChamado(data);
+        setCausa(data.causa || '');               // inicializa causa
         if (data.checklist) {
           const checklistComRespostas = data.checklist.map(item => ({
             ...item,
@@ -40,6 +43,19 @@ const ChamadoDetalhe = ({ user }) => {
     });
     return () => unsubscribe();
   }, [id]);
+
+  // Carrega as opções de causasRaiz
+  useEffect(() => {
+    const unsub = onSnapshot(
+      collection(db, 'causasRaiz'),
+      snapshot => {
+        const lista = snapshot.docs.map(doc => doc.data().nome);
+        setCausas(lista);
+      },
+      err => console.error('Erro ao buscar causasRaiz:', err)
+    );
+    return () => unsub();
+  }, []);
 
   const handleAtenderChamado = async () => {
     setIsUpdating(true);
@@ -57,6 +73,19 @@ const ChamadoDetalhe = ({ user }) => {
     }
   };
 
+  useEffect(() => {
+    // subscreve a coleção de causasRaiz
+    const unsub = onSnapshot(
+      collection(db, 'causasRaiz'),
+      snapshot => {
+        const lista = snapshot.docs.map(doc => doc.data().nome);
+        setCausas(lista);
+      },
+      err => console.error('Erro ao buscar causasRaiz:', err)
+    );
+    return () => unsub();
+  }, []);
+
   const handleChecklistItemToggle = (index, value) => {
     const novoChecklist = [...checklist];
     novoChecklist[index].resposta = value;
@@ -67,10 +96,16 @@ const ChamadoDetalhe = ({ user }) => {
   const handleConcluirChamado = async (e) => {
     e.preventDefault();
     setIsUpdating(true);
+    if (!causa) {
+      toast.error('Selecione a causa da falha antes de concluir este chamado.');
+      setIsUpdating(false);
+      return;
+    }
     const chamadoRef = doc(db, 'chamados', id);
     let dadosUpdate = {
       status: 'Concluído',
-      dataConclusao: serverTimestamp()
+      dataConclusao: serverTimestamp(),
+      causa
     };
 
     dadosUpdate.causa = causa;
@@ -167,82 +202,159 @@ const ChamadoDetalhe = ({ user }) => {
   };
 
   if (loading) return <p style={{ padding: '20px' }}>Carregando...</p>;
-  if (!chamado) return <p style={{ padding: '20px' }}>Chamado não encontrado.</p>;
+  if (!chamado)  return <p style={{ padding: '20px' }}>Chamado não encontrado.</p>;
 
   const podeAtender = user.role === 'manutentor' && chamado.status === 'Aberto';
-  const podeConcluir = user.role === 'manutentor' && chamado.status === 'Em Andamento';
+  const podeConcluir= user.role === 'manutentor' && chamado.status === 'Em Andamento';
 
   return (
     <div className={styles.container}>
       <header className={styles.header}>
         <h1>Máquina: {chamado.maquina}</h1>
-        <small>Aberto por {chamado.operadorNome} em {chamado.dataAbertura ? new Date(chamado.dataAbertura.toDate()).toLocaleString('pt-BR') : '...'}</small>
+        <small>
+          Aberto por {chamado.operadorNome} em{' '}
+          {chamado.dataAbertura
+            ? new Date(chamado.dataAbertura.toDate()).toLocaleString('pt-BR')
+            : '...'}
+        </small>
       </header>
 
+      {/* CARD PRINCIPAL */}
       <div className={styles.card}>
         <div className={styles.detailsGrid}>
-          <div className={styles.detailItem}><strong>Status</strong><p><span className={`${styles.statusBadge} ${styles[chamado.status.toLowerCase().replace(' ', '')]}`}>{chamado.status}</span></p></div>
-          {chamado.manutentorNome && (<div className={styles.detailItem}><strong>Atendido por</strong><p>{chamado.manutentorNome}</p></div>)}
-          <div className={styles.detailItem}><strong>Problema Reportado</strong><p style={{wordBreak: 'break-word'}}>{chamado.descricao}</p></div>
+          <div className={styles.detailItem}>
+            <strong>Status</strong>
+            <p>
+              <span
+                className={`${styles.statusBadge} ${
+                  styles[chamado.status.toLowerCase().replace(' ', '')]
+                }`}
+              >
+                {chamado.status}
+              </span>
+            </p>
+          </div>
+
+          {chamado.manutentorNome && (
+            <div className={styles.detailItem}>
+              <strong>Atendido por</strong>
+              <p>{chamado.manutentorNome}</p>
+            </div>
+          )}
+
+          <div className={styles.detailItem}>
+            <strong>Problema Reportado</strong>
+            <p style={{ wordBreak: 'break-word' }}>{chamado.descricao}</p>
+          </div>
+
           {chamado.status === 'Concluído' && (
             chamado.tipo === 'preventiva' ? (
-              <div className={styles.detailItem}><strong>Checklist Concluído</strong><p>{chamado.checklist.filter(i => i.concluido).length} de {chamado.checklist.length} itens checados.</p></div>
+              <div className={styles.detailItem}>
+                <strong>Checklist Concluído</strong>
+                <p>
+                  {chamado.checklist.filter(i => i.concluido).length} de{' '}
+                  {chamado.checklist.length} itens checados.
+                </p>
+              </div>
             ) : (
-              <div className={styles.detailItem}><strong>Serviço Realizado</strong><p style={{wordBreak: 'break-word'}}>{chamado.solucao}</p><small>Concluído em: {chamado.dataConclusao ? new Date(chamado.dataConclusao.toDate()).toLocaleString('pt-BR') : '...'}</small></div>
+              <div className={styles.detailItem}>
+                <strong>Serviço Realizado</strong>
+                <p style={{ wordBreak: 'break-word' }}>{chamado.solucao}</p>
+                <small>
+                  Concluído em:{' '}
+                  {chamado.dataConclusao
+                    ? new Date(chamado.dataConclusao.toDate()).toLocaleString('pt-BR')
+                    : '...'}
+                </small>
+              </div>
             )
+          )}
+
+          {/* NOVA CAUSA DA FALHA */}
+          {['Em Andamento', 'Concluído'].includes(chamado.status) && (
+            <div className={styles.detailItem}>
+              <strong>Causa da Falha</strong>
+              {chamado.status === 'Em Andamento' ? (
+                <select
+                  id="causa"
+                  value={causa}
+                  onChange={e => setCausa(e.target.value)}
+                  className={styles.select}
+                  required
+                >
+                  <option value="" disabled>Selecione a causa...</option>
+                  {causas.map(nomeCausa => (
+                    <option key={nomeCausa} value={nomeCausa}>
+                      {nomeCausa.charAt(0).toUpperCase() + nomeCausa.slice(1)}
+                    </option>
+                  ))}
+                </select>
+              ) : (
+                <p className={styles.readonlyField}>
+                  {chamado.causa || '–'}
+                </p>
+              )}
+            </div>
           )}
         </div>
       </div>
-      
+
+      {/* HISTÓRICO E OBSERVAÇÕES */}
       <div className={`${styles.card} ${styles.historySection}`}>
         <h2 className={styles.cardTitle}>Histórico de Observações</h2>
+
         {podeConcluir && (
           <div className={styles.formGroup}>
             <label htmlFor="observacao">Adicionar Nova Observação</label>
-            <textarea id="observacao" className={styles.textarea} rows="3" value={novaObservacao} onChange={(e) => setNovaObservacao(e.target.value)} />
-            <button onClick={handleAdicionarObservacao} className={styles.button} style={{marginTop: '10px'}} disabled={isUpdating}>
+            <textarea
+              id="observacao"
+              className={styles.textarea}
+              rows="3"
+              value={novaObservacao}
+              onChange={(e) => setNovaObservacao(e.target.value)}
+            />
+            <button
+              onClick={handleAdicionarObservacao}
+              className={styles.button}
+              style={{ marginTop: '10px' }}
+              disabled={isUpdating}
+            >
               {isUpdating ? 'Salvando...' : 'Salvar Observação'}
             </button>
           </div>
         )}
+
         <ul className={styles.historyList}>
-          {chamado.observacoes && chamado.observacoes.length > 0 ? (
-            [...chamado.observacoes].reverse().map((obs, index) => (
-              <li key={index} className={styles.historyItem}>
-                <div className={styles.historyHeader}>
-                  <strong>{obs.autor}</strong>
-                  <span>{new Date(obs.data.toDate()).toLocaleString('pt-BR')}</span>
-                </div>
-                <p className={styles.historyContent}>{obs.texto}</p>
-              </li>
-            ))
+          {chamado.observacoes?.length > 0 ? (
+            [...chamado.observacoes]
+              .reverse()
+              .map((obs, i) => (
+                <li key={i} className={styles.historyItem}>
+                  <div className={styles.historyHeader}>
+                    <strong>{obs.autor}</strong>
+                    <span>
+                      {new Date(obs.data.toDate()).toLocaleString('pt-BR')}
+                    </span>
+                  </div>
+                  <p className={styles.historyContent}>{obs.texto}</p>
+                </li>
+              ))
           ) : (
             <p>Nenhuma observação registrada.</p>
           )}
         </ul>
-        <div className={styles.formGroup}>
-          <label htmlFor="causa">Causa da Falha</label>
-          <select
-            id="causa"
-            value={causa}
-            onChange={e => setCausa(e.target.value)}
-            className={styles.select}
-            required
-          >
-            <option value="" disabled>Selecione a causa...</option>
-            <option value="corretiva">Corretiva</option>
-            <option value="preventiva">Preventiva</option>
-            <option value="preditiva">Preditiva</option>
-            <option value="hidraulica">Hidráulica</option>
-          </select>
-        </div>
       </div>
 
+      {/* BOTÕES ATENDER / CONCLUIR */}
       {podeAtender && (
         <div className={styles.card}>
-            <button onClick={handleAtenderChamado} className={styles.button} disabled={isUpdating}>
-              {isUpdating ? 'Processando...' : 'Atender Chamado'}
-            </button>
+          <button
+            onClick={handleAtenderChamado}
+            className={styles.button}
+            disabled={isUpdating}
+          >
+            {isUpdating ? 'Processando...' : 'Atender Chamado'}
+          </button>
         </div>
       )}
       
@@ -262,7 +374,11 @@ const ChamadoDetalhe = ({ user }) => {
                   </div>
                 </div>
               ))}
-              <button type="submit" className={styles.button} style={{marginTop: '20px'}} disabled={isUpdating}>
+              <button
+                type="submit"
+                className={styles.button}
+                disabled={isUpdating || !causa}
+              >
                 {isUpdating ? 'Concluindo...' : 'Concluir Chamado'}
               </button>
             </form>
@@ -275,7 +391,11 @@ const ChamadoDetalhe = ({ user }) => {
                 <label htmlFor="solucao">Serviço Realizado / Solução Aplicada</label>
                 <textarea id="solucao" className={styles.textarea} rows="5" value={solucao} onChange={(e) => setSolucao(e.target.value)} required />
               </div>
-              <button type="submit" className={styles.button} disabled={isUpdating}>
+              <button
+                type="submit"
+                className={styles.button}
+                disabled={isUpdating || !causa}
+              >
                 {isUpdating ? 'Salvando...' : 'Concluir Chamado'}
               </button>
             </form>

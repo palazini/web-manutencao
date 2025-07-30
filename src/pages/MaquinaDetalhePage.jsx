@@ -197,6 +197,7 @@ const MaquinaDetalhePage = ({ user }) => {
     switch(tipo) {
       case 'corretiva': return styles.corretiva;
       case 'preventiva': return styles.preventiva;
+      case 'preditiva': return styles.preditiva;
       default: return styles.normal;
     }
   };
@@ -312,15 +313,30 @@ const MaquinaDetalhePage = ({ user }) => {
       {lista.length === 0 ? <p>{mensagemVazia}</p> : (
         <ul className={styles.chamadoList}>
           {lista.map(chamado => {
-            // Se o tipo não existir, consideramos como 'corretiva'
             const tipoChamado = chamado.tipo || 'corretiva';
+            const isConcluido = chamado.status === 'Concluído';
+
+            // Se for concluído, use a classe que "desliga" a cor;
+            // caso contrário, mantém o getStatusClass original
+            const statusClass = isConcluido
+              ? styles.concluidoCard
+              : getStatusClass(tipoChamado);
+
             return (
-              <Link to={`/historico/chamado/${chamado.id}`} key={chamado.id} className={styles.chamadoCard}>
-                {/* Aplicamos a classe de cor dinâmica aqui */}
-                <li className={`${styles.chamadoItem} ${getStatusClass(tipoChamado)}`}>
+              <Link
+                to={`/historico/chamado/${chamado.id}`}
+                key={chamado.id}
+                className={styles.chamadoCard}
+              >
+                <li className={`${styles.chamadoItem} ${statusClass}`}>
                   <strong>{chamado.descricao}</strong>
                   <p>Status: {chamado.status}</p>
-                  <small>Aberto em: {chamado.dataAbertura ? new Date(chamado.dataAbertura.toDate()).toLocaleDateString('pt-BR') : 'N/A'}</small>
+                  <small>
+                    Aberto em:{' '}
+                    {chamado.dataAbertura
+                      ? new Date(chamado.dataAbertura.toDate()).toLocaleDateString('pt-BR')
+                      : 'N/A'}
+                  </small>
                 </li>
               </Link>
             );

@@ -144,3 +144,9 @@
   font-size: 1rem;
   margin-bottom: 16px;
 }
+
+.readonlyField {
+  margin: 0;
+  font-size: 1rem;
+  color: #333;
+}

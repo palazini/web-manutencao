@@ -1,38 +1,40 @@
-.container {
-  max-width: 600px;
-  margin: 40px auto;
-  padding: 0 16px;
+.pageContainer {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 24px;
+  padding: 20px;
 }
 
-h2 {
-  margin-bottom: 24px;
-  text-align: center;
+.crudSection,
+.chartSection {
+  background: #fff;
+  padding: 16px;
+  border-radius: 8px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
 }
 
-.addForm {
+.formGroup {
   display: flex;
   gap: 8px;
-  margin-bottom: 24px;
+  margin-bottom: 16px;
 }
 
-.addForm input {
+.input {
   flex: 1;
-  padding: 8px 12px;
+  padding: 8px;
+  font-size: 1rem;
   border: 1px solid #ccc;
   border-radius: 4px;
 }
 
-.addForm button {
-  padding: 8px 16px;
+.button {
+  padding: 8px 12px;
+  font-size: 1rem;
+  background-color: #0066cc;
+  color: #fff;
   border: none;
-  background-color: #1976d2;
-  color: white;
   border-radius: 4px;
   cursor: pointer;
-}
-
-.addForm button:hover {
-  background-color: #155fa0;
 }
 
 .list {
@@ -41,33 +43,22 @@ h2 {
   margin: 0;
 }
 
-.list li {
+.listItem {
   display: flex;
-  align-items: center;
-  gap: 8px;
+  justify-content: space-between;
   padding: 8px 0;
   border-bottom: 1px solid #eee;
 }
 
-.list li:last-child {
-  border-bottom: none;
-}
-
-.list li input {
-  flex: 1;
-  padding: 6px 10px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-}
-
-.list li button {
+.deleteButton {
+  background: none;
   border: none;
-  background: transparent;
-  color: #d32f2f;
-  font-size: 1.1em;
+  color: #c00;
   cursor: pointer;
 }
 
-.list li button:hover {
-  color: #a00;
+@media (max-width: 768px) {
+  .pageContainer {
+    grid-template-columns: 1fr;
+  }
 }

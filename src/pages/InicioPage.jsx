@@ -11,7 +11,8 @@ import {
   FiBarChart2,
   FiList,
   FiUsers,
-  FiUser
+  FiUser,
+  FiPieChart
 } from 'react-icons/fi';
 
 const InicioPage = ({ user }) => {
@@ -65,6 +66,17 @@ const InicioPage = ({ user }) => {
               <h3 className={styles.cardTitle}>Análise de Falhas</h3>
               <p className={styles.cardDescription}>
                 Veja estatísticas e relatórios de falhas de máquinas.
+              </p>
+            </Link>
+          )}
+
+          {/* Causas Raiz */}
+          {user.role === 'gestor' && (
+            <Link to="/causas-raiz" className={styles.actionCard}>
+              <FiPieChart className={styles.cardIcon} />
+              <h3 className={styles.cardTitle}>Causas Raiz</h3>
+              <p className={styles.cardDescription}>
+                Identifique e gerencie as causas raízes das falhas.
               </p>
             </Link>
           )}

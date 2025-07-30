@@ -260,9 +260,18 @@
   border-left-width: 6px;
 }
 
+.preditiva {
+  border-left-color: #ffc107; 
+  border-left-width: 6px;
+}
+
 .normal {
   border-left-color: #eef0f3; 
   border-left-width: 6px;
+}
+
+.concluidoCard {
+  border-left: none !important;
 }
 
 @media (max-width: 768px) {

@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
 import { db } from '../firebase';
-import { collection, query, onSnapshot, where } from 'firebase/firestore';
+import { collection, query, onSnapshot, where, orderBy } from 'firebase/firestore';
 import styles from './AnaliseFalhasPage.module.css';
 
 import { Bar } from 'react-chartjs-2';
@@ -13,7 +13,7 @@ import {
   BarElement,
   Title,
   Tooltip,
-  Legend,
+  Legend
 } from 'chart.js';
 
 ChartJS.register(
@@ -26,52 +26,47 @@ ChartJS.register(
 );
 
 const AnaliseFalhasPage = () => {
+  const [startDate, setStartDate] = useState(null);
+  const [endDate, setEndDate]     = useState(null);
   const [chamadosCorretivos, setChamadosCorretivos] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // --- CONSULTA CORRIGIDA E MAIS ROBUSTA ---
-    // Agora buscamos todos os chamados que NÃO SÃO nem 'preventiva' nem 'preditiva'.
-    const q = query(
-        collection(db, 'chamados'),
-        where('tipo', '==', 'corretiva')
-    );
+    const constraints = [where('tipo', '==', 'corretiva')];
+    if (startDate) {
+      constraints.push(where('dataConclusao', '>=', startDate));
+    }
+    if (endDate) {
+      const endOfDay = new Date(endDate);
+      endOfDay.setHours(23, 59, 59, 999);
+      constraints.push(where('dataConclusao', '<=', endOfDay));
+    }
+    constraints.push(orderBy('dataConclusao', 'desc'));
 
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      const chamadosData = snapshot.docs.map(doc => doc.data());
-
-      console.log("Dados recebidos do Firestore:", chamadosData);
-
-      setChamadosCorretivos(chamadosData);
+    const q = query(collection(db, 'chamados'), ...constraints);
+    const unsubscribe = onSnapshot(q, snapshot => {
+      setChamadosCorretivos(snapshot.docs.map(doc => doc.data()));
       setLoading(false);
     });
 
     return () => unsubscribe();
-  }, []);
+  }, [startDate, endDate]);
 
-  // O resto do código continua exatamente o mesmo
   const chartData = useMemo(() => {
     const falhasPorMaquina = {};
-
     chamadosCorretivos.forEach(chamado => {
       falhasPorMaquina[chamado.maquina] = (falhasPorMaquina[chamado.maquina] || 0) + 1;
     });
-
-    const maquinasOrdenadas = Object.entries(falhasPorMaquina)
-      .sort(([, a], [, b]) => b - a);
-      
-    const labels = maquinasOrdenadas.map(item => item[0]);
-    const data = maquinasOrdenadas.map(item => item[1]);
-
+    const sorted = Object.entries(falhasPorMaquina).sort(([, a], [, b]) => b - a);
     return {
-      labels,
+      labels: sorted.map(item => item[0]),
       datasets: [{
         label: 'Nº de Falhas Corretivas',
-        data,
+        data: sorted.map(item => item[1]),
         backgroundColor: '#4B70E2',
         borderColor: '#3a56b3',
-        borderWidth: 1,
-      }],
+        borderWidth: 1
+      }]
     };
   }, [chamadosCorretivos]);
 
@@ -79,34 +74,51 @@ const AnaliseFalhasPage = () => {
     responsive: true,
     maintainAspectRatio: false,
     plugins: {
-      legend: {
-        position: 'top',
-      },
-      title: {
-        display: true,
-        text: 'Distribuição de Falhas Corretivas por Máquina',
-        font: {
-          size: 18
-        }
-      },
+      legend: { position: 'top' },
+      title: { display: true, text: 'Distribuição de Falhas Corretivas por Máquina', font: { size: 18 } }
     },
-    scales: {
-      y: {
-        beginAtZero: true,
-        ticks: {
-          stepSize: 1
-        }
-      },
-    },
+    scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }
   };
 
   return (
     <>
-      <header style={{ padding: '20px', backgroundColor: '#ffffff', borderBottom: '1px solid #e0e0e0' }}>
-        <h1>Análise de Falhas por Máquina</h1>
-      </header>
-      <div style={{ padding: '20px' }}>
+      {/* Apenas o header dentro de seu card */}
+      <div className={styles.card}>
+        <header className={styles.header}>
+          <h1>Análise de Falhas Corretivas</h1>
+        </header>
+      </div>
+
+      <main className={styles.main}>
+        {/* Card contendo filtro e gráfico */}
         <div className={styles.card}>
+          <div className={styles.filterContainer}>
+            <div>
+              <label htmlFor="startDate">Início:</label>
+              <input
+                type="date"
+                id="startDate"
+                value={startDate ? startDate.toISOString().split('T')[0] : ''}
+                onChange={e => setStartDate(e.target.value ? new Date(e.target.value) : null)}
+              />
+            </div>
+            <div>
+              <label htmlFor="endDate">Fim:</label>
+              <input
+                type="date"
+                id="endDate"
+                value={endDate ? endDate.toISOString().split('T')[0] : ''}
+                onChange={e => setEndDate(e.target.value ? new Date(e.target.value) : null)}
+              />
+            </div>
+            <button
+            className={styles.clearButton}
+            onClick={() => { setStartDate(null); setEndDate(null); }}
+          >
+            Limpar
+          </button>
+          </div>
+
           {loading ? (
             <p>Analisando dados...</p>
           ) : (
@@ -115,7 +127,7 @@ const AnaliseFalhasPage = () => {
             </div>
           )}
         </div>
-      </div>
+      </main>
     </>
   );
 };
