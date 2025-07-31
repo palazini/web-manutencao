@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { db, secondaryAuth } from '../firebase';
+import { db, secondaryAuth } from './firebase';
 import {
   collection,
   query,
@@ -7,13 +7,31 @@ import {
   orderBy,
   doc,
   setDoc,
-  deleteDoc,
+  deleteDoc
 } from 'firebase/firestore';
 import { createUserWithEmailAndPassword, getAuth } from 'firebase/auth';
 import styles from './GerirUtilizadoresPage.module.css';
-import Modal from '../components/Modal.jsx';
+import Modal from './components/Modal.jsx';
 import { FiPlus, FiEdit, FiTrash2 } from 'react-icons/fi';
 import toast from 'react-hot-toast';
+
+// Helper para atribuir/remover a claim de gestor via função serverless
+async function setAdminClaim(uid, makeAdmin) {
+  const auth = getAuth();
+  const token = await auth.currentUser.getIdToken(true);
+  const res = await fetch('/api/setAdminClaim', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`
+    },
+    body: JSON.stringify({ uid, makeAdmin })
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.error || 'Falha ao atualizar permissão');
+  }
+}
 
 const GerirUtilizadoresPage = () => {
   const [utilizadores, setUtilizadores] = useState([]);
@@ -32,8 +50,8 @@ const GerirUtilizadoresPage = () => {
 
   useEffect(() => {
     const q = query(collection(db, 'usuarios'), orderBy('nome'));
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      setUtilizadores(snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() })));
+    const unsubscribe = onSnapshot(q, snapshot => {
+      setUtilizadores(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
       setLoading(false);
     });
     return () => unsubscribe();
@@ -43,19 +61,22 @@ const GerirUtilizadoresPage = () => {
     e.preventDefault();
     setIsCreating(true);
 
+    // Validação de nome completo
     const nomeCompleto = nome.trim();
     const partesNome = nomeCompleto.split(' ').filter(p => p);
     if (partesNome.length < 2) {
-      toast.error("Por favor, insira o nome e o sobrenome.");
+      toast.error('Por favor, insira o nome e o sobrenome.');
       setIsCreating(false);
       return;
     }
 
+    // Geração de usuário e email
     const primeiroNome = partesNome[0].toLowerCase();
     const ultimoNome = partesNome[partesNome.length - 1].toLowerCase();
     const nomeUsuario = `${primeiroNome}.${ultimoNome}`;
     const emailGerado = `${nomeUsuario}@m.continua.tpm`;
 
+    // Definição de função base em role
     let funcao = '';
     switch (role) {
       case 'manutentor':
@@ -68,55 +89,68 @@ const GerirUtilizadoresPage = () => {
         funcao = 'Gestor';
     }
 
-    if (modoEdicao) {
-      // Atualização de usuário existente
-      try {
+    try {
+      if (modoEdicao) {
+        // Atualização de usuário existente
         await setDoc(doc(db, 'usuarios', usuarioEditandoId), {
           nome: nomeCompleto,
           usuario: nomeUsuario,
           email: emailGerado,
-          role: role,
-          funcao: funcao,
+          role,
+          funcao
         }, { merge: true });
 
-        toast.success("Utilizador atualizado com sucesso!");
-      } catch (error) {
-        console.error("Erro ao atualizar utilizador:", error);
-        toast.error("Erro ao atualizar utilizador.");
-      }
-    } else {
-      // Criação de novo usuário
-      try {
-        const userCredential = await createUserWithEmailAndPassword(secondaryAuth, emailGerado, senha);
-        const novoUsuario = userCredential.user;
+        // Atualiza claim no Auth
+        try {
+          await setAdminClaim(usuarioEditandoId, role === 'gestor');
+        } catch (err) {
+          console.warn('Erro ao atualizar claim:', err);
+          toast.error('Permissão no Auth não foi atualizada.');
+        }
 
-        await setDoc(doc(db, 'usuarios', novoUsuario.uid), {
+        toast.success('Utilizador atualizado com sucesso!');
+      } else {
+        // Cria usuário no Auth
+        const cred = await createUserWithEmailAndPassword(
+          secondaryAuth,
+          emailGerado,
+          senha
+        );
+        const uid = cred.user.uid;
+
+        // Grava no Firestore
+        await setDoc(doc(db, 'usuarios', uid), {
           nome: nomeCompleto,
           usuario: nomeUsuario,
           email: emailGerado,
-          role: role,
-          funcao: funcao,
+          role,
+          funcao
         });
 
-        toast.success(`Utilizador ${nomeCompleto} criado com sucesso!`);
-      } catch (error) {
-        console.error("Erro ao criar utilizador:", error);
-        if (error.code === 'auth/email-already-in-use') {
-          toast.error("Este e-mail gerado já está a ser utilizado. Verifique se o nome já existe.");
-        } else {
-          toast.error("Erro ao criar utilizador.");
+        // Atribui claim de gestor, se aplicável
+        try {
+          await setAdminClaim(uid, role === 'gestor');
+        } catch (err) {
+          console.warn('Erro ao atribuir claim:', err);
+          toast.error('Permissão no Auth não foi atribuída.');
         }
-      }
-    }
 
-    // Resetar formulário
-    setIsCreating(false);
-    setNome('');
-    setSenha('');
-    setRole('operador');
-    setIsModalOpen(false);
-    setModoEdicao(false);
-    setUsuarioEditandoId(null);
+        toast.success(`Utilizador ${nomeCompleto} criado com sucesso!`);
+      }
+
+      // Reset do formulário
+      setIsCreating(false);
+      setNome('');
+      setSenha('');
+      setRole('operador');
+      setModoEdicao(false);
+      setUsuarioEditandoId(null);
+      setIsModalOpen(false);
+    } catch (error) {
+      console.error('Falha ao salvar usuário:', error);
+      toast.error('Erro ao salvar utilizador.');
+      setIsCreating(false);
+    }
   };
 
   const abrirModalEdicao = (usuario) => {
@@ -128,64 +162,43 @@ const GerirUtilizadoresPage = () => {
     setIsModalOpen(true);
   };
 
-  async function handleExcluirUtilizador(uid, nome) {
-  if (!window.confirm(`Remover ${nome}?`)) return;
-
-  const auth = getAuth();
-  const token = await auth.currentUser.getIdToken(/* forceRefresh */ true);
-
-  try {
-    const res = await fetch('/api/deleteUser', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`
-      },
-      body: JSON.stringify({ uid })
-    });
-    const json = await res.json();
-    if (!res.ok) throw new Error(json.error || 'Erro');
-    toast.success('Usuário removido com sucesso!');
-    // aqui você já pode atualizar a lista de usuários no estado
-  } catch (err) {
-    console.error(err);
-    toast.error(err.message || 'Falha ao remover usuário.');
-  }
-}
+  const handleExcluirUtilizador = async (uid, nome) => {
+    if (!window.confirm(`Tem certeza que deseja excluir o utilizador ${nome}?`)) return;
+    try {
+      await deleteDoc(doc(db, 'usuarios', uid));
+      toast.success('Utilizador excluído com sucesso.');
+    } catch (error) {
+      console.error('Erro ao excluir utilizador:', error);
+      toast.error('Erro ao excluir utilizador.');
+    }
+  };
 
   return (
     <>
-      <header style={{ padding: '20px', backgroundColor: '#ffffff', borderBottom: '1px solid #e0e0e0' }}>
-        <div className={styles.header}>
-          <h1>Gestão de Utilizadores</h1>
-          <button className={styles.button} onClick={() => {
-            setIsModalOpen(true);
-            setModoEdicao(false);
-            setUsuarioEditandoId(null);
-            setNome('');
-            setSenha('');
-            setRole('operador');
-          }}>
-            <FiPlus />
-            Criar Novo Utilizador
-          </button>
-        </div>
+      <header className={styles.header}>
+        <h1>Gestão de Utilizadores</h1>
+        <button className={styles.button} onClick={() => {
+          setIsModalOpen(true);
+          setModoEdicao(false);
+          setUsuarioEditandoId(null);
+          setNome('');
+          setSenha('');
+          setRole('operador');
+        }}>
+          <FiPlus /> Criar Novo Utilizador
+        </button>
       </header>
-
       <div className={styles.userListContainer}>
         {loading ? (
           <p>A carregar utilizadores...</p>
         ) : (
           <>
-            {/* — Cabeçalho da lista — */}
             <div className={styles.userListHeader}>
               <span>Nome Completo</span>
               <span>Usuário</span>
               <span>Função</span>
               <span style={{ textAlign: 'right' }}>Ações</span>
             </div>
-
-            {/* — Itens da lista — */}
             <ul className={styles.userList}>
               {utilizadores.map(user => (
                 <li key={user.id} className={styles.userItem}>
@@ -193,18 +206,10 @@ const GerirUtilizadoresPage = () => {
                   <span>{user.usuario}</span>
                   <span>{user.funcao}</span>
                   <div className={styles.actions}>
-                    <button
-                      className={styles.actionButton}
-                      title="Editar"
-                      onClick={() => abrirModalEdicao(user)}
-                    >
+                    <button className={styles.actionButton} title="Editar" onClick={() => abrirModalEdicao(user)}>
                       <FiEdit />
                     </button>
-                    <button
-                      className={`${styles.actionButton} ${styles.deleteButton}`}
-                      title="Apagar"
-                      onClick={() => handleExcluirUtilizador(user.id, user.nome)}
-                    >
+                    <button className={`${styles.actionButton} ${styles.deleteButton}`} title="Apagar" onClick={() => handleExcluirUtilizador(user.id, user.nome)}>
                       <FiTrash2 />
                     </button>
                   </div>
@@ -215,11 +220,7 @@ const GerirUtilizadoresPage = () => {
         )}
       </div>
 
-      <Modal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        title={modoEdicao ? "Editar Utilizador" : "Criar Novo Utilizador"}
-      >
+      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title={modoEdicao ? 'Editar Utilizador' : 'Criar Novo Utilizador'}>
         <form onSubmit={handleSalvarUtilizador}>
           <div className={styles.formGroup}>
             <label htmlFor="nome">Nome Completo</label>
