@@ -1,17 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { db, secondaryAuth } from '../firebase';
+import { db, secondaryAuth } from './firebase';
 import {
   collection,
   query,
   onSnapshot,
   orderBy,
   doc,
-  setDoc,
-  deleteDoc
+  setDoc
 } from 'firebase/firestore';
 import { createUserWithEmailAndPassword, getAuth } from 'firebase/auth';
 import styles from './GerirUtilizadoresPage.module.css';
-import Modal from '../components/Modal.jsx';
+import Modal from './components/Modal.jsx';
 import { FiPlus, FiEdit, FiTrash2 } from 'react-icons/fi';
 import toast from 'react-hot-toast';
 
@@ -42,7 +41,7 @@ const GerirUtilizadoresPage = () => {
   const [nome, setNome] = useState('');
   const [senha, setSenha] = useState('');
   const [role, setRole] = useState('operador');
-  const [isCreating, setIsCreating] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
 
   // Edição
   const [modoEdicao, setModoEdicao] = useState(false);
@@ -59,39 +58,30 @@ const GerirUtilizadoresPage = () => {
 
   const handleSalvarUtilizador = async (e) => {
     e.preventDefault();
-    setIsCreating(true);
+    setIsSaving(true);
 
-    // Validação de nome completo
     const nomeCompleto = nome.trim();
-    const partesNome = nomeCompleto.split(' ').filter(p => p);
-    if (partesNome.length < 2) {
-      toast.error('Por favor, insira o nome e o sobrenome.');
-      setIsCreating(false);
+    const partes = nomeCompleto.split(' ').filter(p => p);
+    if (partes.length < 2) {
+      toast.error('Informe nome e sobrenome.');
+      setIsSaving(false);
       return;
     }
 
-    // Geração de usuário e email
-    const primeiroNome = partesNome[0].toLowerCase();
-    const ultimoNome = partesNome[partesNome.length - 1].toLowerCase();
+    const primeiroNome = partes[0].toLowerCase();
+    const ultimoNome = partes[partes.length - 1].toLowerCase();
     const nomeUsuario = `${primeiroNome}.${ultimoNome}`;
     const emailGerado = `${nomeUsuario}@m.continua.tpm`;
 
-    // Definição de função base em role
     let funcao = '';
     switch (role) {
-      case 'manutentor':
-        funcao = 'Técnico Eletromecânico';
-        break;
-      case 'operador':
-        funcao = 'Operador de CNC';
-        break;
-      default:
-        funcao = 'Gestor';
+      case 'manutentor': funcao = 'Técnico Eletromecânico'; break;
+      case 'operador':   funcao = 'Operador de CNC';         break;
+      default:           funcao = 'Gestor';                  break;
     }
 
     try {
       if (modoEdicao) {
-        // Atualização de usuário existente
         await setDoc(doc(db, 'usuarios', usuarioEditandoId), {
           nome: nomeCompleto,
           usuario: nomeUsuario,
@@ -100,25 +90,21 @@ const GerirUtilizadoresPage = () => {
           funcao
         }, { merge: true });
 
-        // Atualiza claim no Auth
         try {
           await setAdminClaim(usuarioEditandoId, role === 'gestor');
         } catch (err) {
-          console.warn('Erro ao atualizar claim:', err);
-          toast.error('Permissão no Auth não foi atualizada.');
+          console.warn('Erro na claim:', err);
+          toast.error('Permissão Auth não foi atualizada.');
         }
 
         toast.success('Utilizador atualizado com sucesso!');
       } else {
-        // Cria usuário no Auth
         const cred = await createUserWithEmailAndPassword(
           secondaryAuth,
           emailGerado,
           senha
         );
         const uid = cred.user.uid;
-
-        // Grava no Firestore
         await setDoc(doc(db, 'usuarios', uid), {
           nome: nomeCompleto,
           usuario: nomeUsuario,
@@ -127,19 +113,17 @@ const GerirUtilizadoresPage = () => {
           funcao
         });
 
-        // Atribui claim de gestor, se aplicável
         try {
           await setAdminClaim(uid, role === 'gestor');
         } catch (err) {
-          console.warn('Erro ao atribuir claim:', err);
-          toast.error('Permissão no Auth não foi atribuída.');
+          console.warn('Erro na claim:', err);
+          toast.error('Permissão Auth não foi atribuída.');
         }
 
         toast.success(`Utilizador ${nomeCompleto} criado com sucesso!`);
       }
 
-      // Reset do formulário
-      setIsCreating(false);
+      setIsSaving(false);
       setNome('');
       setSenha('');
       setRole('operador');
@@ -149,27 +133,41 @@ const GerirUtilizadoresPage = () => {
     } catch (error) {
       console.error('Falha ao salvar usuário:', error);
       toast.error('Erro ao salvar utilizador.');
-      setIsCreating(false);
+      setIsSaving(false);
     }
   };
 
-  const abrirModalEdicao = (usuario) => {
-    setNome(usuario.nome);
-    setRole(usuario.role);
-    setSenha(''); // senha não pode ser alterada aqui
-    setUsuarioEditandoId(usuario.id);
+  const abrirModalEdicao = (user) => {
+    setNome(user.nome);
+    setRole(user.role);
     setModoEdicao(true);
+    setUsuarioEditandoId(user.id);
+    setSenha('');
     setIsModalOpen(true);
   };
 
   const handleExcluirUtilizador = async (uid, nome) => {
-    if (!window.confirm(`Tem certeza que deseja excluir o utilizador ${nome}?`)) return;
+    if (!window.confirm(`Excluir utilizador ${nome}?`)) return;
     try {
-      await deleteDoc(doc(db, 'usuarios', uid));
-      toast.success('Utilizador excluído com sucesso.');
+      const auth = getAuth();
+      const token = await auth.currentUser.getIdToken(true);
+      const res = await fetch('/api/deleteUser', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({ uid })
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error || 'Falha ao excluir utilizador.');
+      }
+      setUtilizadores(prev => prev.filter(u => u.id !== uid));
+      toast.success('Utilizador removido com sucesso.');
     } catch (error) {
       console.error('Erro ao excluir utilizador:', error);
-      toast.error('Erro ao excluir utilizador.');
+      toast.error(error.message || 'Erro ao excluir utilizador.');
     }
   };
 
@@ -209,7 +207,11 @@ const GerirUtilizadoresPage = () => {
                     <button className={styles.actionButton} title="Editar" onClick={() => abrirModalEdicao(user)}>
                       <FiEdit />
                     </button>
-                    <button className={`${styles.actionButton} ${styles.deleteButton}`} title="Apagar" onClick={() => handleExcluirUtilizador(user.id, user.nome)}>
+                    <button
+                      className={`${styles.actionButton} ${styles.deleteButton}`}
+                      title="Apagar"
+                      onClick={() => handleExcluirUtilizador(user.id, user.nome)}
+                    >
                       <FiTrash2 />
                     </button>
                   </div>
@@ -220,28 +222,56 @@ const GerirUtilizadoresPage = () => {
         )}
       </div>
 
-      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title={modoEdicao ? 'Editar Utilizador' : 'Criar Novo Utilizador'}>
+      <Modal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        title={modoEdicao ? 'Editar Utilizador' : 'Criar Novo Utilizador'}
+      >
         <form onSubmit={handleSalvarUtilizador}>
           <div className={styles.formGroup}>
             <label htmlFor="nome">Nome Completo</label>
-            <input id="nome" type="text" className={styles.input} value={nome} onChange={(e) => setNome(e.target.value)} required />
+            <input
+              id="nome"
+              type="text"
+              className={styles.input}
+              value={nome}
+              onChange={e => setNome(e.target.value)}
+              required
+            />
           </div>
           {!modoEdicao && (
             <div className={styles.formGroup}>
               <label htmlFor="senha">Senha Provisória</label>
-              <input id="senha" type="password" className={styles.input} value={senha} onChange={(e) => setSenha(e.target.value)} required minLength="6" />
+              <input
+                id="senha"
+                type="password"
+                className={styles.input}
+                value={senha}
+                onChange={e => setSenha(e.target.value)}
+                required
+                minLength="6"
+              />
             </div>
           )}
           <div className={styles.formGroup}>
             <label htmlFor="role">Função (Papel)</label>
-            <select id="role" className={styles.select} value={role} onChange={(e) => setRole(e.target.value)}>
+            <select
+              id="role"
+              className={styles.select}
+              value={role}
+              onChange={e => setRole(e.target.value)}
+            >
               <option value="operador">Operador</option>
               <option value="manutentor">Manutentor</option>
               <option value="gestor">Gestor</option>
             </select>
           </div>
-          <button type="submit" className={styles.button} disabled={isCreating}>
-            {isCreating ? 'Salvando...' : (modoEdicao ? 'Salvar Alterações' : 'Criar Utilizador')}
+          <button
+            type="submit"
+            className={styles.button}
+            disabled={isSaving}
+          >
+            {isSaving ? 'Salvando...' : (modoEdicao ? 'Salvar Alterações' : 'Criar Utilizador')}
           </button>
         </form>
       </Modal>

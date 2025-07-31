@@ -1,4 +1,4 @@
-// scripts/setAdminClaim.js
+// scripts/setAdminClaim.cjs
 
 const admin = require('firebase-admin');
 const serviceAccount = require('./serviceAccountKey.json');
@@ -9,7 +9,7 @@ admin.initializeApp({
 
 const uid = process.argv[2];
 if (!uid) {
-  console.error('Use: node scripts/setAdminClaim.js <UID_DO_USUARIO>');
+  console.error('Use: node scripts/setAdminClaim.cjs <UID_DO_USUARIO>');
   process.exit(1);
 }
 
