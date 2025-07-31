@@ -9,7 +9,7 @@ import {
   setDoc,
   deleteDoc,
 } from 'firebase/firestore';
-import { createUserWithEmailAndPassword } from 'firebase/auth';
+import { createUserWithEmailAndPassword, getAuth } from 'firebase/auth';
 import styles from './GerirUtilizadoresPage.module.css';
 import Modal from '../components/Modal.jsx';
 import { FiPlus, FiEdit, FiTrash2 } from 'react-icons/fi';
@@ -128,18 +128,30 @@ const GerirUtilizadoresPage = () => {
     setIsModalOpen(true);
   };
 
-  const handleExcluirUtilizador = async (id, nome) => {
-    const confirm = window.confirm(`Tem certeza que deseja excluir o utilizador ${nome}?`);
-    if (!confirm) return;
+  async function handleExcluirUtilizador(uid, nome) {
+  if (!window.confirm(`Remover ${nome}?`)) return;
 
-    try {
-      await deleteDoc(doc(db, 'usuarios', id));
-      toast.success("Utilizador excluído com sucesso.");
-    } catch (error) {
-      console.error("Erro ao excluir utilizador:", error);
-      toast.error("Erro ao excluir utilizador.");
-    }
-  };
+  const auth = getAuth();
+  const token = await auth.currentUser.getIdToken(/* forceRefresh */ true);
+
+  try {
+    const res = await fetch('/api/deleteUser', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`
+      },
+      body: JSON.stringify({ uid })
+    });
+    const json = await res.json();
+    if (!res.ok) throw new Error(json.error || 'Erro');
+    toast.success('Usuário removido com sucesso!');
+    // aqui você já pode atualizar a lista de usuários no estado
+  } catch (err) {
+    console.error(err);
+    toast.error(err.message || 'Falha ao remover usuário.');
+  }
+}
 
   return (
     <>
