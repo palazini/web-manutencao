@@ -10,8 +10,8 @@ import {
   deleteDoc
 } from 'firebase/firestore';
 import { createUserWithEmailAndPassword, getAuth } from 'firebase/auth';
-import styles from '../GerirUtilizadoresPage.module.css';
-import Modal from '../components/Modal.jsx';
+import styles from './GerirUtilizadoresPage.module.css';
+import Modal from './components/Modal.jsx';
 import { FiPlus, FiEdit, FiTrash2 } from 'react-icons/fi';
 import toast from 'react-hot-toast';
 
