@@ -9,7 +9,8 @@
 
 /* --- BARRA LATERAL (VISÍVEL APENAS EM DESKTOPS) --- */
 .sidebar {
-  width: 260px; /* Um pouco mais larga para melhor visualização */
+  height: 100vh;
+  width: 260px;
   background-color: #ffffff;
   display: flex;
   flex-direction: column;
@@ -28,6 +29,8 @@
 }
 .nav {
   flex-grow: 1;
+  min-height: 0;
+  overflow-y: auto;
   padding: 15px 0;
 }
 .navLink {
