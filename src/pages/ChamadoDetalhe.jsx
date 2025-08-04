@@ -128,22 +128,21 @@ const ChamadoDetalhe = ({ user }) => {
       if (chamado.agendamentoId) {
         const agRef = doc(db, 'agendamentosPreventivos', chamado.agendamentoId);
 
-        // 1) Buscamos o agendamento para extraír originalStart
+        // 1) Puxa o documento para ler originalStart
         const agSnap = await getDoc(agRef);
         let original = null;
         if (agSnap.exists() && agSnap.data().originalStart) {
           const raw = agSnap.data().originalStart;
-          original = (typeof raw.toDate === 'function' ? raw.toDate() : raw);
+          original = typeof raw.toDate === 'function' ? raw.toDate() : raw;
         }
 
-        // 2) Calculamos o atraso usando Date de JS
+        // 2) Compara usando getTime()
         const now = new Date();
         const atrasado = original ? now.getTime() > original.getTime() : false;
 
-        // 2a) DEBUG: veja no console o que está vindo
-        console.log('>> Schedule originalStart=', original, 'now=', now, 'atrasado=', atrasado);
+        console.log('originalStart=', original, 'now=', now, 'atrasado=', atrasado);
 
-        // 3) Atualizamos apenas os campos de conclusão
+        // 3) Atualiza com timestamp de conclusão e flag de atraso
         await updateDoc(agRef, {
           status:      'concluido',
           concluidoEm: serverTimestamp(),
