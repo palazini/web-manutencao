@@ -127,21 +127,22 @@ const ChamadoDetalhe = ({ user }) => {
       // Se veio de um agendamento preventivo, marca como concluído
       if (chamado.agendamentoId) {
         const agRef = doc(db, 'agendamentosPreventivos', chamado.agendamentoId);
+
+        // Timestamp de conclusão e flag de atraso
         const now = new Date();
-        const orig = chamado.originalStart
-          ? (typeof chamado.originalStart.toDate === 'function'
-              ? chamado.originalStart.toDate()
-              : chamado.originalStart)
+        // Lê originalStart (pode vir como Timestamp ou Date)
+        const origRaw = chamado.originalStart;
+        const orig = origRaw
+          ? (typeof origRaw.toDate === 'function' ? origRaw.toDate() : origRaw)
           : null;
         const atrasado = orig ? now > orig : false;
 
         await updateDoc(agRef, {
           status:      'concluido',
-          concluidoEm: serverTimestamp(),
-          atrasado
+          concluidoEm: serverTimestamp(),  // grava timestamp do servidor
+          atrasado                         // grava boolean
         });
       }
-
       toast.success("Chamado concluído com sucesso!");
 
       // Atualiza o plano de manutenção se existir
