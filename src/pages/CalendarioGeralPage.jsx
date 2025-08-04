@@ -135,6 +135,8 @@ export default function CalendarioGeralPage({ user }) {
       maquinaNome:     machines.find(m => m.id === selMachine).nome,
       descricao:       descAgendamento,
       itensChecklist:  itensArray,
+      originalStart:   slotInfo.start,
+      originalEnd:     slotInfo.end,
       start:           slotInfo.start,
       end:             slotInfo.end,
       criadoEm:        serverTimestamp(),
@@ -192,6 +194,7 @@ export default function CalendarioGeralPage({ user }) {
           <div><span className={styles.legendBox} style={{backgroundColor:'#90EE90'}}/> Futuro</div>
           <div><span className={styles.legendBox} style={{backgroundColor:'#006400'}}/> Iniciado</div>
           <div><span className={styles.legendBox} style={{backgroundColor:'#00008B'}}/> Concluído</div>
+          <div><span className={styles.legendBox} style={{backgroundColor:'#8B008B'}}/> Concluído com Atraso</div>
         </div>
 
         <div className={styles.calendarWrapper}>
@@ -223,11 +226,12 @@ export default function CalendarioGeralPage({ user }) {
                 const inicio = event.start;
                 const s = event.resource.status;
                 let bg = '#FFFFFF';
-                if      (s === 'iniciado') bg = '#006400';
-                else if (s === 'agendado' && inicio < hoje) bg = '#8B0000';
-                else if (s === 'agendado' && inicio.toDateString()===hoje.toDateString()) bg = '#FFA500';
-                else if (s === 'agendado') bg = '#90EE90';
-                else if (s === 'concluido') bg = '#00008B';
+                if      (s === 'iniciado')                                    bg = '#006400';
+                else if (s === 'agendado' && inicio < hoje)                   bg = '#8B0000';
+                else if (s === 'agendado' && inicio.toDateString() === hoje.toDateString()) bg = '#FFA500';
+                else if (s === 'agendado')                                    bg = '#90EE90';
+                else if (event.resource.atrasado)                             bg = '#8B008B';
+                else if (s === 'concluido')                                   bg = '#00008B';
                 return { style: { backgroundColor: bg, color: getContrastColor(bg), borderRadius: 4, border: '1px solid #aaa' }};
               }}
               components={{ event: ({ event }) => <div className={styles.eventoNoCalendario}>{event.title}</div>, agenda: { time: () => null } }}
@@ -243,7 +247,13 @@ export default function CalendarioGeralPage({ user }) {
           <div className={styles.modalDetails}>
             <p><strong>Máquina:</strong> {selectedEvent.resource.maquinaNome}</p>
             <p><strong>Descrição:</strong> {selectedEvent.resource.descricao}</p>
-            <p><strong>Data:</strong> {selectedEvent.start.toLocaleDateString('pt-BR')}</p>
+
+            {/* Data atual x original */}
+            <p><strong>Data Atual:</strong> {selectedEvent.start.toLocaleDateString('pt-BR')}</p>
+            {selectedEvent.resource.originalStart && (
+              <p><strong>Data Original:</strong> {selectedEvent.resource.originalStart.toDate().toLocaleDateString('pt-BR')}</p>
+            )}
+
             <p><strong>Status:</strong> {selectedEvent.resource.status}</p>
             {selectedEvent.resource.itensChecklist && (
               <>
@@ -255,15 +265,24 @@ export default function CalendarioGeralPage({ user }) {
                 </ul>
               </>
             )}
+
             {selectedEvent.resource.status !== 'iniciado' &&
-             selectedEvent.resource.status !== 'concluido' &&
-             (user.role === 'manutentor' || user.role === 'gestor') && (
-              <button className={styles.modalButton} onClick={() => handleIniciarManutencao(selectedEvent)}>
+            selectedEvent.resource.status !== 'concluido' &&
+            (user.role === 'manutentor' || user.role === 'gestor') && (
+              <button
+                className={styles.modalButton}
+                onClick={() => handleIniciarManutencao(selectedEvent)}
+              >
                 Iniciar Manutenção Agora
               </button>
             )}
+
             {user.role === 'gestor' && (
-              <button className={styles.modalButton} style={{ marginTop: 10, backgroundColor: '#d32f2f', color: '#fff' }} onClick={handleDeleteAgendamento}>
+              <button
+                className={styles.modalButton}
+                style={{ marginTop: 10, backgroundColor: '#d32f2f', color: '#fff' }}
+                onClick={handleDeleteAgendamento}
+              >
                 Excluir Agendamento
               </button>
             )}
