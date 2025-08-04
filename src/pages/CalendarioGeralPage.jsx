@@ -1,5 +1,3 @@
-// src/pages/CalendarioGeralPage.jsx
-
 import React, { useState, useEffect } from 'react';
 import {
   doc,
@@ -9,7 +7,8 @@ import {
   query,
   onSnapshot,
   orderBy,
-  serverTimestamp
+  serverTimestamp,
+  deleteDoc
 } from 'firebase/firestore';
 import { Calendar, momentLocalizer } from 'react-big-calendar';
 import withDragAndDrop from 'react-big-calendar/lib/addons/dragAndDrop';
@@ -142,8 +141,20 @@ export default function CalendarioGeralPage({ user }) {
     }
   };
 
+  const handleDeleteAgendamento = async () => {
+    if (!window.confirm(`Tem certeza que deseja excluir o agendamento "${selectedEvent.title}"?`)) return;
+    try {
+      await deleteDoc(doc(db, 'agendamentosPreventivos', selectedEvent.id));
+      toast.success('Agendamento excluído com sucesso!');
+      setSelectedEvent(null);
+    } catch (err) {
+      console.error(err);
+      toast.error('Falha ao excluir agendamento.');
+    }
+  };
+
   return (
-    <>
+    <>      
       <header style={{
         padding: '20px',
         backgroundColor: '#fff',
@@ -254,8 +265,8 @@ export default function CalendarioGeralPage({ user }) {
             <p><strong>Máquina:</strong> {selectedEvent.resource.maquinaNome}</p>
             <p><strong>Descrição:</strong> {selectedEvent.resource.descricao}</p>
             <p>
-              <strong>Data:</strong>{" "}
-              {selectedEvent.start.toLocaleDateString("pt-BR")}
+              <strong>Data:</strong>{' '}
+              {selectedEvent.start.toLocaleDateString('pt-BR')}
             </p>
             <p><strong>Status:</strong> {selectedEvent.resource.status}</p>
             {selectedEvent.resource.itensChecklist && (
@@ -277,6 +288,16 @@ export default function CalendarioGeralPage({ user }) {
                 >
                   Iniciar Manutenção Agora
                 </button>
+            )}
+            {/* Botão de excluir apenas para gestor */}
+            {user.role === 'gestor' && (
+              <button
+                className={styles.modalButton}
+                style={{ marginTop: 10, backgroundColor: '#d32f2f', color: '#fff' }}
+                onClick={handleDeleteAgendamento}
+              >
+                Excluir Agendamento
+              </button>
             )}
           </div>
         )}
