@@ -28,22 +28,22 @@ const localizer = momentLocalizer(moment);
 const DnDCalendar = withDragAndDrop(Calendar);
 
 export default function CalendarioGeralPage({ user }) {
-  const [events, setEvents]               = useState([]);
-  const [loading, setLoading]             = useState(true);
-  const [currentDate, setCurrentDate]     = useState(new Date());
-  const [view, setView]                   = useState('month');
+  const [events, setEvents] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [currentDate, setCurrentDate] = useState(new Date());
+  const [view, setView] = useState('month');
   const [selectedEvent, setSelectedEvent] = useState(null);
-  const [showNew, setShowNew]             = useState(false);
-  const [slotInfo, setSlotInfo]           = useState(null);
+  const [showNew, setShowNew] = useState(false);
+  const [slotInfo, setSlotInfo] = useState(null);
 
-  const [machines, setMachines]               = useState([]);
-  const [selMachine, setSelMachine]           = useState('');
+  const [machines, setMachines] = useState([]);
+  const [selMachine, setSelMachine] = useState('');
   const [descAgendamento, setDescAgendamento] = useState('');
-  const [checklistTxt, setChecklistTxt]       = useState('');
+  const [checklistTxt, setChecklistTxt] = useState('');
 
   // Templates for importing checklist
-  const [templates, setTemplates]             = useState([]);
-  const [selTemplate, setSelTemplate]         = useState('');
+  const [templates, setTemplates] = useState([]);
+  const [selTemplate, setSelTemplate] = useState('');
 
   const intervalDays = 90;
 
@@ -57,11 +57,11 @@ export default function CalendarioGeralPage({ user }) {
       const evs = snap.docs.map(d => {
         const data = d.data();
         return {
-          id:       d.id,
-          title:    `${data.maquinaNome}: ${data.descricao}`,
-          start:    data.start.toDate(),
-          end:      data.end.toDate(),
-          allDay:   true,
+          id: d.id,
+          title: `${data.maquinaNome}: ${data.descricao}`,
+          start: data.start.toDate(),
+          end: data.end.toDate(),
+          allDay: true,
           resource: data
         };
       });
@@ -97,9 +97,9 @@ export default function CalendarioGeralPage({ user }) {
       const list = snap.docs.map(d => {
         const data = d.data();
         return {
-          id:      d.id,
-          date:    data.criadoEm.toDate(),
-          itens:   data.itensChecklist
+          id: d.id,
+          date: data.criadoEm.toDate(),
+          itens: data.itensChecklist
         };
       });
       setTemplates(list);
@@ -125,6 +125,7 @@ export default function CalendarioGeralPage({ user }) {
     setSelMachine('');
     setDescAgendamento('');
     setChecklistTxt('');
+    setSelTemplate('');
     setShowNew(true);
   };
 
@@ -138,14 +139,14 @@ export default function CalendarioGeralPage({ user }) {
       return toast.error('Preencha todos os campos.');
     }
     await addDoc(collection(db, 'agendamentosPreventivos'), {
-      maquinaId:       selMachine,
-      maquinaNome:     machines.find(m => m.id === selMachine).nome,
-      descricao:       descAgendamento,
-      itensChecklist:  itensArray,
-      start:           slotInfo.start,
-      end:             slotInfo.end,
-      criadoEm:        serverTimestamp(),
-      status:          'agendado'
+      maquinaId: selMachine,
+      maquinaNome: machines.find(m => m.id === selMachine).nome,
+      descricao: descAgendamento,
+      itensChecklist: itensArray,
+      start: slotInfo.start,
+      end: slotInfo.end,
+      criadoEm: serverTimestamp(),
+      status: 'agendado'
     });
     toast.success('Agendamento criado!');
     setShowNew(false);
@@ -155,14 +156,14 @@ export default function CalendarioGeralPage({ user }) {
     if (!window.confirm(`Iniciar manutenção "${event.title}" agora?`)) return;
     try {
       await addDoc(collection(db, 'chamados'), {
-        maquina:       event.resource.maquinaNome,
-        descricao:     `Manutenção preventiva agendada: ${event.title}`,
-        status:        'Aberto',
-        tipo:          'preventiva',
-        checklist:     event.resource.itensChecklist.map(item => ({ item, resposta: 'sim' })),
+        maquina: event.resource.maquinaNome,
+        descricao: `Manutenção preventiva agendada: ${event.title}`,
+        status: 'Aberto',
+        tipo: 'preventiva',
+        checklist: event.resource.itensChecklist.map(item => ({ item, resposta: 'sim' })),
         agendamentoId: event.id,
-        operadorNome:  `Sistema (Iniciado por ${user.nome})`,
-        dataAbertura:  serverTimestamp(),
+        operadorNome: `Sistema (Iniciado por ${user.nome})`,
+        dataAbertura: serverTimestamp()
       });
       const ref = doc(db, 'agendamentosPreventivos', event.id);
       await updateDoc(ref, { status: 'iniciado' });
@@ -198,7 +199,11 @@ export default function CalendarioGeralPage({ user }) {
 
       <div className={styles.calendarContainer}>
         <div className={styles.legend}>
-          {/* legend boxes */}
+          <div><span className={styles.legendBox} style={{backgroundColor:'#8B0000'}}/> Vencido</div>
+          <div><span className={styles.legendBox} style={{backgroundColor:'#FFA500'}}/> Hoje</div>
+          <div><span className={styles.legendBox} style={{backgroundColor:'#90EE90'}}/> Futuro</div>
+          <div><span className={styles.legendBox} style={{backgroundColor:'#006400'}}/> Iniciado</div>
+          <div><span className={styles.legendBox} style={{backgroundColor:'#00008B'}}/> Concluído</div>
         </div>
 
         <div className={styles.calendarWrapper}>
@@ -215,8 +220,17 @@ export default function CalendarioGeralPage({ user }) {
               views={['month','agenda']}
               defaultView="month"
               toolbar
-              messages={{ previous: 'Anterior', today: 'Hoje', next: 'Próximo', month: 'Mês', agenda: 'Agenda', showMore: total => `+${total} mais` }}
-              formats={{ agendaHeaderFormat: ({ start, end }) => `${moment(start).format('DD/MM/YYYY')} – ${moment(end).format('DD/MM/YYYY')}` }}
+              messages={{
+                previous: 'Anterior',
+                today: 'Hoje',
+                next: 'Próximo',
+                month: 'Mês',
+                agenda: 'Agenda',
+                showMore: total => `+${total} mais`
+              }}
+              formats={{
+                agendaHeaderFormat: ({ start, end }) => `${moment(start).format('DD/MM/YYYY')} – ${moment(end).format('DD/MM/YYYY')}`
+              }}
               events={events}
               startAccessor="start"
               endAccessor="end"
@@ -224,20 +238,27 @@ export default function CalendarioGeralPage({ user }) {
               onSelectSlot={handleSelectSlot}
               onSelectEvent={handleSelectEvent}
               draggableAccessor={() => user?.role === 'gestor'}
-              onEventDrop={ user?.role === 'gestor' ? ({ event, start, end }) => updateDoc(doc(db, 'agendamentosPreventivos', event.id), { start, end }).catch(() => toast.error('Falha ao reagendar')) : undefined }
+              onEventDrop={
+                user?.role === 'gestor'
+                  ? ({ event, start, end }) => updateDoc(doc(db, 'agendamentosPreventivos', event.id), { start, end }).catch(() => toast.error('Falha ao reagendar'))
+                  : undefined
+              }
               eventPropGetter={event => {
                 const hoje = new Date(); hoje.setHours(0,0,0,0);
                 const inicio = event.start;
                 const s = event.resource.status;
                 let bg = '#FFFFFF';
-                if      (s === 'iniciado') bg = '#006400';
+                if (s === 'iniciado') bg = '#006400';
                 else if (s === 'agendado' && inicio < hoje) bg = '#8B0000';
                 else if (s === 'agendado' && inicio.toDateString()===hoje.toDateString()) bg = '#FFA500';
                 else if (s === 'agendado') bg = '#90EE90';
                 else if (s === 'concluido') bg = '#00008B';
                 return { style: { backgroundColor: bg, color: getContrastColor(bg), borderRadius: 4, border: '1px solid #aaa' }};
               }}
-              components={{ event: ({ event }) => <div className={styles.eventoNoCalendario}>{event.title}</div>, agenda: { time: () => null } }}
+              components={{
+                event: ({ event }) => <div className={styles.eventoNoCalendario}>{event.title}</div>,
+                agenda: { time: () => null }
+              }}
               style={{ height: 600, backgroundColor: '#fff', borderRadius: 8 }}
             />
           )}
@@ -248,7 +269,27 @@ export default function CalendarioGeralPage({ user }) {
       <Modal isOpen={!!selectedEvent} onClose={() => setSelectedEvent(null)} title={selectedEvent?.title}>
         {selectedEvent && (
           <div className={styles.modalDetails}>
-            {/* Details... */}
+            <p><strong>Máquina:</strong> {selectedEvent.resource.maquinaNome}</p>
+            <p><strong>Descrição:</strong> {selectedEvent.resource.descricao}</p>
+            <p><strong>Data:</strong> {selectedEvent.start.toLocaleDateString('pt-BR')}</p>
+            <p><strong>Status:</strong> {selectedEvent.resource.status}</p>
+            {selectedEvent.resource.itensChecklist && (
+              <>
+                <h4>Checklist da Tarefa:</h4>
+                <ul>
+                  {selectedEvent.resource.itensChecklist.map((item, i) => (
+                    <li key={i}>{item}</li>
+                  ))}
+                </ul>
+              </>
+            )}
+            {selectedEvent.resource.status !== 'iniciado' &&
+             selectedEvent.resource.status !== 'concluido' &&
+             (user.role === 'manutentor' || user.role === 'gestor') && (
+              <button className={styles.modalButton} onClick={() => handleIniciarManutencao(selectedEvent)}>
+                Iniciar Manutenção Agora
+              </button>
+            )}
             {user.role === 'gestor' && (
               <button className={styles.modalButton} style={{ marginTop: 10, backgroundColor: '#d32f2f', color: '#fff' }} onClick={handleDeleteAgendamento}>
                 Excluir Agendamento
@@ -272,15 +313,14 @@ export default function CalendarioGeralPage({ user }) {
             <label>Descrição</label>
             <input value={descAgendamento} onChange={e => setDescAgendamento(e.target.value)} className={styles.input} required />
           </div>
-          {/* Import template dropdown */}
           <div className={styles.formGroup}>
             <label>Importar checklist de agendamento anterior</label>
             <select value={selTemplate} onChange={e => {
-                const id = e.target.value;
-                setSelTemplate(id);
-                const tpl = templates.find(t => t.id === id);
-                setChecklistTxt(tpl ? tpl.itens.join('\n') : '');
-              }} className={styles.select}>
+              const id = e.target.value;
+              setSelTemplate(id);
+              const tpl = templates.find(t => t.id === id);
+              setChecklistTxt(tpl ? tpl.itens.join('\n') : '');
+            }} className={styles.select}>
               <option value="">Nenhum</option>
               {templates.map(t => (
                 <option key={t.id} value={t.id}>
@@ -293,9 +333,7 @@ export default function CalendarioGeralPage({ user }) {
             <label>Itens do Checklist (um por linha)</label>
             <textarea value={checklistTxt} onChange={e => setChecklistTxt(e.target.value)} className={styles.textarea} rows="5" required />
           </div>
-          <button type="submit" className={styles.button}>
-            Salvar Agendamento
-          </button>
+          <button type="submit" className={styles.button}>Salvar Agendamento</button>
         </form>
       </Modal>
     </>
