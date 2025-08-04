@@ -254,6 +254,8 @@ export default function CalendarioGeralPage({ user }) {
               <p><strong>Data Original:</strong> {selectedEvent.resource.originalStart.toDate().toLocaleDateString('pt-BR')}</p>
             )}
 
+            <p><strong>Data de Conclusão:</strong> {selectedEvent.concluidoEm.toLocaleDateString('pt-BR')}</p>
+
             <p><strong>Status:</strong> {selectedEvent.resource.status}</p>
             {selectedEvent.resource.itensChecklist && (
               <>
