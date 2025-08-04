@@ -8,7 +8,10 @@ import {
   doc,
   setDoc
 } from 'firebase/firestore';
-import { createUserWithEmailAndPassword, getAuth } from 'firebase/auth';
+import {
+  createUserWithEmailAndPassword,
+  getAuth
+} from 'firebase/auth';
 import styles from './GerirUtilizadoresPage.module.css';
 import Modal from '../components/Modal.jsx';
 import { FiPlus, FiEdit, FiTrash2 } from 'react-icons/fi';
@@ -32,7 +35,7 @@ async function setAdminClaim(uid, makeAdmin) {
   }
 }
 
-const GerirUtilizadoresPage = () => {
+export default function GerirUtilizadoresPage() {
   const [utilizadores, setUtilizadores] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -68,9 +71,39 @@ const GerirUtilizadoresPage = () => {
       return;
     }
 
+    // Gerar usuário evitando stopwords e checando conflitos
     const primeiroNome = partes[0].toLowerCase();
-    const ultimoNome = partes[partes.length - 1].toLowerCase();
-    const nomeUsuario = `${primeiroNome}.${ultimoNome}`;
+    const stopWords = ['da','de','do','dos','das','e'];
+    const sobrenomes = partes.slice(1).filter(p => !stopWords.includes(p.toLowerCase()));
+
+    let ultimoNome = sobrenomes.length > 0
+      ? sobrenomes[sobrenomes.length - 1].toLowerCase()
+      : partes[partes.length - 1].toLowerCase();
+
+    let nomeUsuario = `${primeiroNome}.${ultimoNome}`;
+    const existingUsernames = utilizadores.map(u => u.usuario);
+
+    // Tentar outros sobrenomes em caso de conflito
+    for (let i = sobrenomes.length - 2; i >= 0; i--) {
+      const candidato = sobrenomes[i].toLowerCase();
+      const candidatoUsuario = `${primeiroNome}.${candidato}`;
+      if (!existingUsernames.includes(candidatoUsuario)) {
+        nomeUsuario = candidatoUsuario;
+        break;
+      }
+    }
+
+    // Se ainda houver conflito, adicionar sufixo numérico
+    if (existingUsernames.includes(nomeUsuario)) {
+      let suffix = 2;
+      let uniqueNome;
+      do {
+        uniqueNome = `${primeiroNome}.${ultimoNome}${suffix}`;
+        suffix++;
+      } while (existingUsernames.includes(uniqueNome));
+      nomeUsuario = uniqueNome;
+    }
+
     const emailGerado = `${nomeUsuario}@m.continua.tpm`;
 
     let funcao = '';
@@ -90,20 +123,12 @@ const GerirUtilizadoresPage = () => {
           funcao
         }, { merge: true });
 
-        try {
-          await setAdminClaim(usuarioEditandoId, role === 'gestor');
-        } catch (err) {
-          console.warn('Erro na claim:', err);
-          toast.error('Permissão Auth não foi atualizada.');
-        }
+        try { await setAdminClaim(usuarioEditandoId, role === 'gestor'); }
+        catch (err) { toast.error('Permissão Auth não foi atualizada.'); }
 
         toast.success('Utilizador atualizado com sucesso!');
       } else {
-        const cred = await createUserWithEmailAndPassword(
-          secondaryAuth,
-          emailGerado,
-          senha
-        );
+        const cred = await createUserWithEmailAndPassword(secondaryAuth, emailGerado, senha);
         const uid = cred.user.uid;
         await setDoc(doc(db, 'usuarios', uid), {
           nome: nomeCompleto,
@@ -113,23 +138,15 @@ const GerirUtilizadoresPage = () => {
           funcao
         });
 
-        try {
-          await setAdminClaim(uid, role === 'gestor');
-        } catch (err) {
-          console.warn('Erro na claim:', err);
-          toast.error('Permissão Auth não foi atribuída.');
-        }
+        try { await setAdminClaim(uid, role === 'gestor'); }
+        catch (err) { toast.error('Permissão Auth não foi atribuída.'); }
 
         toast.success(`Utilizador ${nomeCompleto} criado com sucesso!`);
       }
 
       setIsSaving(false);
-      setNome('');
-      setSenha('');
-      setRole('operador');
-      setModoEdicao(false);
-      setUsuarioEditandoId(null);
-      setIsModalOpen(false);
+      setNome(''); setSenha(''); setRole('operador');
+      setModoEdicao(false); setUsuarioEditandoId(null); setIsModalOpen(false);
     } catch (error) {
       console.error('Falha ao salvar usuário:', error);
       toast.error('Erro ao salvar utilizador.');
@@ -153,16 +170,10 @@ const GerirUtilizadoresPage = () => {
       const token = await auth.currentUser.getIdToken(true);
       const res = await fetch('/api/deleteUser', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`
-        },
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify({ uid })
       });
-      if (!res.ok) {
-        const err = await res.json().catch(() => ({}));
-        throw new Error(err.error || 'Falha ao excluir utilizador.');
-      }
+      if (!res.ok) throw new Error('Falha ao excluir utilizador.');
       setUtilizadores(prev => prev.filter(u => u.id !== uid));
       toast.success('Utilizador removido com sucesso.');
     } catch (error) {
@@ -176,44 +187,25 @@ const GerirUtilizadoresPage = () => {
       <header className={styles.header}>
         <h1>Gestão de Utilizadores</h1>
         <button className={styles.button} onClick={() => {
-          setIsModalOpen(true);
-          setModoEdicao(false);
-          setUsuarioEditandoId(null);
-          setNome('');
-          setSenha('');
-          setRole('operador');
+          setIsModalOpen(true); setModoEdicao(false); setUsuarioEditandoId(null);
+          setNome(''); setSenha(''); setRole('operador');
         }}>
           <FiPlus /> Criar Novo Utilizador
         </button>
       </header>
       <div className={styles.userListContainer}>
-        {loading ? (
-          <p>A carregar utilizadores...</p>
-        ) : (
+        {loading ? <p>A carregar utilizadores...</p> : (
           <>
             <div className={styles.userListHeader}>
-              <span>Nome Completo</span>
-              <span>Usuário</span>
-              <span>Função</span>
-              <span style={{ textAlign: 'right' }}>Ações</span>
+              <span>Nome Completo</span><span>Usuário</span><span>Função</span><span style={{ textAlign: 'right' }}>Ações</span>
             </div>
             <ul className={styles.userList}>
               {utilizadores.map(user => (
                 <li key={user.id} className={styles.userItem}>
-                  <strong>{user.nome}</strong>
-                  <span>{user.usuario}</span>
-                  <span>{user.funcao}</span>
+                  <strong>{user.nome}</strong><span>{user.usuario}</span><span>{user.funcao}</span>
                   <div className={styles.actions}>
-                    <button className={styles.actionButton} title="Editar" onClick={() => abrirModalEdicao(user)}>
-                      <FiEdit />
-                    </button>
-                    <button
-                      className={`${styles.actionButton} ${styles.deleteButton}`}
-                      title="Apagar"
-                      onClick={() => handleExcluirUtilizador(user.id, user.nome)}
-                    >
-                      <FiTrash2 />
-                    </button>
+                    <button className={styles.actionButton} title="Editar" onClick={() => abrirModalEdicao(user)}><FiEdit /></button>
+                    <button className={`${styles.actionButton} ${styles.deleteButton}`} title="Apagar" onClick={() => handleExcluirUtilizador(user.id, user.nome)}><FiTrash2 /></button>
                   </div>
                 </li>
               ))}
@@ -222,61 +214,31 @@ const GerirUtilizadoresPage = () => {
         )}
       </div>
 
-      <Modal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        title={modoEdicao ? 'Editar Utilizador' : 'Criar Novo Utilizador'}
-      >
+      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title={modoEdicao ? 'Editar Utilizador' : 'Criar Novo Utilizador'}>
         <form onSubmit={handleSalvarUtilizador}>
           <div className={styles.formGroup}>
             <label htmlFor="nome">Nome Completo</label>
-            <input
-              id="nome"
-              type="text"
-              className={styles.input}
-              value={nome}
-              onChange={e => setNome(e.target.value)}
-              required
-            />
+            <input id="nome" type="text" className={styles.input} value={nome} onChange={e => setNome(e.target.value)} required />
           </div>
           {!modoEdicao && (
             <div className={styles.formGroup}>
               <label htmlFor="senha">Senha Provisória</label>
-              <input
-                id="senha"
-                type="password"
-                className={styles.input}
-                value={senha}
-                onChange={e => setSenha(e.target.value)}
-                required
-                minLength="6"
-              />
+              <input id="senha" type="password" className={styles.input} value={senha} onChange={e => setSenha(e.target.value)} required minLength="6" />
             </div>
           )}
           <div className={styles.formGroup}>
             <label htmlFor="role">Função (Papel)</label>
-            <select
-              id="role"
-              className={styles.select}
-              value={role}
-              onChange={e => setRole(e.target.value)}
-            >
+            <select id="role" className={styles.select} value={role} onChange={e => setRole(e.target.value)}>
               <option value="operador">Operador</option>
               <option value="manutentor">Manutentor</option>
               <option value="gestor">Gestor</option>
             </select>
           </div>
-          <button
-            type="submit"
-            className={styles.button}
-            disabled={isSaving}
-          >
+          <button type="submit" className={styles.button} disabled={isSaving}>
             {isSaving ? 'Salvando...' : (modoEdicao ? 'Salvar Alterações' : 'Criar Utilizador')}
           </button>
         </form>
       </Modal>
     </>
   );
-};
-
-export default GerirUtilizadoresPage;
+}
