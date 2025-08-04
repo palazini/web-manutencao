@@ -127,10 +127,18 @@ const ChamadoDetalhe = ({ user }) => {
       // Se veio de um agendamento preventivo, marca como concluído
       if (chamado.agendamentoId) {
         const agRef = doc(db, 'agendamentosPreventivos', chamado.agendamentoId);
+        const now = new Date();
+        const orig = chamado.originalStart
+          ? (typeof chamado.originalStart.toDate === 'function'
+              ? chamado.originalStart.toDate()
+              : chamado.originalStart)
+          : null;
+        const atrasado = orig ? now > orig : false;
+
         await updateDoc(agRef, {
           status:      'concluido',
           concluidoEm: serverTimestamp(),
-          atrasado:    serverTimestamp().toDate() > chamado.resource.originalStart.toDate()
+          atrasado
         });
       }
 
