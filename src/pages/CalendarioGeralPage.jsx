@@ -5,7 +5,6 @@ import {
   addDoc,
   collection,
   query,
-  where,
   onSnapshot,
   orderBy,
   serverTimestamp,
@@ -28,22 +27,22 @@ const localizer = momentLocalizer(moment);
 const DnDCalendar = withDragAndDrop(Calendar);
 
 export default function CalendarioGeralPage({ user }) {
-  const [events, setEvents] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [currentDate, setCurrentDate] = useState(new Date());
-  const [view, setView] = useState('month');
+  const [events, setEvents]               = useState([]);
+  const [loading, setLoading]             = useState(true);
+  const [currentDate, setCurrentDate]     = useState(new Date());
+  const [view, setView]                   = useState('month');
   const [selectedEvent, setSelectedEvent] = useState(null);
-  const [showNew, setShowNew] = useState(false);
-  const [slotInfo, setSlotInfo] = useState(null);
+  const [showNew, setShowNew]             = useState(false);
+  const [slotInfo, setSlotInfo]           = useState(null);
 
-  const [machines, setMachines] = useState([]);
-  const [selMachine, setSelMachine] = useState('');
+  const [machines, setMachines]               = useState([]);
+  const [selMachine, setSelMachine]           = useState('');
   const [descAgendamento, setDescAgendamento] = useState('');
-  const [checklistTxt, setChecklistTxt] = useState('');
+  const [checklistTxt, setChecklistTxt]       = useState('');
 
-  // Templates for importing checklist
-  const [templates, setTemplates] = useState([]);
-  const [selTemplate, setSelTemplate] = useState('');
+  // Templates for importing checklist across all machines
+  const [templates, setTemplates]             = useState([]);
+  const [selTemplate, setSelTemplate]         = useState('');
 
   const intervalDays = 90;
 
@@ -57,11 +56,11 @@ export default function CalendarioGeralPage({ user }) {
       const evs = snap.docs.map(d => {
         const data = d.data();
         return {
-          id: d.id,
-          title: `${data.maquinaNome}: ${data.descricao}`,
-          start: data.start.toDate(),
-          end: data.end.toDate(),
-          allDay: true,
+          id:       d.id,
+          title:    `${data.maquinaNome}: ${data.descricao}`,
+          start:    data.start.toDate(),
+          end:      data.end.toDate(),
+          allDay:   true,
           resource: data
         };
       });
@@ -80,16 +79,10 @@ export default function CalendarioGeralPage({ user }) {
     return () => unsub();
   }, []);
 
-  // carrega últimos templates ao selecionar máquina
+  // carrega últimos 5 templates de qualquer máquina
   useEffect(() => {
-    if (!selMachine) {
-      setTemplates([]);
-      setSelTemplate('');
-      return;
-    }
     const tplQuery = query(
       collection(db, 'agendamentosPreventivos'),
-      where('maquinaId', '==', selMachine),
       orderBy('criadoEm', 'desc'),
       limit(5)
     );
@@ -97,15 +90,16 @@ export default function CalendarioGeralPage({ user }) {
       const list = snap.docs.map(d => {
         const data = d.data();
         return {
-          id: d.id,
-          date: data.criadoEm.toDate(),
-          itens: data.itensChecklist
+          id:         d.id,
+          maquinaNome: data.maquinaNome,
+          date:       data.criadoEm.toDate(),
+          itens:      data.itensChecklist
         };
       });
       setTemplates(list);
     });
     return () => unsub();
-  }, [selMachine]);
+  }, []);
 
   const getContrastColor = bg => {
     const r = parseInt(bg.slice(1,3),16),
@@ -115,9 +109,7 @@ export default function CalendarioGeralPage({ user }) {
     return yiq >= 128 ? '#000' : '#fff';
   };
 
-  const handleSelectEvent = e => {
-    setSelectedEvent(e);
-  };
+  const handleSelectEvent = e => setSelectedEvent(e);
 
   const handleSelectSlot = info => {
     if (user?.role !== 'gestor') return;
@@ -139,14 +131,14 @@ export default function CalendarioGeralPage({ user }) {
       return toast.error('Preencha todos os campos.');
     }
     await addDoc(collection(db, 'agendamentosPreventivos'), {
-      maquinaId: selMachine,
-      maquinaNome: machines.find(m => m.id === selMachine).nome,
-      descricao: descAgendamento,
-      itensChecklist: itensArray,
-      start: slotInfo.start,
-      end: slotInfo.end,
-      criadoEm: serverTimestamp(),
-      status: 'agendado'
+      maquinaId:       selMachine,
+      maquinaNome:     machines.find(m => m.id === selMachine).nome,
+      descricao:       descAgendamento,
+      itensChecklist:  itensArray,
+      start:           slotInfo.start,
+      end:             slotInfo.end,
+      criadoEm:        serverTimestamp(),
+      status:          'agendado'
     });
     toast.success('Agendamento criado!');
     setShowNew(false);
@@ -156,14 +148,14 @@ export default function CalendarioGeralPage({ user }) {
     if (!window.confirm(`Iniciar manutenção "${event.title}" agora?`)) return;
     try {
       await addDoc(collection(db, 'chamados'), {
-        maquina: event.resource.maquinaNome,
-        descricao: `Manutenção preventiva agendada: ${event.title}`,
-        status: 'Aberto',
-        tipo: 'preventiva',
-        checklist: event.resource.itensChecklist.map(item => ({ item, resposta: 'sim' })),
+        maquina:       event.resource.maquinaNome,
+        descricao:     `Manutenção preventiva agendada: ${event.title}`,
+        status:        'Aberto',
+        tipo:          'preventiva',
+        checklist:     event.resource.itensChecklist.map(item => ({ item, resposta: 'sim' })),
         agendamentoId: event.id,
-        operadorNome: `Sistema (Iniciado por ${user.nome})`,
-        dataAbertura: serverTimestamp()
+        operadorNome:  `Sistema (Iniciado por ${user.nome})`,
+        dataAbertura:  serverTimestamp()
       });
       const ref = doc(db, 'agendamentosPreventivos', event.id);
       await updateDoc(ref, { status: 'iniciado' });
@@ -189,11 +181,7 @@ export default function CalendarioGeralPage({ user }) {
 
   return (
     <>
-      <header style={{
-        padding: '20px',
-        backgroundColor: '#fff',
-        borderBottom: '1px solid #e0e0e0'
-      }}>
+      <header style={{ padding: '20px', backgroundColor: '#fff', borderBottom: '1px solid #e0e0e0' }}>
         <h1>Calendário Geral de Manutenções</h1>
       </header>
 
@@ -220,17 +208,8 @@ export default function CalendarioGeralPage({ user }) {
               views={['month','agenda']}
               defaultView="month"
               toolbar
-              messages={{
-                previous: 'Anterior',
-                today: 'Hoje',
-                next: 'Próximo',
-                month: 'Mês',
-                agenda: 'Agenda',
-                showMore: total => `+${total} mais`
-              }}
-              formats={{
-                agendaHeaderFormat: ({ start, end }) => `${moment(start).format('DD/MM/YYYY')} – ${moment(end).format('DD/MM/YYYY')}`
-              }}
+              messages={{ previous: 'Anterior', today: 'Hoje', next: 'Próximo', month: 'Mês', agenda: 'Agenda', showMore: total => `+${total} mais` }}
+              formats={{ agendaHeaderFormat: ({ start, end }) => `${moment(start).format('DD/MM/YYYY')} – ${moment(end).format('DD/MM/YYYY')}` }}
               events={events}
               startAccessor="start"
               endAccessor="end"
@@ -238,27 +217,20 @@ export default function CalendarioGeralPage({ user }) {
               onSelectSlot={handleSelectSlot}
               onSelectEvent={handleSelectEvent}
               draggableAccessor={() => user?.role === 'gestor'}
-              onEventDrop={
-                user?.role === 'gestor'
-                  ? ({ event, start, end }) => updateDoc(doc(db, 'agendamentosPreventivos', event.id), { start, end }).catch(() => toast.error('Falha ao reagendar'))
-                  : undefined
-              }
+              onEventDrop={ user?.role === 'gestor' ? ({ event, start, end }) => updateDoc(doc(db, 'agendamentosPreventivos', event.id), { start, end }).catch(() => toast.error('Falha ao reagendar')) : undefined }
               eventPropGetter={event => {
                 const hoje = new Date(); hoje.setHours(0,0,0,0);
                 const inicio = event.start;
                 const s = event.resource.status;
                 let bg = '#FFFFFF';
-                if (s === 'iniciado') bg = '#006400';
+                if      (s === 'iniciado') bg = '#006400';
                 else if (s === 'agendado' && inicio < hoje) bg = '#8B0000';
                 else if (s === 'agendado' && inicio.toDateString()===hoje.toDateString()) bg = '#FFA500';
                 else if (s === 'agendado') bg = '#90EE90';
                 else if (s === 'concluido') bg = '#00008B';
                 return { style: { backgroundColor: bg, color: getContrastColor(bg), borderRadius: 4, border: '1px solid #aaa' }};
               }}
-              components={{
-                event: ({ event }) => <div className={styles.eventoNoCalendario}>{event.title}</div>,
-                agenda: { time: () => null }
-              }}
+              components={{ event: ({ event }) => <div className={styles.eventoNoCalendario}>{event.title}</div>, agenda: { time: () => null } }}
               style={{ height: 600, backgroundColor: '#fff', borderRadius: 8 }}
             />
           )}
@@ -324,7 +296,7 @@ export default function CalendarioGeralPage({ user }) {
               <option value="">Nenhum</option>
               {templates.map(t => (
                 <option key={t.id} value={t.id}>
-                  {`${t.date.toLocaleDateString('pt-BR')} — ${t.itens.length} itens`}
+                  {`${t.maquinaNome} — ${t.date.toLocaleDateString('pt-BR')}`}
                 </option>
               ))}
             </select>
