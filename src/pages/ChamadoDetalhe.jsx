@@ -138,7 +138,14 @@ const ChamadoDetalhe = ({ user }) => {
 
         // 2) Compara usando getTime()
         const now = new Date();
-        const atrasado = original ? now.getTime() > original.getTime() : false;
+        let atrasado = false;
+        if (original) {
+          // normaliza para 00:00h de cada data
+          const origDay  = new Date(original.getFullYear(), original.getMonth(), original.getDate());
+          const today    = new Date(now.getFullYear(),    now.getMonth(),    now.getDate());
+          // só marca atraso se for dia *depois* do originalDay
+          atrasado = today > origDay;
+        }
 
         console.log('originalStart=', original, 'now=', now, 'atrasado=', atrasado);
 
