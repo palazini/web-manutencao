@@ -8,10 +8,7 @@ import {
   doc,
   setDoc
 } from 'firebase/firestore';
-import {
-  createUserWithEmailAndPassword,
-  getAuth
-} from 'firebase/auth';
+import { createUserWithEmailAndPassword, getAuth } from 'firebase/auth';
 import styles from './GerirUtilizadoresPage.module.css';
 import Modal from '../components/Modal.jsx';
 import { FiPlus, FiEdit, FiTrash2 } from 'react-icons/fi';
@@ -71,42 +68,11 @@ const GerirUtilizadoresPage = () => {
       return;
     }
 
-    // Lógica para gerar username único
     const primeiroNome = partes[0].toLowerCase();
-    const stopWords = ['da', 'de', 'do', 'dos', 'das', 'e'];
-    const sobrenomes = partes.slice(1).filter(p => !stopWords.includes(p.toLowerCase()));
-
-    // Define sobrenome base
-    let ultimoSobrenome = sobrenomes.length > 0
-      ? sobrenomes[sobrenomes.length - 1].toLowerCase()
-      : partes[partes.length - 1].toLowerCase();
-
-    let nomeUsuario = `${primeiroNome}.${ultimoSobrenome}`;
-    const existingUsernames = utilizadores.map(u => u.usuario);
-
-    // Tenta outros sobrenomes em caso de conflito
-    for (let i = sobrenomes.length - 2; i >= 0; i--) {
-      const candidato = sobrenomes[i].toLowerCase();
-      const candidatoUsuario = `${primeiroNome}.${candidato}`;
-      if (!existingUsernames.includes(candidatoUsuario)) {
-        nomeUsuario = candidatoUsuario;
-        break;
-      }
-    }
-
-    // Ainda em conflito? adiciona sufixo numérico
-    if (existingUsernames.includes(nomeUsuario)) {
-      const base = nomeUsuario;
-      let suffix = 2;
-      while (existingUsernames.includes(`${base}${suffix}`)) {
-        suffix++;
-      }
-      nomeUsuario = `${base}${suffix}`;
-    }
-
+    const ultimoNome = partes[partes.length - 1].toLowerCase();
+    const nomeUsuario = `${primeiroNome}.${ultimoNome}`;
     const emailGerado = `${nomeUsuario}@m.continua.tpm`;
 
-    // Define função
     let funcao = '';
     switch (role) {
       case 'manutentor': funcao = 'Técnico Eletromecânico'; break;
@@ -116,23 +82,27 @@ const GerirUtilizadoresPage = () => {
 
     try {
       if (modoEdicao) {
-        // Atualiza usuário existente
-        await setDoc(
-          doc(db, 'usuarios', usuarioEditandoId),
-          { nome: nomeCompleto, usuario: nomeUsuario, email: emailGerado, role, funcao },
-          { merge: true }
-        );
+        await setDoc(doc(db, 'usuarios', usuarioEditandoId), {
+          nome: nomeCompleto,
+          usuario: nomeUsuario,
+          email: emailGerado,
+          role,
+          funcao
+        }, { merge: true });
+
         try {
           await setAdminClaim(usuarioEditandoId, role === 'gestor');
         } catch (err) {
           console.warn('Erro na claim:', err);
           toast.error('Permissão Auth não foi atualizada.');
         }
+
         toast.success('Utilizador atualizado com sucesso!');
       } else {
-        // Cria novo usuário Auth e Firestore
         const cred = await createUserWithEmailAndPassword(
-          secondaryAuth, emailGerado, senha
+          secondaryAuth,
+          emailGerado,
+          senha
         );
         const uid = cred.user.uid;
         await setDoc(doc(db, 'usuarios', uid), {
@@ -142,16 +112,17 @@ const GerirUtilizadoresPage = () => {
           role,
           funcao
         });
+
         try {
           await setAdminClaim(uid, role === 'gestor');
         } catch (err) {
           console.warn('Erro na claim:', err);
           toast.error('Permissão Auth não foi atribuída.');
         }
+
         toast.success(`Utilizador ${nomeCompleto} criado com sucesso!`);
       }
 
-      // Reset form
       setIsSaving(false);
       setNome('');
       setSenha('');
@@ -208,12 +179,13 @@ const GerirUtilizadoresPage = () => {
           setIsModalOpen(true);
           setModoEdicao(false);
           setUsuarioEditandoId(null);
-          setNome(''); setSenha(''); setRole('operador');
+          setNome('');
+          setSenha('');
+          setRole('operador');
         }}>
           <FiPlus /> Criar Novo Utilizador
         </button>
       </header>
-
       <div className={styles.userListContainer}>
         {loading ? (
           <p>A carregar utilizadores...</p>
@@ -235,7 +207,11 @@ const GerirUtilizadoresPage = () => {
                     <button className={styles.actionButton} title="Editar" onClick={() => abrirModalEdicao(user)}>
                       <FiEdit />
                     </button>
-                    <button className={`${styles.actionButton} ${styles.deleteButton}`} title="Apagar" onClick={() => handleExcluirUtilizador(user.id, user.nome)}>
+                    <button
+                      className={`${styles.actionButton} ${styles.deleteButton}`}
+                      title="Apagar"
+                      onClick={() => handleExcluirUtilizador(user.id, user.nome)}
+                    >
                       <FiTrash2 />
                     </button>
                   </div>
@@ -295,11 +271,7 @@ const GerirUtilizadoresPage = () => {
             className={styles.button}
             disabled={isSaving}
           >
-            {isSaving
-              ? 'Salvando...'
-              : modoEdicao
-                ? 'Salvar Alterações'
-                : 'Criar Utilizador'}
+            {isSaving ? 'Salvando...' : (modoEdicao ? 'Salvar Alterações' : 'Criar Utilizador')}
           </button>
         </form>
       </Modal>
