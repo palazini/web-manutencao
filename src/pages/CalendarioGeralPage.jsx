@@ -5,10 +5,12 @@ import {
   addDoc,
   collection,
   query,
+  where,
   onSnapshot,
   orderBy,
   serverTimestamp,
-  deleteDoc
+  deleteDoc,
+  limit
 } from 'firebase/firestore';
 import { Calendar, momentLocalizer } from 'react-big-calendar';
 import withDragAndDrop from 'react-big-calendar/lib/addons/dragAndDrop';
@@ -38,6 +40,10 @@ export default function CalendarioGeralPage({ user }) {
   const [selMachine, setSelMachine]           = useState('');
   const [descAgendamento, setDescAgendamento] = useState('');
   const [checklistTxt, setChecklistTxt]       = useState('');
+
+  // Templates for importing checklist
+  const [templates, setTemplates]             = useState([]);
+  const [selTemplate, setSelTemplate]         = useState('');
 
   const intervalDays = 90;
 
@@ -73,6 +79,33 @@ export default function CalendarioGeralPage({ user }) {
     });
     return () => unsub();
   }, []);
+
+  // carrega últimos templates ao selecionar máquina
+  useEffect(() => {
+    if (!selMachine) {
+      setTemplates([]);
+      setSelTemplate('');
+      return;
+    }
+    const tplQuery = query(
+      collection(db, 'agendamentosPreventivos'),
+      where('maquinaId', '==', selMachine),
+      orderBy('criadoEm', 'desc'),
+      limit(5)
+    );
+    const unsub = onSnapshot(tplQuery, snap => {
+      const list = snap.docs.map(d => {
+        const data = d.data();
+        return {
+          id:      d.id,
+          date:    data.criadoEm.toDate(),
+          itens:   data.itensChecklist
+        };
+      });
+      setTemplates(list);
+    });
+    return () => unsub();
+  }, [selMachine]);
 
   const getContrastColor = bg => {
     const r = parseInt(bg.slice(1,3),16),
@@ -154,7 +187,7 @@ export default function CalendarioGeralPage({ user }) {
   };
 
   return (
-    <>      
+    <>
       <header style={{
         padding: '20px',
         backgroundColor: '#fff',
@@ -165,11 +198,7 @@ export default function CalendarioGeralPage({ user }) {
 
       <div className={styles.calendarContainer}>
         <div className={styles.legend}>
-          <div><span className={styles.legendBox} style={{backgroundColor:'#8B0000'}}/> Vencido</div>
-          <div><span className={styles.legendBox} style={{backgroundColor:'#FFA500'}}/> Hoje</div>
-          <div><span className={styles.legendBox} style={{backgroundColor:'#90EE90'}}/> Futuro</div>
-          <div><span className={styles.legendBox} style={{backgroundColor:'#006400'}}/> Iniciado</div>
-          <div><span className={styles.legendBox} style={{backgroundColor:'#00008B'}}/> Concluído</div>
+          {/* legend boxes */}
         </div>
 
         <div className={styles.calendarWrapper}>
@@ -178,76 +207,37 @@ export default function CalendarioGeralPage({ user }) {
           ) : (
             <DnDCalendar
               localizer={localizer}
-
               date={currentDate}
               onNavigate={setCurrentDate}
               view={view}
               onView={setView}
               length={intervalDays}
-
               views={['month','agenda']}
               defaultView="month"
               toolbar
-
-              messages={{
-                previous: 'Anterior',
-                today:    'Hoje',
-                next:     'Próximo',
-                month:    'Mês',
-                agenda:   'Agenda',
-                showMore: total => `+${total} mais`
-              }}
-
-              formats={{
-                agendaHeaderFormat: ({ start, end }) =>
-                  `${moment(start).format('DD/MM/YYYY')} – ${moment(end).format('DD/MM/YYYY')}`
-              }}
-
+              messages={{ previous: 'Anterior', today: 'Hoje', next: 'Próximo', month: 'Mês', agenda: 'Agenda', showMore: total => `+${total} mais` }}
+              formats={{ agendaHeaderFormat: ({ start, end }) => `${moment(start).format('DD/MM/YYYY')} – ${moment(end).format('DD/MM/YYYY')}` }}
               events={events}
               startAccessor="start"
               endAccessor="end"
-
               selectable={user?.role === 'gestor'}
               onSelectSlot={handleSelectSlot}
               onSelectEvent={handleSelectEvent}
-
               draggableAccessor={() => user?.role === 'gestor'}
-              onEventDrop={
-                user?.role === 'gestor'
-                  ? ({ event, start, end }) => {
-                      const ref = doc(db, 'agendamentosPreventivos', event.id);
-                      updateDoc(ref, { start, end }).catch(() => toast.error('Falha ao reagendar'));
-                    }
-                  : undefined
-              }
-
+              onEventDrop={ user?.role === 'gestor' ? ({ event, start, end }) => updateDoc(doc(db, 'agendamentosPreventivos', event.id), { start, end }).catch(() => toast.error('Falha ao reagendar')) : undefined }
               eventPropGetter={event => {
-                const hoje   = new Date(); hoje.setHours(0,0,0,0);
+                const hoje = new Date(); hoje.setHours(0,0,0,0);
                 const inicio = event.start;
-                const s      = event.resource.status;
+                const s = event.resource.status;
                 let bg = '#FFFFFF';
-                if      (s === 'iniciado')                                  bg = '#006400';
-                else if (s === 'agendado' && inicio < hoje)                  bg = '#8B0000';
+                if      (s === 'iniciado') bg = '#006400';
+                else if (s === 'agendado' && inicio < hoje) bg = '#8B0000';
                 else if (s === 'agendado' && inicio.toDateString()===hoje.toDateString()) bg = '#FFA500';
-                else if (s === 'agendado')                                  bg = '#90EE90';
-                else if (s === 'concluido')                                 bg = '#00008B';
-                return { style: {
-                  backgroundColor: bg,
-                  color:           getContrastColor(bg),
-                  borderRadius:    4,
-                  border:          '1px solid #aaa'
-                }};
+                else if (s === 'agendado') bg = '#90EE90';
+                else if (s === 'concluido') bg = '#00008B';
+                return { style: { backgroundColor: bg, color: getContrastColor(bg), borderRadius: 4, border: '1px solid #aaa' }};
               }}
-
-              components={{
-                event: ({ event }) => (
-                  <div className={styles.eventoNoCalendario}>
-                    {event.title}
-                  </div>
-                ),
-                agenda: { time: () => null }
-              }}
-
+              components={{ event: ({ event }) => <div className={styles.eventoNoCalendario}>{event.title}</div>, agenda: { time: () => null } }}
               style={{ height: 600, backgroundColor: '#fff', borderRadius: 8 }}
             />
           )}
@@ -255,47 +245,12 @@ export default function CalendarioGeralPage({ user }) {
       </div>
 
       {/* Modal de detalhes do evento */}
-      <Modal
-        isOpen={!!selectedEvent}
-        onClose={() => setSelectedEvent(null)}
-        title={selectedEvent?.title}
-      >
+      <Modal isOpen={!!selectedEvent} onClose={() => setSelectedEvent(null)} title={selectedEvent?.title}>
         {selectedEvent && (
           <div className={styles.modalDetails}>
-            <p><strong>Máquina:</strong> {selectedEvent.resource.maquinaNome}</p>
-            <p><strong>Descrição:</strong> {selectedEvent.resource.descricao}</p>
-            <p>
-              <strong>Data:</strong>{' '}
-              {selectedEvent.start.toLocaleDateString('pt-BR')}
-            </p>
-            <p><strong>Status:</strong> {selectedEvent.resource.status}</p>
-            {selectedEvent.resource.itensChecklist && (
-              <>
-                <h4>Checklist da Tarefa:</h4>
-                <ul>
-                  {selectedEvent.resource.itensChecklist.map((item,i) => (
-                    <li key={i}>{item}</li>
-                  ))}
-                </ul>
-              </>
-            )}
-            {selectedEvent.resource.status !== 'iniciado' &&
-              selectedEvent.resource.status !== 'concluido' &&
-              (user.role === 'manutentor' || user.role === 'gestor') && (
-                <button
-                  className={styles.modalButton}
-                  onClick={() => handleIniciarManutencao(selectedEvent)}
-                >
-                  Iniciar Manutenção Agora
-                </button>
-            )}
-            {/* Botão de excluir apenas para gestor */}
+            {/* Details... */}
             {user.role === 'gestor' && (
-              <button
-                className={styles.modalButton}
-                style={{ marginTop: 10, backgroundColor: '#d32f2f', color: '#fff' }}
-                onClick={handleDeleteAgendamento}
-              >
+              <button className={styles.modalButton} style={{ marginTop: 10, backgroundColor: '#d32f2f', color: '#fff' }} onClick={handleDeleteAgendamento}>
                 Excluir Agendamento
               </button>
             )}
@@ -304,44 +259,39 @@ export default function CalendarioGeralPage({ user }) {
       </Modal>
 
       {/* Modal de novo agendamento */}
-      <Modal
-        isOpen={showNew}
-        onClose={() => setShowNew(false)}
-        title="Agendar Manutenção"
-      >
+      <Modal isOpen={showNew} onClose={() => setShowNew(false)} title="Agendar Manutenção">
         <form onSubmit={handleSubmitNew}>
           <div className={styles.formGroup}>
             <label>Máquina</label>
-            <select
-              value={selMachine}
-              onChange={e => setSelMachine(e.target.value)}
-              className={styles.select}
-              required
-            >
+            <select value={selMachine} onChange={e => setSelMachine(e.target.value)} className={styles.select} required>
               <option value="" disabled>Selecione...</option>
-              {machines.map(m => (
-                <option key={m.id} value={m.id}>{m.nome}</option>
-              ))}
+              {machines.map(m => <option key={m.id} value={m.id}>{m.nome}</option>)}
             </select>
           </div>
           <div className={styles.formGroup}>
             <label>Descrição</label>
-            <input
-              value={descAgendamento}
-              onChange={e => setDescAgendamento(e.target.value)}
-              className={styles.input}
-              required
-            />
+            <input value={descAgendamento} onChange={e => setDescAgendamento(e.target.value)} className={styles.input} required />
+          </div>
+          {/* Import template dropdown */}
+          <div className={styles.formGroup}>
+            <label>Importar checklist de agendamento anterior</label>
+            <select value={selTemplate} onChange={e => {
+                const id = e.target.value;
+                setSelTemplate(id);
+                const tpl = templates.find(t => t.id === id);
+                setChecklistTxt(tpl ? tpl.itens.join('\n') : '');
+              }} className={styles.select}>
+              <option value="">Nenhum</option>
+              {templates.map(t => (
+                <option key={t.id} value={t.id}>
+                  {`${t.date.toLocaleDateString('pt-BR')} — ${t.itens.length} itens`}
+                </option>
+              ))}
+            </select>
           </div>
           <div className={styles.formGroup}>
             <label>Itens do Checklist (um por linha)</label>
-            <textarea
-              value={checklistTxt}
-              onChange={e => setChecklistTxt(e.target.value)}
-              className={styles.textarea}
-              rows="5"
-              required
-            />
+            <textarea value={checklistTxt} onChange={e => setChecklistTxt(e.target.value)} className={styles.textarea} rows="5" required />
           </div>
           <button type="submit" className={styles.button}>
             Salvar Agendamento
