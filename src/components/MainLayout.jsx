@@ -3,7 +3,7 @@ import { Routes, Route, NavLink, Link } from 'react-router-dom';
 import { auth, db } from '../firebase';
 import { collection, query, where, onSnapshot } from 'firebase/firestore';
 import { signOut } from 'firebase/auth';
-import { FiHome, FiLogOut, FiCheckSquare, FiUser, FiCalendar, FiList, FiClock, FiUsers, FiServer, FiEdit, FiCheckCircle, FiMenu, FiX, FiBarChart2 } from 'react-icons/fi';
+import { FiHome, FiLogOut, FiCheckSquare, FiUser, FiCalendar, FiList, FiClock, FiUsers, FiServer, FiEdit, FiCheckCircle, FiMenu, FiX, FiBarChart2, FiPackage  } from 'react-icons/fi';
 import styles from './MainLayout.module.css';
 import { FiPieChart } from 'react-icons/fi';
 
@@ -20,6 +20,7 @@ import AnaliseFalhasPage from '../pages/AnaliseFalhasPage.jsx'; // NOVO
 import GerirUtilizadoresPage from '../pages/GerirUtilizadoresPage.jsx';
 import CalendarioGeralPage from '../pages/CalendarioGeralPage.jsx';
 import CausasRaizPage from '../pages/CausasRaizPage.jsx';
+import EstoquePage from '../pages/EstoquePage.jsx';
 
 import logo from '../assets/logo-sidebar.png';
 
@@ -127,6 +128,13 @@ const MainLayout = ({ user }) => {
         <NavLink to="/historico" className={({ isActive }) => isActive ? `${styles.navLink} ${styles.activeLink}` : styles.navLink}>
           <FiCheckSquare className={styles.navIcon} />
           <span>Histórico</span>
+        </NavLink>
+      )}
+
+      {(user.role === 'manutentor' || user.role === 'gestor') && (
+        <NavLink to="/estoque" className={({ isActive }) => isActive ? `${styles.navLink} ${styles.activeLink}` : styles.navLink}>
+          <FiPackage  className={styles.navIcon} />
+          <span>Estoque</span>
         </NavLink>
       )}
 
@@ -240,6 +248,7 @@ const MainLayout = ({ user }) => {
             element={<CalendarioGeralPage user={user} />}
           />
 
+          <Route path="/estoque" element={<EstoquePage user={user} />} />
 
           <Route path="/gerir-utilizadores" element={<GerirUtilizadoresPage />} />
 

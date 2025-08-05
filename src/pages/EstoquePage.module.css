@@ -1,0 +1,93 @@
+/* EstoquePage.module.css */
+
+.container {
+ padding: 24px 16px;
+}
+
+.header {
+  background-color: #fff;
+  padding: 16px;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  margin-bottom: 16px;
+}
+
+.newButton {
+  background-color: #006400;
+  color: #fff;
+  padding: 8px 16px;
+  font-size: 14px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-bottom: 16px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+  width: 100%;              /* <-- adicionado */
+}
+
+/* Cada card ocupa no mínimo 280px e até 320px */
+.cardCatalog {
+  background: #fff;
+  border-radius: 8px;
+  padding: 16px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  
+  /* Mantém flex interno para empilhar verticalmente */
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 280px;
+  max-width: 320px;
+}
+
+.cardButtons {
+  margin-top: auto;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.buttonSmall {
+  background-color: #006400;
+  color: #fff;
+  padding: 6px 12px;
+  font-size: 12px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.buttonSmallDelete {
+  background-color: #d32f2f;
+  color: #fff;
+  padding: 6px 12px;
+  font-size: 12px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.toolbar {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+/* Botões de export CSV/PDF */
+.exportButton {
+  background-color: #0277bd;
+  color: #fff;
+  padding: 6px 12px;
+  font-size: 14px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.exportButton:hover {
+  background-color: #01579b;
+}
