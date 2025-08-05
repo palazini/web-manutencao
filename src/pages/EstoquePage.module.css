@@ -20,7 +20,7 @@
   border: none;
   border-radius: 4px;
   cursor: pointer;
-  margin-bottom: 16px;
+  margin: 0;
 }
 
 .grid {
@@ -80,14 +80,14 @@
 
 /* Botões de export CSV/PDF */
 .exportButton {
-  background-color: #0277bd;
+  background-color: #16a085;
   color: #fff;
-  padding: 6px 12px;
-  font-size: 14px;
   border: none;
+  padding: 0.5rem 1rem;
   border-radius: 4px;
   cursor: pointer;
+  transition: background 0.2s;
 }
 .exportButton:hover {
-  background-color: #01579b;
+  background-color: #13846d;
 }
