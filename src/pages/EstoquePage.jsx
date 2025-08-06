@@ -132,7 +132,7 @@ export default function EstoquePage({ user }) {
                 <p><strong>Mínimo:</strong> {p.estoqueMinimo}</p>
                 <p><strong>Localização:</strong> {p.localizacao}</p>
 
-                {(user.role === 'manutentor' || user.role === 'gestor') && (
+                {user.role === 'gestor' && (
                   <div className={styles.cardButtons}>
                     <button
                       className={styles.buttonSmall}
