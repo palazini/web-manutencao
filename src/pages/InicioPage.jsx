@@ -12,7 +12,8 @@ import {
   FiList,
   FiUsers,
   FiUser,
-  FiPieChart
+  FiPieChart,
+  FiPackage
 } from 'react-icons/fi';
 
 const InicioPage = ({ user }) => {
@@ -55,6 +56,17 @@ const InicioPage = ({ user }) => {
               <h3 className={styles.cardTitle}>Histórico Geral</h3>
               <p className={styles.cardDescription}>
                 Consulte todos os chamados de manutenção concluídos.
+              </p>
+            </Link>
+          )}
+
+          {/* Estoque */}
+          {(user.role === 'manutentor' || user.role === 'gestor') && (
+            <Link to="/estoque" className={styles.actionCard}>
+              <FiPackage className={styles.cardIcon} />
+              <h3 className={styles.cardTitle}>Estoque</h3>
+              <p className={styles.cardDescription}>
+                Controle de entrada e saída de peças do estoque.
               </p>
             </Link>
           )}
