@@ -324,7 +324,7 @@ const MaquinaDetalhePage = ({ user }) => {
 
             return (
               <Link
-                to={`/historico/chamado/${chamado.id}`}
+                to={`/maquinas/chamado/${chamado.id}`}
                 key={chamado.id}
                 className={styles.chamadoCard}
               >

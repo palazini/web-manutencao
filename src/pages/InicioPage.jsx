@@ -13,7 +13,8 @@ import {
   FiUsers,
   FiUser,
   FiPieChart,
-  FiPackage
+  FiPackage,
+  FiClipboard
 } from 'react-icons/fi';
 
 const InicioPage = ({ user }) => {
@@ -34,6 +35,17 @@ const InicioPage = ({ user }) => {
               <h3 className={styles.cardTitle}>Painel de Máquinas</h3>
               <p className={styles.cardDescription}>
                 Visualize e gerencie o prontuário de todos os equipamentos.
+              </p>
+            </Link>
+          )}
+
+          {/* Meus Chamados */}
+          {user.role === 'manutentor' && (
+            <Link to="/meus-chamados" className={styles.actionCard}>
+              <FiClipboard className={styles.cardIcon} />
+              <h3 className={styles.cardTitle}>Meus Chamados</h3>
+              <p className={styles.cardDescription}>
+                Veja e gerencie os chamados atribuídos a você.
               </p>
             </Link>
           )}

@@ -3,7 +3,7 @@ import { Routes, Route, NavLink, Link } from 'react-router-dom';
 import { auth, db } from '../firebase';
 import { collection, query, where, onSnapshot } from 'firebase/firestore';
 import { signOut } from 'firebase/auth';
-import { FiHome, FiLogOut, FiCheckSquare, FiUser, FiCalendar, FiList, FiClock, FiUsers, FiServer, FiEdit, FiCheckCircle, FiMenu, FiX, FiBarChart2, FiPackage  } from 'react-icons/fi';
+import { FiHome, FiLogOut, FiCheckSquare, FiUser, FiCalendar, FiList, FiClock, FiUsers, FiServer, FiEdit, FiCheckCircle, FiMenu, FiX, FiBarChart2, FiPackage, FiClipboard  } from 'react-icons/fi';
 import styles from './MainLayout.module.css';
 import { FiPieChart } from 'react-icons/fi';
 
@@ -21,14 +21,22 @@ import GerirUtilizadoresPage from '../pages/GerirUtilizadoresPage.jsx';
 import CalendarioGeralPage from '../pages/CalendarioGeralPage.jsx';
 import CausasRaizPage from '../pages/CausasRaizPage.jsx';
 import EstoquePage from '../pages/EstoquePage.jsx';
+import MeusChamados from '../pages/MeusChamados';
 
 import logo from '../assets/logo-sidebar.png';
+
+function RedirectHistoricoToMaquinas() {
+  const { id } = useParams();
+  return <Navigate to={`/maquinas/chamado/${id}`} replace />;
+}
 
 const MainLayout = ({ user }) => {
   
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [hasOpenCalls, setHasOpenCalls] = useState(false);
   const [hasSoonDue, setHasSoonDue] = useState(false);
+  const [myActiveCount, setMyActiveCount] = useState(0);
+  const hasMyActiveCalls = myActiveCount > 0;
 
   useEffect(() => {
     // query para pegar todos chamados com status "Aberto" ou "Em Andamento"
@@ -63,6 +71,35 @@ const MainLayout = ({ user }) => {
     });
     return () => unsub();
   }, []);
+
+  useEffect(() => {
+    if (!user?.uid || user?.role !== 'manutentor') return;
+
+    let assignedIds = new Set();
+    let attendedIds = new Set();
+
+    const qAssigned = query(
+      collection(db, 'chamados'),
+      where('assignedTo', '==', user.uid),
+      where('status', 'in', ['Aberto', 'Em Andamento'])
+    );
+    const qAttended = query(
+      collection(db, 'chamados'),
+      where('manutentorId', '==', user.uid),
+      where('status', 'in', ['Aberto', 'Em Andamento'])
+    );
+
+    const unsub1 = onSnapshot(qAssigned, (snap) => {
+      assignedIds = new Set(snap.docs.map(d => d.id));
+      setMyActiveCount(new Set([...assignedIds, ...attendedIds]).size);
+    });
+    const unsub2 = onSnapshot(qAttended, (snap) => {
+      attendedIds = new Set(snap.docs.map(d => d.id));
+      setMyActiveCount(new Set([...assignedIds, ...attendedIds]).size);
+    });
+
+    return () => { unsub1(); unsub2(); };
+  }, [user?.uid, user?.role]);
 
   const handleLogout = () => {
     signOut(auth).catch((error) => console.error('Erro no logout: ', error));
@@ -107,6 +144,24 @@ const MainLayout = ({ user }) => {
             <span>Máquinas</span>
           </NavLink>
         </>
+      )}
+
+      {user.role === 'manutentor' && (
+        <NavLink
+          to="/meus-chamados"
+          className={({ isActive }) => {
+            const base = styles.navLink;
+            if (isActive) return `${base} ${styles.activeLink}`;
+            if (hasMyActiveCalls) return `${base} ${styles.alertLink}`;
+            return base;
+          }}
+        >
+          <div style={{ position: 'relative' }}>
+            <FiClipboard className={styles.navIcon} />
+            {hasMyActiveCalls && <span className={styles.alertBadge} title={`${myActiveCount} chamado(s) ativo(s)`} />}
+          </div>
+          <span>Meus Chamados</span>
+        </NavLink>
       )}
 
       {(user.role === 'manutentor' || user.role === 'gestor') && (
@@ -220,38 +275,35 @@ const MainLayout = ({ user }) => {
         </header>
 
         <Routes>
-          <Route path="/" element={
-            user.role === 'operador' ? (
+          <Route
+            path="/"
+            element={user.role === 'operador' ? (
               <OperatorDashboard user={user} />
             ) : (
               <InicioPage user={user} />
-            )
-          } />
+            )}
+          />
 
           <Route path="/maquinas/*" element={<MaquinasLayout />}>
             <Route index element={<MaquinasPage />} />
+            <Route path="chamado/:id" element={<ChamadoDetalhe user={user} />} />
             <Route path=":id" element={<MaquinaDetalhePage user={user} />} />
           </Route>
 
+          <Route path="/meus-chamados" element={<MeusChamados user={user} />} />
           <Route path="/perfil" element={<PerfilPage user={user} />} />
 
           <Route path="/historico/*" element={<HistoricoLayout />}>
             <Route index element={<HistoricoPage />} />
-            <Route path="chamado/:id" element={<ChamadoDetalhe user={user} />} />
+            {/* (Opcional) manter o path antigo e redirecionar */}
+            <Route path="chamado/:id" element={<RedirectHistoricoToMaquinas />} />
           </Route>
 
           <Route path="/analise-falhas" element={<AnaliseFalhasPage />} />
           <Route path="/causas-raiz" element={<CausasRaizPage />} />
-
-          <Route
-            path="/calendario-geral"
-            element={<CalendarioGeralPage user={user} />}
-          />
-
+          <Route path="/calendario-geral" element={<CalendarioGeralPage user={user} />} />
           <Route path="/estoque" element={<EstoquePage user={user} />} />
-
           <Route path="/gerir-utilizadores" element={<GerirUtilizadoresPage />} />
-
         </Routes>
       </main>
     </div>
