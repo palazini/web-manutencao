@@ -53,7 +53,7 @@ const ChecklistPage = ({ user }) => {
       collection(db, 'chamados'),
       where('maquinaId', '==', maquinaId),
       where('tipo', '==', 'preditiva'),
-      where('status', '==', 'Aberto')
+      where('status', 'in', ['Aberto','Em Andamento'])
     );
     const unsub = onSnapshot(q, snap => {
       const bloqueios = {};
