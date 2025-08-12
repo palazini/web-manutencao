@@ -25,11 +25,6 @@ import MeusChamados from '../pages/MeusChamados';
 
 import logo from '../assets/logo-sidebar.png';
 
-function RedirectHistoricoToMaquinas() {
-  const { id } = useParams();
-  return <Navigate to={`/maquinas/chamado/${id}`} replace />;
-}
-
 const MainLayout = ({ user }) => {
   
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -295,8 +290,7 @@ const MainLayout = ({ user }) => {
 
           <Route path="/historico/*" element={<HistoricoLayout />}>
             <Route index element={<HistoricoPage />} />
-            {/* (Opcional) manter o path antigo e redirecionar */}
-            <Route path="chamado/:id" element={<RedirectHistoricoToMaquinas />} />
+            <Route path="chamado/:id" element={<ChamadoDetalhe user={user} />} />
           </Route>
 
           <Route path="/analise-falhas" element={<AnaliseFalhasPage />} />
