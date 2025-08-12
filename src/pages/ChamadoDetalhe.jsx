@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import { useParams, useNavigate } from 'react-router-dom';
-import { doc, onSnapshot, updateDoc, serverTimestamp, Timestamp, getDoc, arrayUnion, collection, addDoc, query, where, orderBy } from 'firebase/firestore';
+import { doc, onSnapshot, updateDoc, serverTimestamp, Timestamp, getDoc, arrayUnion, collection, addDoc, query, where, orderBy, deleteDoc } from 'firebase/firestore';
 import { db } from '../firebase';
 import styles from './ChamadoDetalhe.module.css';
 
@@ -42,6 +42,9 @@ const ChamadoDetalhe = ({ user }) => {
 
   const isGestor = user?.role === 'gestor';
   const isManutentor = user?.role === 'manutentor';
+
+  const [isDeleting, setIsDeleting] = useState(false);
+  const podeExcluir = isGestor && ['Aberto', 'Em Andamento', 'Concluído'].includes(chamado?.status);
 
   // --------- carregar chamado ---------
   useEffect(() => {
@@ -351,6 +354,42 @@ const ChamadoDetalhe = ({ user }) => {
     }
   }
 
+  async function handleExcluirChamado() {
+  if (!isGestor) {
+    toast.error('Apenas gestores podem excluir chamado.');
+    return;
+  }
+  if (!window.confirm('Tem certeza que deseja excluir este chamado? Esta ação é irreversível.')) {
+    return;
+  }
+  setIsDeleting(true);
+  try {
+    // Se veio do checklist e tinha lock, libera antes de excluir
+    if (chamado?.origin === 'checklist' && chamado?.refLockId) {
+      try {
+        const lockRef = doc(db, 'checklistLocks', chamado.refLockId);
+        await updateDoc(lockRef, {
+          status: 'Concluído',
+          unlockedAt: serverTimestamp(),
+        });
+      } catch (e) {
+        console.warn('Não foi possível atualizar lock antes de excluir:', e);
+      }
+    }
+
+    // Exclui o documento do chamado
+    await deleteDoc(doc(db, 'chamados', id));
+
+    toast.success('Chamado excluído com sucesso.');
+    navigate(-1); // volta para a tela anterior; se preferir: navigate('/meus-chamados')
+  } catch (e) {
+    console.error('Erro ao excluir chamado:', e);
+    toast.error('Erro ao excluir chamado.');
+  } finally {
+    setIsDeleting(false);
+  }
+}
+
   // --------- render ---------
   if (loading) return <p style={{ padding: 20 }}>Carregando...</p>;
   if (!chamado) return <p style={{ padding: 20 }}>Chamado não encontrado.</p>;
@@ -580,6 +619,19 @@ const ChamadoDetalhe = ({ user }) => {
             </form>
           </div>
         )
+      )}
+
+      {podeExcluir && (
+        <div className={styles.card} style={{ display: 'flex', justifyContent: 'flex-end' }}>
+          <button
+            onClick={handleExcluirChamado}
+            className={`${styles.button} ${styles.buttonDanger}`}
+            disabled={isDeleting}
+            title="Excluir definitivamente este chamado"
+          >
+            {isDeleting ? 'Excluindo...' : 'Excluir Chamado'}
+          </button>
+        </div>
       )}
     </div>
   );

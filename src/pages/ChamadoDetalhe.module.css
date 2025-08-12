@@ -150,3 +150,7 @@
   font-size: 1rem;
   color: #333;
 }
+
+.buttonSecondary { background-color: #6b7280; }
+.buttonDanger { background-color: #dc2626; }
+.buttonDanger:hover { filter: brightness(0.95); }
