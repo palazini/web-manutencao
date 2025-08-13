@@ -6,7 +6,7 @@ import styles from './ChecklistPage.module.css';
 import { 
   collection, addDoc, serverTimestamp,
   doc, getDoc,
-  query, where, onSnapshot, getDocs
+  query, where, onSnapshot, getDocs, limit
 } from 'firebase/firestore';
 import { db } from '../firebase';
 import toast from 'react-hot-toast';
@@ -20,6 +20,15 @@ const ChecklistPage = ({ user }) => {
   const [respostas, setRespostas] = useState({});
   const [blockedItems, setBlockedItems] = useState({}); 
   const [loading, setLoading] = useState(true);
+  const [enviando, setEnviando] = useState(false);
+
+  const slugify = (s) =>
+  (s || '')
+    .trim()
+    .toLowerCase()
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9]+/g, '_')
+    .replace(/^_|_$/g, '');
 
   // 1) Busca checklist da máquina
   useEffect(() => {
@@ -57,10 +66,11 @@ const ChecklistPage = ({ user }) => {
     );
     const unsub = onSnapshot(q, snap => {
       const bloqueios = {};
-      snap.docs.forEach(doc => {
-        const data = doc.data();
-        // data.item deve ser o texto exato da pergunta
-        bloqueios[data.item] = doc.id;
+      snap.docs.forEach(d => {
+        const data = d.data();
+        // usa a mesma key que será usada no envio
+        const key = data.checklistItemKey || slugify(data.item);
+        bloqueios[key] = d.id;
       });
       setBlockedItems(bloqueios);
     });
@@ -77,17 +87,35 @@ const ChecklistPage = ({ user }) => {
   };
 
   const handleSubmit = async () => {
+    if (enviando) return;
+    setEnviando(true);
     setLoading(true);
     let gerados = 0;
     try {
       for (const pergunta of perguntas) {
         if (respostas[pergunta] === 'nao') {
-          // só cria se não houver bloqueio
-          if (!blockedItems[pergunta]) {
+          const key = slugify(pergunta);
+          // só cria se não houver bloqueio (snapshot) E não existir no servidor agora
+          if (!blockedItems[key]) {
+            // checagem final (servidor) para evitar desatualização local
+            const q = query(
+              collection(db, 'chamados'),
+              where('maquinaId', '==', maquinaId),
+              where('tipo', '==', 'preditiva'),
+              where('checklistItemKey', '==', key),
+              where('status', 'in', ['Aberto','Em Andamento']),
+              limit(1)
+            );
+            const snap = await getDocs(q);
+            if (!snap.empty) {
+              continue; // já existe aberto/andamento para este item
+            }
+
             await addDoc(collection(db, 'chamados'), {
               maquina: maquina.nome,
               maquinaId,
               item: pergunta,
+              checklistItemKey: key,
               descricao: `Item do checklist diário reportado como "Não": "${pergunta}"`,
               status: "Aberto",
               tipo: "preditiva",
@@ -116,6 +144,7 @@ const ChecklistPage = ({ user }) => {
       toast.error("Não foi possível enviar o checklist.");
     } finally {
       setLoading(false);
+      setEnviando(false);
     }
   };
 
@@ -131,7 +160,8 @@ const ChecklistPage = ({ user }) => {
 
         {perguntas.length === 0 && <p>Nenhum checklist configurado.</p>}
         {perguntas.map((pergunta, i) => {
-          const isBlocked = Boolean(blockedItems[pergunta]);
+          const key = slugify(pergunta);
+          const isBlocked = Boolean(blockedItems[key]);
           return (
             <div key={i} className={styles.checklistItem}>
               <span>{pergunta}</span>
@@ -150,17 +180,13 @@ const ChecklistPage = ({ user }) => {
                   id={`nao-${i}`}
                   name={`item-${i}`}
                   checked={respostas[pergunta] === 'nao'}
-                  disabled={isBlocked}
+                  disabled={isBlocked || enviando}
                   onChange={() => handleRespostaChange(pergunta, 'nao')}
                   style={{ marginLeft: '1rem' }}
                 />
                 <label htmlFor={`nao-${i}`}>Não</label>
 
-                {isBlocked && (
-                  <small style={{ marginLeft: '0.5rem', color: '#c00' }}>
-                    Já reportado no chamado {blockedItems[pergunta]}
-                  </small>
-                )}
+                {isBlocked && (<small>Já reportado no chamado {blockedItems[key]}</small>)}
               </div>
             </div>
           );
