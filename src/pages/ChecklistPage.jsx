@@ -78,9 +78,9 @@ const ChecklistPage = ({ user }) => {
   }, [maquinaId]);
 
   const handleRespostaChange = (pergunta, valor) => {
-    // se já existe bloqueio, não deixa mudar para "nao"
-    if (valor === 'nao' && blockedItems[pergunta]) {
-      toast(`⚠️ Este item já está reportado no chamado ${blockedItems[pergunta]}.`);
+    const key = slugify(pergunta);
+    if (valor === 'nao' && blockedItems[key]) {
+      toast(`⚠️ Este item já está reportado no chamado ${blockedItems[key]}.`);
       return;
     }
     setRespostas(prev => ({ ...prev, [pergunta]: valor }));
