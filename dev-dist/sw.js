@@ -67,13 +67,10 @@ if (!self.define) {
     });
   };
 }
-define(['./workbox-99d8380f'], (function (workbox) { 'use strict';
+define(['./workbox-01967f22'], (function (workbox) { 'use strict';
 
-  self.addEventListener('message', event => {
-    if (event.data && event.data.type === 'SKIP_WAITING') {
-      self.skipWaiting();
-    }
-  });
+  self.skipWaiting();
+  workbox.clientsClaim();
 
   /**
    * The precacheAndRoute() method efficiently caches and responds to
@@ -82,11 +79,33 @@ define(['./workbox-99d8380f'], (function (workbox) { 'use strict';
    */
   workbox.precacheAndRoute([{
     "url": "index.html",
-    "revision": "0.k5vf5f7cibo"
+    "revision": "0.kqe1j6vl5e8"
   }], {});
   workbox.cleanupOutdatedCaches();
   workbox.registerRoute(new workbox.NavigationRoute(workbox.createHandlerBoundToURL("index.html"), {
     allowlist: [/^\/$/]
   }));
+  workbox.registerRoute(({
+    url
+  }) => url.host.includes("googleapis.com") || url.host.includes("gstatic.com") || url.pathname.includes("/google.firestore.v1.Firestore/"), new workbox.NetworkOnly(), 'GET');
+  workbox.registerRoute(({
+    request
+  }) => request.mode === "navigate", new workbox.NetworkFirst({
+    "cacheName": "html-pages",
+    plugins: []
+  }), 'GET');
+  workbox.registerRoute(({
+    request,
+    sameOrigin
+  }) => sameOrigin && ["style", "script", "worker"].includes(request.destination), new workbox.StaleWhileRevalidate({
+    "cacheName": "static-assets",
+    plugins: []
+  }), 'GET');
+  workbox.registerRoute(({
+    request
+  }) => request.destination === "image", new workbox.StaleWhileRevalidate({
+    "cacheName": "images",
+    plugins: []
+  }), 'GET');
 
 }));
