@@ -1,0 +1,648 @@
+{
+  "appTitle": "维护面板",
+
+  "nav": {
+    "home": "主页",
+    "profile": "我的资料",
+    "machines": "机器",
+    "myCalls": "我的工单",
+    "calendar": "总日历",
+    "history": "历史记录",
+    "inventory": "库存",
+    "failures": "故障分析",
+    "rootCauses": "根本原因",
+    "manageUsers": "用户管理",
+    "activeCalls": "进行中的工单"
+  },
+
+  "status": {
+    "open": "打开",
+    "in_progress": "进行中",
+    "closed": "已关闭",
+    "cancelled": "已取消"
+  },
+
+  "login": {
+    "title": "登录",
+    "subtitle": "使用您的账户",
+    "userOrEmail": "邮箱或用户名",
+    "password": "密码",
+    "invalid": "用户名或密码无效。",
+    "next": "下一步",
+    "loading": "正在登录..."
+  },
+
+  "inicio": {
+    "title": "首页",
+    "welcome": "欢迎回来，<1>{{name}}</1>！",
+    "quickAccess": "快速访问",
+    "cards": {
+      "machines": {
+        "title": "机器面板",
+        "desc": "查看并管理所有设备的档案。"
+      },
+      "myCalls": {
+        "title": "我的工单",
+        "desc": "查看并管理分配给您的工单。"
+      },
+      "calendar": {
+        "title": "总日历",
+        "desc": "查看所有维护的完整概览。"
+      },
+      "history": {
+        "title": "总体历史",
+        "desc": "查看所有已完成的维护工单。"
+      },
+      "inventory": {
+        "title": "库存",
+        "desc": "跟踪备件的入库与出库。"
+      },
+      "failureAnalysis": {
+        "title": "故障分析",
+        "desc": "查看机器故障的统计与报告。"
+      },
+      "rootCauses": {
+        "title": "根本原因",
+        "desc": "识别并管理故障的根本原因。"
+      },
+      "manageUsers": {
+        "title": "用户管理",
+        "desc": "添加、编辑或删除团队成员。"
+      },
+      "profile": {
+        "title": "我的资料",
+        "desc": "查看您的信息并更改密码。"
+      }
+    }
+  },
+
+  "perfil": {
+    "title": "我的资料",
+    "info": {
+      "title": "我的信息",
+      "name": "姓名",
+      "email": "邮箱",
+      "role": "角色"
+    },
+    "changePassword": {
+      "title": "更改密码",
+      "current": "当前密码",
+      "new": "新密码",
+      "confirm": "确认新密码"
+    },
+    "actions": {
+      "save": "更改密码",
+      "saving": "正在更改..."
+    },
+    "toasts": {
+      "mismatch": "新密码不一致。",
+      "short": "新密码至少需 6 个字符。",
+      "wrongPassword": "当前密码错误。",
+      "generic": "更改密码时发生错误。",
+      "success": "密码已成功修改！"
+    }
+  },
+
+  "maquinas": {
+    "title": "机器面板",
+    "loading": "正在加载机器...",
+    "legend": {
+      "corretiva": "纠正性（紧急）",
+      "preventiva": "预防性（计划）",
+      "preditiva": "预测性（操作员检查表）"
+    },
+    "cardHint": "点击以查看详情",
+    "modal": {
+      "title": "创建新机器",
+      "nameLabel": "机器名称",
+      "save": "保存机器"
+    },
+    "toasts": {
+      "nameRequired": "机器名称不能为空。",
+      "created": "机器“{{name}}”创建成功！",
+      "createError": "创建机器时发生错误。"
+    }
+  },
+
+  "maquinaDetalhe": {
+    "loading": "正在加载机器数据...",
+    "notFound": "未找到机器。",
+    "subtitle": "完整的机器档案与维护历史。",
+    "tabs": {
+      "active": "进行中的工单",
+      "history": "历史",
+      "preventive": "预防性",
+      "checklist": "每日检查表",
+      "qrcode": "二维码"
+    },
+    "listas": {
+      "activeTitle": "{{name}} 的进行中工单",
+      "activeEmpty": "没有进行中的工单。",
+      "historyTitle": "{{name}} 的历史",
+      "historyEmpty": "没有已完成的工单。",
+      "statusLabel": "状态：{{status}}",
+      "openedAt": "开启于：{{date}}"
+    },
+    "legend": {
+      "overdue": "已逾期",
+      "today": "今天",
+      "future": "未来",
+      "started": "已开始",
+      "finished": "已完成"
+    },
+    "checklist": {
+      "title": "{{name}} 的每日检查项目",
+      "empty": "此机器未注册检查项目。",
+      "remove": "删除项目",
+      "placeholder": "添加新的检查项目",
+      "add": "添加",
+      "historyTitle": "每日合规历史",
+      "columns": {
+        "date": "日期",
+        "turn1": "第一班次",
+        "turn2": "第二班次"
+      },
+      "pending": "待处理",
+      "confirmRemove": "确定要删除“{{item}}”吗？"
+    },
+    "toasts": {
+      "itemEmpty": "检查项目不能为空。",
+      "itemAdded": "已将项目添加到检查表！",
+      "itemAddError": "添加项目时发生错误。",
+      "itemRemoved": "已从检查表移除项目！",
+      "itemRemoveError": "移除项目时发生错误。"
+    },
+    "agendar": {
+      "title": "计划维护",
+      "descricao": "描述",
+      "itensLabel": "检查表项目（每行一个）",
+      "save": "保存计划",
+      "errors": {
+        "missing": "请填写描述并至少添加一个检查项目。"
+      },
+      "toasts": {
+        "created": "预防性维护已计划！",
+        "error": "计划维护时发生错误。",
+        "rescheduleError": "重新计划失败。"
+      }
+    },
+    "evento": {
+      "descricao": "描述：",
+      "data": "日期：",
+      "status": "状态：",
+      "checklistTitle": "任务检查表：",
+      "startNow": "立即开始维护",
+      "confirmStart": "确定现在开始维护“{{title}}”吗？",
+      "callDesc": "预防性维护已计划：{{title}}",
+      "openedBy": "系统（由 {{name}} 启动）",
+      "toasts": {
+        "callCreated": "维护工单创建成功！",
+        "startError": "无法开始维护。"
+      }
+    },
+    "qrcode": {
+      "title": "快速访问二维码",
+      "info": "下载此二维码并贴在机器上以便快速访问档案。",
+      "download": "下载二维码"
+    },
+    "preventiveCalendar": {
+      "title": "预防性维护日历",
+      "subtitle": "查看已创建的计划。"
+    }
+  },
+
+  "calendar": {
+    "previous": "上一页",
+    "today": "今天",
+    "next": "下一页",
+    "month": "月",
+    "week": "周",
+    "day": "日",
+    "agenda": "日程",
+    "date": "日期",
+    "time": "时间",
+    "showMore": "+{{total}} 更多"
+  },
+
+  "common": {
+    "loading": "加载中...",
+    "processing": "处理中...",
+    "saving": "保存中...",
+    "deleting": "删除中...",
+    "yes": "是",
+    "no": "否",
+    "manager": "经理",
+    "maintainer": "维护员",
+    "logout": "退出登录"
+  },
+
+  "chamadoDetalhe": {
+    "notFound": "未找到工单。",
+    "header": {
+      "machine": "机器：{{name}}",
+      "openedBy": "由 {{name}} 于 {{date}} 开启"
+    },
+    "fields": {
+      "status": "状态",
+      "takenBy": "处理人",
+      "assignedTo": "分配给",
+      "reportedProblem": "报告的问题",
+      "checklistDone": "检查表已完成",
+      "performedService": "已执行的服务",
+      "finishedAt": "完成于：{{date}}",
+      "cause": "故障原因"
+    },
+    "of": "的",
+    "selects": {
+      "causePlaceholder": "请选择原因..."
+    },
+    "assign": {
+      "title": "分配维护员",
+      "label": "选择维护员",
+      "placeholder": "— 请选择 —",
+      "assign": "分配",
+      "reassign": "重新分配",
+      "remove": "移除分配"
+    },
+    "history": {
+      "title": "备注历史",
+      "add": "添加新备注",
+      "saveNote": "保存备注",
+      "empty": "暂无备注记录。",
+      "assigned": "由 {{by}} 分配给 {{assignee}}",
+      "unassigned": "由 {{by}} 移除了分配",
+      "taken": "工单由 {{by}} 接单处理"
+    },
+    "actions": {
+      "take": "接单处理",
+      "finish": "完成工单",
+      "finishing": "正在完成...",
+      "preventive": "维护检查表",
+      "corrective": {
+        "title": "登记解决方案并完成",
+        "solutionLabel": "已执行的服务 / 采用的解决方案"
+      }
+    },
+    "delete": {
+      "title": "永久删除此工单",
+      "button": "删除工单",
+      "confirm": "确定要删除此工单吗？此操作不可撤销。"
+    },
+    "toasts": {
+      "loadError": "加载工单时发生错误。",
+      "listMaintDenied": "无权限查看维护员列表。",
+      "selectMaint": "请选择一位维护员。",
+      "assigned": "工单已分配。",
+      "assignError": "分配工单时发生错误。",
+      "unassigned": "已移除分配。",
+      "unassignError": "移除分配时发生错误。",
+      "assignedToOther": "该工单已分配给其他维护员。",
+      "taken": "工单已接单。",
+      "takeError": "接单时发生错误。",
+      "noteAdded": "备注已添加。",
+      "noteError": "添加备注时发生错误。",
+      "finishOnlyOwner": "仅接单的维护员可以完成此工单。",
+      "selectCause": "完成前请先选择故障原因。",
+      "describeService": "请描述已执行的服务。",
+      "autoCorrective": "预防性检查表项“否”：\"{{item}}\"",
+      "autoBy": "系统（由 {{name}} 的预防性维护生成）",
+      "autoOpened": "已自动打开 {{count}} 个纠正性工单。",
+      "finished": "工单已成功完成！",
+      "finishError": "完成工单时发生错误。",
+      "onlyManagerDelete": "仅经理可删除此工单。",
+      "deleted": "工单已成功删除。",
+      "deleteError": "删除工单时发生错误。"
+    },
+    "preventive": {
+      "title": "维护检查表"
+    }
+  },
+
+  "calendarioGeral": {
+    "title": "维护总日历",
+    "loading": "正在加载计划...",
+    "legend": {
+      "overdue": "已逾期",
+      "today": "今天",
+      "future": "未来",
+      "started": "已开始",
+      "finished": "已完成",
+      "finishedLate": "延迟完成"
+    },
+    "details": {
+      "machine": "机器：",
+      "description": "描述：",
+      "currentDate": "当前日期：",
+      "originalDate": "原始日期：",
+      "status": "状态：",
+      "finishedAt": "完成日期：",
+      "checklistTitle": "任务检查表："
+    },
+    "actions": {
+      "startNow": "立即开始维护",
+      "delete": "删除计划"
+    },
+    "confirm": {
+      "startNow": "现在开始维护“{{title}}”吗？",
+      "delete": "确定删除计划“{{title}}”吗？"
+    },
+    "generated": {
+      "callDesc": "预防性维护计划：{{title}}",
+      "openedBy": "系统（由 {{name}} 启动）"
+    },
+    "toasts": {
+      "fillAll": "请填写所有字段。",
+      "created": "计划已创建！",
+      "callCreated": "工单已创建并已启动计划！",
+      "startFail": "无法开始维护。",
+      "rescheduleFail": "重新计划失败。",
+      "deleted": "计划已成功删除！",
+      "deleteFail": "删除计划失败。"
+    },
+    "new": {
+      "title": "计划维护",
+      "machine": "机器",
+      "description": "描述",
+      "importTemplate": "从先前计划导入检查表",
+      "selectPlaceholder": "请选择...",
+      "none": "无",
+      "itemsLabel": "检查表项目（每行一个）",
+      "save": "保存计划"
+    }
+  },
+
+  "historico": {
+    "title": "维护历史",
+    "loading": "正在加载历史...",
+    "empty": "所选筛选条件下无已完成工单。",
+    "export": {
+      "downloadExcel": "下载 Excel",
+      "downloadPdf": "下载 PDF",
+      "sheetName": "工单",
+      "columns": {
+        "machine": "机器",
+        "callType": "工单类型",
+        "openedAt": "开启于",
+        "attendedBy": "处理人",
+        "performedService": "已执行的服务",
+        "cause": "故障原因",
+        "concludedAt": "完成日期",
+        "problem": "问题"
+      }
+    },
+    "filters": {
+      "byType": "按工单类型筛选：",
+      "byMachine": "按机器筛选：",
+      "typeOptions": {
+        "all": "全部",
+        "corrective": "纠正性",
+        "preventive": "预防性",
+        "predictive": "预测性"
+      },
+      "machineOptions": {
+        "all": "全部"
+      }
+    },
+    "item": {
+      "machine": "机器：{{name}}",
+      "attendedBy": "处理人：{{name}}",
+      "unknown": "未标明",
+      "concludedAt": "完成于：{{date}}",
+      "problem": "问题：",
+      "notSpecified": "未指定"
+    }
+  },
+
+  "estoque": {
+    "title": "维护库存管理",
+    "loading": "正在加载零件...",
+    "empty": "暂无注册零件。",
+    "toolbar": {
+      "new": "+ 新零件",
+      "exportExcel": "导出 Excel",
+      "exportPdf": "导出 PDF"
+    },
+    "card": {
+      "labels": {
+        "code": "代码：",
+        "category": "类别：",
+        "stock": "库存：",
+        "min": "最小值：",
+        "location": "位置："
+      },
+      "buttons": {
+        "in": "入库",
+        "out": "出库",
+        "edit": "编辑",
+        "delete": "删除"
+      }
+    },
+    "confirm": {
+      "delete": "确定删除此零件吗？"
+    },
+    "toasts": {
+      "deleted": "零件已成功删除！",
+      "deleteFail": "删除零件失败。"
+    },
+    "export": {
+      "sheetName": "库存",
+      "columns": {
+        "code": "代码",
+        "name": "名称",
+        "category": "类别",
+        "stock": "库存",
+        "min": "最小值",
+        "location": "位置"
+      }
+    }
+  },
+
+  "analiseFalhas": {
+    "title": "纠正性故障分析",
+    "loading": "正在分析数据...",
+    "filters": {
+      "start": "开始：",
+      "end": "结束：",
+      "clear": "清除"
+    },
+    "chart": {
+      "title": "各机器的纠正性故障分布",
+      "dataset": "纠正性故障数量",
+      "xLabel": "机器",
+      "yLabel": "数量"
+    }
+  },
+
+  "causas": {
+    "titleCrud": "管理根本原因",
+    "titlePareto": "故障帕累托图",
+    "form": {
+      "placeholder": "新增原因",
+      "add": "添加"
+    },
+    "list": {
+      "delete": "删除"
+    },
+    "confirm": {
+      "delete": "删除该原因？"
+    },
+    "chart": {
+      "seriesCalls": "工单",
+      "seriesAccumPct": "累计百分比",
+      "xLabel": "原因",
+      "yLeft": "工单",
+      "yRight": "累计百分比"
+    }
+  },
+
+  "users": {
+    "title": "用户管理",
+    "loading": "正在加载用户...",
+    "actions": {
+      "create": "创建新用户",
+      "edit": "编辑",
+      "delete": "删除"
+    },
+    "table": {
+      "fullName": "姓名",
+      "username": "用户名",
+      "function": "角色",
+      "actions": "操作"
+    },
+    "modal": {
+      "createTitle": "创建新用户",
+      "editTitle": "编辑用户"
+    },
+    "form": {
+      "fullName": "姓名",
+      "tempPassword": "临时密码",
+      "role": "角色",
+      "saving": "正在保存...",
+      "saveChanges": "保存更改",
+      "createUser": "创建用户"
+    },
+    "roles": {
+      "operator": "操作员",
+      "maintainer": "维护员",
+      "manager": "经理"
+    },
+    "validation": {
+      "fullName": "请输入名和姓。"
+    },
+    "confirm": {
+      "delete": "删除用户 {{name}}？"
+    },
+    "toasts": {
+      "created": "用户 {{name}} 创建成功！",
+      "updated": "用户更新成功！",
+      "saveError": "保存用户时发生错误。",
+      "deleted": "用户删除成功！",
+      "deleteError": "删除用户时发生错误。",
+      "authClaimNotSet": "未设置 Auth 权限。",
+      "authClaimNotUpdated": "Auth 权限未更新。"
+    }
+  },
+
+  "layout": {
+    "sections": {
+      "manageMaintenance": "管理维护",
+      "analytics": "分析与指标",
+      "managePeople": "管理团队"
+    }
+  },
+
+  "dashboard": {
+    "operator": "操作员仪表板",
+    "maintainer": "维护仪表板",
+    "manager": "经理仪表板"
+  },
+
+  "meusChamados": {
+    "title": "我的工单",
+    "loginFirst": "请登录以查看您的工单。",
+    "filters": {
+      "statusTitle": "按状态筛选",
+      "active": "打开 & 进行中",
+      "all": "全部",
+      "closed": "已关闭",
+      "searchPlaceholder": "按机器或描述搜索..."
+    },
+    "footerTip": "提示：使用“已关闭”筛选器查看个人历史。",
+    "loading": "正在加载...",
+    "empty": "未找到工单。",
+    "table": {
+      "hash": "#",
+      "machine": "机器",
+      "description": "描述",
+      "status": "状态",
+      "assignedAt": "分配于",
+      "openedAt": "开启于",
+      "open": "打开"
+    }
+  },
+
+  "inicioTurno": {
+    "title": "班次开始",
+    "greeting": "您好，{{name}}。请填写您今天的班次以及负责的机器。",
+    "loading": "正在加载...",
+    "fields": {
+      "shift": "您的班次",
+      "machinesLabel": "您今天负责的机器（可选择一个或多个）"
+    },
+    "shifts": {
+      "shift1": "第一班次（05:30 - 15:18）",
+      "shift2": "第二班次（15:18 - 00:48）"
+    },
+    "confirmBtn": "确认并开始检查表",
+    "alert": {
+      "selectOne": "请至少选择一台机器。"
+    }
+  },
+
+  "tarefasDiarias": {
+    "title": "每日任务",
+    "greeting": "您好，{{name}}。以下是您本班次待完成的检查表。",
+    "checking": "正在检查任务...",
+    "allDone": "您已完成本班次的所有检查表。干得漂亮！",
+    "fillChecklist": "填写检查表"
+  },
+
+  "checklist": {
+    "notFound": "未找到机器。",
+    "loading": "正在加载检查表...",
+    "title": "每日检查表：{{machine}}",
+    "greeting": "您好，{{name}}。请完成以下检查表：",
+    "empty": "未配置检查表。",
+    "yes": "是",
+    "no": "否",
+    "alreadyReported": "已在工单 {{id}} 中报告",
+    "toastAlreadyReported": "⚠️ 该项目已在工单 {{id}} 中报告。",
+    "generatedDescription": "每日检查表项目标记为“否”：\"{{item}}\"",
+    "send": "提交检查表",
+    "sending": "正在提交...",
+    "toastSent": "检查表已提交！已生成 {{count}} 个工单。",
+    "toastFail": "无法提交检查表。"
+  },
+
+  "operatorDashboard": {
+    "form": {
+      "title": "打开新工单",
+      "selectMachine": "选择机器",
+      "choosePlaceholder": "请选择一台机器...",
+      "problem": "问题描述",
+      "problemPlaceholder": "请详细描述发现的问题...",
+      "open": "打开工单",
+      "sending": "正在提交...",
+      "required": "请选择机器并描述问题。",
+      "opened": "已成功为机器 {{machine}} 打开工单！",
+      "error": "打开工单时发生错误。"
+    },
+    "list": {
+      "title": "工单历史",
+      "loading": "正在加载工单...",
+      "empty": "您尚未打开任何工单。",
+      "machine": "机器：{{name}}",
+      "openedAt": "开启于：{{date}}"
+    }
+  }
+}

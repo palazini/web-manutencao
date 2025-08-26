@@ -122,3 +122,45 @@
   background-color: #ccc;
   cursor: not-allowed;
 }
+
+/* === Language switcher (flags) === */
+.langSwitcher {
+  position: absolute;
+  top: 24px;
+  right: 24px;
+  display: flex;
+  gap: 10px;
+  z-index: 2; /* acima do overlay ::before e do fundo */
+}
+
+.flagBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.9);
+  backdrop-filter: blur(2px);
+  font-size: 14px;
+  color: #111827;
+  cursor: pointer;
+  transition: transform .08s ease, box-shadow .2s ease, background .2s ease;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.06);
+}
+
+.flagBtn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+}
+
+.isActive {
+  border-color: #1a73e8;
+  background: #e8f0fe;
+  color: #1a73e8;
+}
+
+.flag {
+  font-size: 18px; /* emojis de bandeira grandes e nítidos */
+  line-height: 1;
+}

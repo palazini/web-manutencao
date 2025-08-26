@@ -1,4 +1,3 @@
-// src/pages/CausasRaizPage.jsx
 import React, { useState, useEffect } from 'react';
 import {
   collection,
@@ -22,8 +21,10 @@ import {
   ResponsiveContainer
 } from 'recharts';
 import styles from './CausasRaizPage.module.css';
+import { useTranslation } from 'react-i18next';
 
 function CausasCrud() {
+  const { t } = useTranslation();
   const [causas, setCausas] = useState([]);
   const [novoNome, setNovoNome] = useState('');
 
@@ -44,7 +45,7 @@ function CausasCrud() {
   };
 
   const handleDelete = async id => {
-    if (!window.confirm('Excluir esta causa?')) return;
+    if (!window.confirm(t('causas.confirm.delete'))) return;
     await deleteDoc(doc(db, 'causasRaiz', id));
   };
 
@@ -54,13 +55,13 @@ function CausasCrud() {
         <input
           type="text"
           className={styles.input}
-          placeholder="Nova causa"
+          placeholder={t('causas.form.placeholder')}
           value={novoNome}
           onChange={e => setNovoNome(e.target.value)}
           required
         />
         <button type="submit" className={styles.button}>
-          Adicionar
+          {t('causas.form.add')}
         </button>
       </form>
       <ul className={styles.list}>
@@ -71,7 +72,7 @@ function CausasCrud() {
               className={styles.deleteButton}
               onClick={() => handleDelete(c.id)}
             >
-              Excluir
+              {t('causas.list.delete')}
             </button>
           </li>
         ))}
@@ -81,6 +82,7 @@ function CausasCrud() {
 }
 
 function ParetoChart() {
+  const { t } = useTranslation();
   const [dados, setDados] = useState([]);
 
   useEffect(() => {
@@ -101,13 +103,10 @@ function ParetoChart() {
       }, {});
 
       // 3) monta array e ordena desc
-      let arr = Object.entries(freq).map(([causa, count]) => ({
-        causa,
-        count
-      }));
+      let arr = Object.entries(freq).map(([causa, count]) => ({ causa, count }));
       arr.sort((a, b) => b.count - a.count);
 
-      // 4) calcula total, % e % acumulado
+      // 4) total, % e % acumulado
       const total = arr.reduce((sum, x) => sum + x.count, 0);
       let acumulado = 0;
       arr = arr.map(item => {
@@ -128,22 +127,33 @@ function ParetoChart() {
     <ResponsiveContainer width="100%" height={400}>
       <ComposedChart data={dados}>
         <CartesianGrid stroke="#f5f5f5" />
-        <XAxis dataKey="causa" />
-        <YAxis yAxisId="left" />
-        <YAxis yAxisId="right" orientation="right" domain={[0, 100]} />
+        <XAxis
+          dataKey="causa"
+          label={{ value: t('causas.chart.xLabel'), position: 'insideBottom', offset: -5 }}
+        />
+        <YAxis
+          yAxisId="left"
+          label={{ value: t('causas.chart.yLeft'), angle: -90, position: 'insideLeft' }}
+        />
+        <YAxis
+          yAxisId="right"
+          orientation="right"
+          domain={[0, 100]}
+          label={{ value: t('causas.chart.yRight'), angle: 90, position: 'insideRight' }}
+        />
         <Tooltip />
         <Legend />
         <Bar
           yAxisId="left"
           dataKey="count"
-          name="Chamados"
+          name={t('causas.chart.seriesCalls')}
           fill="#8884d8"
         />
         <Line
           yAxisId="right"
           type="monotone"
           dataKey="acumPercent"
-          name="% Acumulado"
+          name={t('causas.chart.seriesAccumPct')}
           stroke="#ff7300"
         />
       </ComposedChart>
@@ -152,14 +162,15 @@ function ParetoChart() {
 }
 
 export default function CausasRaizPage() {
+  const { t } = useTranslation();
   return (
     <div className={styles.pageContainer}>
       <section className={styles.crudSection}>
-        <h2>Gerenciar Causas Raiz</h2>
+        <h2>{t('causas.titleCrud')}</h2>
         <CausasCrud />
       </section>
       <section className={styles.chartSection}>
-        <h2>Pareto de Falhas</h2>
+        <h2>{t('causas.titlePareto')}</h2>
         <ParetoChart />
       </section>
     </div>

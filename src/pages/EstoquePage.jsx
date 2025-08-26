@@ -1,4 +1,3 @@
-// src/pages/EstoquePage.jsx
 import React, { useState, useEffect } from 'react';
 import { db } from '../firebase';
 import {
@@ -13,12 +12,15 @@ import styles from './EstoquePage.module.css';
 import MovimentacaoModal from './MovimentacaoModal.jsx';
 import PecaModal from './PecaModal.jsx';
 import toast from 'react-hot-toast';
+import { useTranslation } from 'react-i18next';
 
 // Reaproveitando as helpers do histórico
 import { exportToExcel } from '../utils/exportExcel';
 import { exportToPdf }   from '../utils/exportPdf';
 
 export default function EstoquePage({ user }) {
+  const { t } = useTranslation();
+
   const [pecas, setPecas]               = useState([]);
   const [loading, setLoading]           = useState(true);
   const [selectedPeca, setSelectedPeca] = useState(null);
@@ -39,56 +41,54 @@ export default function EstoquePage({ user }) {
   };
 
   const handleDeletePeca = async id => {
-    if (!window.confirm('Tem certeza que deseja excluir esta peça?')) return;
+    if (!window.confirm(t('estoque.confirm.delete'))) return;
     try {
       await deleteDoc(doc(db, 'pecas', id));
-      toast.success('Peça excluída com sucesso!');
+      toast.success(t('estoque.toasts.deleted'));
     } catch (err) {
       console.error(err);
-      toast.error('Falha ao excluir peça.');
+      toast.error(t('estoque.toasts.deleteFail'));
     }
   };
 
   // Prepara dados para exportação em Excel
   const handleExportExcel = () => {
     const excelData = pecas.map(p => ({
-      Código:      p.codigo,
-      Nome:        p.nome,
-      Categoria:   p.categoria,
-      Estoque:     p.estoqueAtual,
-      Mínimo:      p.estoqueMinimo,
-      Localização: p.localizacao,
+      [t('estoque.export.columns.code')]:      p.codigo,
+      [t('estoque.export.columns.name')]:      p.nome,
+      [t('estoque.export.columns.category')]:  p.categoria,
+      [t('estoque.export.columns.stock')]:     p.estoqueAtual,
+      [t('estoque.export.columns.min')]:       p.estoqueMinimo,
+      [t('estoque.export.columns.location')]:  p.localizacao,
     }));
-    // (exportToExcel(data, nomeDaPlanilha, nomeDoArquivo))
-    exportToExcel(excelData, 'Estoque', 'estoque');
+    exportToExcel(excelData, t('estoque.export.sheetName'), 'estoque');
   };
 
   // Prepara dados e colunas para exportação em PDF
   const handleExportPdf = () => {
     const pdfColumns = [
-      { key: 'codigo',      label: 'Código' },
-      { key: 'nome',        label: 'Nome' },
-      { key: 'categoria',   label: 'Categoria' },
-      { key: 'estoqueAtual',  label: 'Estoque' },
-      { key: 'estoqueMinimo', label: 'Mínimo' },
-      { key: 'localizacao', label: 'Localização' }
+      { key: 'codigo',        label: t('estoque.export.columns.code') },
+      { key: 'nome',          label: t('estoque.export.columns.name') },
+      { key: 'categoria',     label: t('estoque.export.columns.category') },
+      { key: 'estoqueAtual',  label: t('estoque.export.columns.stock') },
+      { key: 'estoqueMinimo', label: t('estoque.export.columns.min') },
+      { key: 'localizacao',   label: t('estoque.export.columns.location') }
     ];
     const pdfData = pecas.map(p => ({
-      codigo:      p.codigo,
-      nome:        p.nome,
-      categoria:   p.categoria,
+      codigo:        p.codigo,
+      nome:          p.nome,
+      categoria:     p.categoria,
       estoqueAtual:  p.estoqueAtual,
       estoqueMinimo: p.estoqueMinimo,
-      localizacao: p.localizacao
+      localizacao:   p.localizacao
     }));
-    // (exportToPdf(dataArray, columns, nomeDoArquivo))
     exportToPdf(pdfData, pdfColumns, 'estoque');
   };
 
   return (
     <>
       <header className={styles.header}>
-        <h1>Controle de Estoque de Manutenção</h1>
+        <h1>{t('estoque.title')}</h1>
       </header>
 
       <div className={styles.container}>
@@ -99,64 +99,64 @@ export default function EstoquePage({ user }) {
               className={styles.newButton}
               onClick={() => setEditingPeca(null)}
             >
-              + Nova Peça
+              {t('estoque.toolbar.new')}
             </button>
           )}
           <button
             className={styles.exportButton}
             onClick={handleExportExcel}
           >
-            Exportar Excel
+            {t('estoque.toolbar.exportExcel')}
           </button>
           <button
             className={styles.exportButton}
             onClick={handleExportPdf}
           >
-            Exportar PDF
+            {t('estoque.toolbar.exportPdf')}
           </button>
         </div>
 
         {/* Grid de cards */}
         <div className={styles.grid}>
           {loading ? (
-            <p>Carregando peças...</p>
+            <p>{t('estoque.loading')}</p>
           ) : pecas.length === 0 ? (
-            <p>Nenhuma peça cadastrada.</p>
+            <p>{t('estoque.empty')}</p>
           ) : (
             pecas.map(p => (
               <div key={p.id} className={styles.cardCatalog}>
                 <h3>{p.nome}</h3>
-                <p><strong>Código:</strong> {p.codigo} </p>
-                <p><strong>Categoria:</strong> {p.categoria}</p>
-                <p><strong>Estoque:</strong> {p.estoqueAtual}</p>
-                <p><strong>Mínimo:</strong> {p.estoqueMinimo}</p>
-                <p><strong>Localização:</strong> {p.localizacao}</p>
+                <p><strong>{t('estoque.card.labels.code')}</strong> {p.codigo}</p>
+                <p><strong>{t('estoque.card.labels.category')}</strong> {p.categoria}</p>
+                <p><strong>{t('estoque.card.labels.stock')}</strong> {p.estoqueAtual}</p>
+                <p><strong>{t('estoque.card.labels.min')}</strong> {p.estoqueMinimo}</p>
+                <p><strong>{t('estoque.card.labels.location')}</strong> {p.localizacao}</p>
 
-                {user.role === 'gestor' && (
+                {user?.role === 'gestor' && (
                   <div className={styles.cardButtons}>
                     <button
                       className={styles.buttonSmall}
                       onClick={() => openModalMov(p, 'entrada')}
                     >
-                      Entrada
+                      {t('estoque.card.buttons.in')}
                     </button>
                     <button
                       className={styles.buttonSmall}
                       onClick={() => openModalMov(p, 'saida')}
                     >
-                      Saída
+                      {t('estoque.card.buttons.out')}
                     </button>
                     <button
                       className={styles.buttonSmall}
                       onClick={() => setEditingPeca(p)}
                     >
-                      Editar
+                      {t('estoque.card.buttons.edit')}
                     </button>
                     <button
                       className={styles.buttonSmallDelete}
                       onClick={() => handleDeletePeca(p.id)}
                     >
-                      Excluir
+                      {t('estoque.card.buttons.delete')}
                     </button>
                   </div>
                 )}

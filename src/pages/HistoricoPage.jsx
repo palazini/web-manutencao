@@ -1,20 +1,26 @@
-// src/pages/HistoricoPage.jsx
-
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { db } from '../firebase';
 import { collection, query, where, onSnapshot, orderBy } from 'firebase/firestore';
 import { exportToExcel } from '../utils/exportExcel';
 import { exportToPdf }   from '../utils/exportPdf';
 import styles from './HistoricoPage.module.css';
+import { useTranslation } from 'react-i18next';
 
 const HistoricoPage = () => {
+  const { t, i18n } = useTranslation();
+
   const [chamadosConcluidos, setChamadosConcluidos] = useState([]);
   const [loading, setLoading] = useState(true);
 
   // Estados de filtro
   const [filtroTipoChamado, setFiltroTipoChamado] = useState('todos');
   const [filtroTipoMaquina, setFiltroTipoMaquina] = useState('todos');
+
+  const dtFmt = useMemo(
+    () => new Intl.DateTimeFormat(i18n.language, { dateStyle: 'short', timeStyle: 'short' }),
+    [i18n.language]
+  );
 
   useEffect(() => {
     const q = query(
@@ -45,89 +51,94 @@ const HistoricoPage = () => {
   // Lista de máquinas únicas para o dropdown
   const maquinasUnicas = Array.from(new Set(chamadosConcluidos.map(c => c.maquina)));
 
-  // Preparar dados para exportação
- const excelData = historicoFiltrado.map(c => ({
-    Máquina: c.maquina,
-    'Tipo de Chamado': c.tipo,
-    'Aberto em': c.dataAbertura 
-      ? new Date(c.dataAbertura.toDate()).toLocaleString('pt-BR')
-      : '',
-    'Atendido Por': c.manutentorNome || '',
-    'Serviço Realizado': c.solucao || '',
-    'Causa da Falha': c.causa || '',
-    'Data Conclusão': c.dataConclusao
-      ? new Date(c.dataConclusao.toDate()).toLocaleString('pt-BR')
-      : '',
-    Problema: c.descricao || ''
+  // Tradução para o tipo (apenas para mostrar/exports; mantém os valores internos)
+  const tipoLabel = (tipo) => {
+    if (tipo === 'corretiva') return t('historico.filters.typeOptions.corrective');
+    if (tipo === 'preventiva') return t('historico.filters.typeOptions.preventive');
+    if (tipo === 'preditiva') return t('historico.filters.typeOptions.predictive');
+    return tipo || '';
+  };
+
+  // Dados para Excel (as chaves do objeto viram os cabeçalhos)
+  const excelData = historicoFiltrado.map(c => ({
+    [t('historico.export.columns.machine')]: c.maquina,
+    [t('historico.export.columns.callType')]: tipoLabel(c.tipo),
+    [t('historico.export.columns.openedAt')]:
+      c.dataAbertura ? dtFmt.format(c.dataAbertura.toDate()) : '',
+    [t('historico.export.columns.attendedBy')]: c.manutentorNome || '',
+    [t('historico.export.columns.performedService')]: c.solucao || '',
+    [t('historico.export.columns.cause')]: c.causa || '',
+    [t('historico.export.columns.concludedAt')]:
+      c.dataConclusao ? dtFmt.format(c.dataConclusao.toDate()) : '',
+    [t('historico.export.columns.problem')]: c.descricao || ''
   }));
 
+  // Dados para PDF (mantém as keys originais; labels traduzidos no array de colunas)
   const pdfColumns = [
-    { key: 'maquina',        label: 'Máquina' },
-    { key: 'tipo',           label: 'Tipo de Chamado' },
-    { key: 'dataAbertura',   label: 'Aberto em' },
-    { key: 'manutentorNome', label: 'Atendido Por' },
-    { key: 'solucao',        label: 'Serviço Realizado' },
-    { key: 'causa',          label: 'Causa da Falha' },
-    { key: 'dataConclusao',  label: 'Data Conclusão' },
-    { key: 'descricao',      label: 'Problema' }
+    { key: 'maquina',        label: t('historico.export.columns.machine') },
+    { key: 'tipo',           label: t('historico.export.columns.callType') },
+    { key: 'dataAbertura',   label: t('historico.export.columns.openedAt') },
+    { key: 'manutentorNome', label: t('historico.export.columns.attendedBy') },
+    { key: 'solucao',        label: t('historico.export.columns.performedService') },
+    { key: 'causa',          label: t('historico.export.columns.cause') },
+    { key: 'dataConclusao',  label: t('historico.export.columns.concludedAt') },
+    { key: 'descricao',      label: t('historico.export.columns.problem') }
   ];
 
   const pdfData = historicoFiltrado.map(c => ({
     ...c,
-    dataAbertura: c.dataAbertura
-      ? new Date(c.dataAbertura.toDate()).toLocaleString('pt-BR')
-      : '',
-    dataConclusao: c.dataConclusao
-      ? new Date(c.dataConclusao.toDate()).toLocaleString('pt-BR')
-      : ''
+    dataAbertura: c.dataAbertura ? dtFmt.format(c.dataAbertura.toDate()) : '',
+    dataConclusao: c.dataConclusao ? dtFmt.format(c.dataConclusao.toDate()) : '',
+    tipo: tipoLabel(c.tipo)
   }));
 
   return (
     <>
       <header style={{ padding: '20px', backgroundColor: '#ffffff', borderBottom: '1px solid #e0e0e0' }}>
-        <h1>Histórico de Manutenções</h1>
+        <h1>{t('historico.title')}</h1>
       </header>
+
       <div style={{ padding: '20px' }}>
         <div className={styles.card}>
           {loading ? (
-            <p>Carregando histórico...</p>
+            <p>{t('historico.loading')}</p>
           ) : (
             <>
               {/* Área de exportação */}
               <div className={styles.exportButtons}>
-                <button onClick={() => exportToExcel(excelData, 'Chamados', 'historico-chamados')}>
-                  Baixar Excel
+                <button onClick={() => exportToExcel(excelData, t('historico.export.sheetName'), 'historico-chamados')}>
+                  {t('historico.export.downloadExcel')}
                 </button>
                 <button onClick={() => exportToPdf(pdfData, pdfColumns, 'historico-chamados')}>
-                  Baixar PDF
+                  {t('historico.export.downloadPdf')}
                 </button>
               </div>
 
               {/* Filtros */}
               <div className={styles.filterContainer}>
                 <div>
-                  <label htmlFor="filtroTipoChamado">Filtrar por tipo de chamado:</label>
+                  <label htmlFor="filtroTipoChamado">{t('historico.filters.byType')}</label>
                   <select
                     id="filtroTipoChamado"
                     className={styles.select}
                     value={filtroTipoChamado}
                     onChange={e => setFiltroTipoChamado(e.target.value)}
                   >
-                    <option value="todos">Todos</option>
-                    <option value="corretiva">Corretiva</option>
-                    <option value="preventiva">Preventiva</option>
-                    <option value="preditiva">Preditiva</option>
+                    <option value="todos">{t('historico.filters.typeOptions.all')}</option>
+                    <option value="corretiva">{t('historico.filters.typeOptions.corrective')}</option>
+                    <option value="preventiva">{t('historico.filters.typeOptions.preventive')}</option>
+                    <option value="preditiva">{t('historico.filters.typeOptions.predictive')}</option>
                   </select>
                 </div>
                 <div>
-                  <label htmlFor="filtroTipoMaquina">Filtrar por máquina:</label>
+                  <label htmlFor="filtroTipoMaquina">{t('historico.filters.byMachine')}</label>
                   <select
                     id="filtroTipoMaquina"
                     className={styles.select}
                     value={filtroTipoMaquina}
                     onChange={e => setFiltroTipoMaquina(e.target.value)}
                   >
-                    <option value="todos">Todos</option>
+                    <option value="todos">{t('historico.filters.machineOptions.all')}</option>
                     {maquinasUnicas.map(maquina => (
                       <option key={maquina} value={maquina}>{maquina}</option>
                     ))}
@@ -136,23 +147,25 @@ const HistoricoPage = () => {
               </div>
 
               {historicoFiltrado.length === 0 ? (
-                <p>Nenhum chamado concluído para os filtros selecionados.</p>
+                <p>{t('historico.empty')}</p>
               ) : (
                 <ul className={styles.chamadoList}>
                   {historicoFiltrado.map((chamado) => (
                     <Link to={`chamado/${chamado.id}`} key={chamado.id} className={styles.chamadoLink}>
                       <li className={styles.chamadoItem}>
                         <div className={styles.chamadoInfo}>
-                          <strong>Máquina: {chamado.maquina}</strong>
-                          <small>Atendido por: {chamado.manutentorNome || 'Não identificado'}</small>
+                          <strong>{t('historico.item.machine', { name: chamado.maquina })}</strong>
                           <small>
-                            Concluído em: {' '}
-                            {chamado.dataConclusao
-                              ? new Date(chamado.dataConclusao.toDate()).toLocaleString('pt-BR')
-                              : '...'}
+                            {t('historico.item.attendedBy', { name: chamado.manutentorNome || t('historico.item.unknown') })}
+                          </small>
+                          <small>
+                            {t('historico.item.concludedAt', {
+                              date: chamado.dataConclusao ? dtFmt.format(chamado.dataConclusao.toDate()) : '...'
+                            })}
                           </small>
                           <p className={styles.problemaPreview}>
-                            <strong>Problema:</strong> {chamado.descricao || 'Não especificado'}
+                            <strong>{t('historico.item.problem')}</strong>{' '}
+                            {chamado.descricao || t('historico.item.notSpecified')}
                           </p>
                         </div>
                       </li>

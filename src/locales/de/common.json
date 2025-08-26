@@ -1,0 +1,648 @@
+{
+  "appTitle": "Wartungs-Dashboard",
+
+  "nav": {
+    "home": "Startseite",
+    "profile": "Mein Profil",
+    "machines": "Maschinen",
+    "myCalls": "Meine Arbeitsaufträge",
+    "calendar": "Allgemeiner Kalender",
+    "history": "Verlauf",
+    "inventory": "Bestand",
+    "failures": "Fehleranalyse",
+    "rootCauses": "Hauptursachen",
+    "manageUsers": "Benutzer verwalten",
+    "activeCalls": "aktive Arbeitsaufträge"
+  },
+
+  "status": {
+    "open": "Offen",
+    "in_progress": "In Bearbeitung",
+    "closed": "Abgeschlossen",
+    "cancelled": "Abgebrochen"
+  },
+
+  "login": {
+    "title": "Anmelden",
+    "subtitle": "Verwenden Sie Ihr Konto",
+    "userOrEmail": "E-Mail oder Benutzername",
+    "password": "Passwort",
+    "invalid": "Ungültiger Benutzername oder Passwort.",
+    "next": "Weiter",
+    "loading": "Anmeldung läuft..."
+  },
+
+  "inicio": {
+    "title": "Startseite",
+    "welcome": "Willkommen zurück, <1>{{name}}</1>!",
+    "quickAccess": "Schnellzugriff",
+    "cards": {
+      "machines": {
+        "title": "Maschinenübersicht",
+        "desc": "Unterlagen aller Geräte ansehen und verwalten."
+      },
+      "myCalls": {
+        "title": "Meine Arbeitsaufträge",
+        "desc": "Ihre zugewiesenen Arbeitsaufträge ansehen und verwalten."
+      },
+      "calendar": {
+        "title": "Allgemeiner Kalender",
+        "desc": "Vollständige Übersicht aller Wartungen."
+      },
+      "history": {
+        "title": "Allgemeiner Verlauf",
+        "desc": "Alle abgeschlossenen Wartungsaufträge ansehen."
+      },
+      "inventory": {
+        "title": "Bestand",
+        "desc": "Ein- und Ausgänge von Ersatzteilen verfolgen."
+      },
+      "failureAnalysis": {
+        "title": "Fehleranalyse",
+        "desc": "Statistiken und Berichte zu Maschinenausfällen."
+      },
+      "rootCauses": {
+        "title": "Hauptursachen",
+        "desc": "Hauptursachen von Fehlern identifizieren und verwalten."
+      },
+      "manageUsers": {
+        "title": "Benutzer verwalten",
+        "desc": "Teammitglieder hinzufügen, bearbeiten oder entfernen."
+      },
+      "profile": {
+        "title": "Mein Profil",
+        "desc": "Eigene Daten ansehen und Passwort ändern."
+      }
+    }
+  },
+
+  "perfil": {
+    "title": "Mein Profil",
+    "info": {
+      "title": "Meine Informationen",
+      "name": "Name",
+      "email": "E-Mail",
+      "role": "Rolle"
+    },
+    "changePassword": {
+      "title": "Passwort ändern",
+      "current": "Aktuelles Passwort",
+      "new": "Neues Passwort",
+      "confirm": "Neues Passwort bestätigen"
+    },
+    "actions": {
+      "save": "Passwort ändern",
+      "saving": "Ändern..."
+    },
+    "toasts": {
+      "mismatch": "Die neuen Passwörter stimmen nicht überein.",
+      "short": "Das neue Passwort muss mindestens 6 Zeichen haben.",
+      "wrongPassword": "Das aktuelle Passwort ist falsch.",
+      "generic": "Beim Ändern des Passworts ist ein Fehler aufgetreten.",
+      "success": "Passwort erfolgreich geändert!"
+    }
+  },
+
+  "maquinas": {
+    "title": "Maschinenübersicht",
+    "loading": "Maschinen werden geladen...",
+    "legend": {
+      "corretiva": "Korrektiv (Dringend)",
+      "preventiva": "Präventiv (Geplant)",
+      "preditiva": "Prädiktiv (Checkliste der Bediener)"
+    },
+    "cardHint": "Klicken, um Details anzuzeigen",
+    "modal": {
+      "title": "Neue Maschine erstellen",
+      "nameLabel": "Maschinenname",
+      "save": "Maschine speichern"
+    },
+    "toasts": {
+      "nameRequired": "Der Maschinenname darf nicht leer sein.",
+      "created": "Maschine „{{name}}“ erfolgreich erstellt!",
+      "createError": "Fehler beim Erstellen der Maschine."
+    }
+  },
+
+  "maquinaDetalhe": {
+    "loading": "Maschinendaten werden geladen...",
+    "notFound": "Maschine nicht gefunden.",
+    "subtitle": "Komplette Maschinenakte und Wartungshistorie.",
+    "tabs": {
+      "active": "Aktive Arbeitsaufträge",
+      "history": "Verlauf",
+      "preventive": "Präventiv",
+      "checklist": "Tägliche Checkliste",
+      "qrcode": "QR-Code"
+    },
+    "listas": {
+      "activeTitle": "Aktive Arbeitsaufträge für {{name}}",
+      "activeEmpty": "Keine aktiven Arbeitsaufträge.",
+      "historyTitle": "Verlauf von {{name}}",
+      "historyEmpty": "Keine abgeschlossenen Arbeitsaufträge.",
+      "statusLabel": "Status: {{status}}",
+      "openedAt": "Eröffnet am: {{date}}"
+    },
+    "legend": {
+      "overdue": "Überfällig",
+      "today": "Heute",
+      "future": "Zukünftig",
+      "started": "Gestartet",
+      "finished": "Abgeschlossen"
+    },
+    "checklist": {
+      "title": "Tägliche Checkliste für {{name}}",
+      "empty": "Keine Checklistenpunkte für diese Maschine registriert.",
+      "remove": "Eintrag entfernen",
+      "placeholder": "Neuen Prüfeintrag hinzufügen",
+      "add": "Hinzufügen",
+      "historyTitle": "Verlauf der täglichen Konformität",
+      "columns": {
+        "date": "Datum",
+        "turn1": "1. Schicht",
+        "turn2": "2. Schicht"
+      },
+      "pending": "Ausstehend",
+      "confirmRemove": "Möchten Sie den Eintrag „{{item}}“ wirklich entfernen?"
+    },
+    "toasts": {
+      "itemEmpty": "Der Checklistenpunkt darf nicht leer sein.",
+      "itemAdded": "Punkt zur Checkliste hinzugefügt!",
+      "itemAddError": "Fehler beim Hinzufügen des Punktes.",
+      "itemRemoved": "Punkt aus der Checkliste entfernt!",
+      "itemRemoveError": "Fehler beim Entfernen des Punktes."
+    },
+    "agendar": {
+      "title": "Wartung planen",
+      "descricao": "Beschreibung",
+      "itensLabel": "Checklistenpunkte (ein Eintrag pro Zeile)",
+      "save": "Planung speichern",
+      "errors": {
+        "missing": "Beschreibung und mindestens einen Checklistenpunkt ausfüllen."
+      },
+      "toasts": {
+        "created": "Präventive Wartung geplant!",
+        "error": "Fehler beim Planen der Wartung.",
+        "rescheduleError": "Neuterminierung fehlgeschlagen."
+      }
+    },
+    "evento": {
+      "descricao": "Beschreibung:",
+      "data": "Datum:",
+      "status": "Status:",
+      "checklistTitle": "Aufgaben-Checkliste:",
+      "startNow": "Wartung jetzt starten",
+      "confirmStart": "Wartung „{{title}}“ jetzt starten?",
+      "callDesc": "Geplante präventive Wartung: {{title}}",
+      "openedBy": "System (gestartet von {{name}})",
+      "toasts": {
+        "callCreated": "Wartungsauftrag erfolgreich erstellt!",
+        "startError": "Wartung konnte nicht gestartet werden."
+      }
+    },
+    "qrcode": {
+      "title": "QR-Code für Schnellzugriff",
+      "info": "Diesen Code herunterladen und an der Maschine anbringen, um schnell auf die Akte zuzugreifen.",
+      "download": "QR-Code herunterladen"
+    },
+    "preventiveCalendar": {
+      "title": "Kalender der präventiven Wartung",
+      "subtitle": "Bereits angelegte Planungen anzeigen."
+    }
+  },
+
+  "calendar": {
+    "previous": "Zurück",
+    "today": "Heute",
+    "next": "Weiter",
+    "month": "Monat",
+    "week": "Woche",
+    "day": "Tag",
+    "agenda": "Agenda",
+    "date": "Datum",
+    "time": "Uhrzeit",
+    "showMore": "+{{total}} mehr"
+  },
+
+  "common": {
+    "loading": "Laden...",
+    "processing": "Verarbeiten...",
+    "saving": "Speichern...",
+    "deleting": "Löschen...",
+    "yes": "Ja",
+    "no": "Nein",
+    "manager": "Manager",
+    "maintainer": "Instandhalter",
+    "logout": "Abmelden"
+  },
+
+  "chamadoDetalhe": {
+    "notFound": "Arbeitsauftrag nicht gefunden.",
+    "header": {
+      "machine": "Maschine: {{name}}",
+      "openedBy": "Eröffnet von {{name}} am {{date}}"
+    },
+    "fields": {
+      "status": "Status",
+      "takenBy": "Bearbeitet von",
+      "assignedTo": "Zugewiesen an",
+      "reportedProblem": "Gemeldetes Problem",
+      "checklistDone": "Checkliste abgeschlossen",
+      "performedService": "Durchgeführte Leistung",
+      "finishedAt": "Abgeschlossen am: {{date}}",
+      "cause": "Fehlerursache"
+    },
+    "of": "von",
+    "selects": {
+      "causePlaceholder": "Ursache auswählen..."
+    },
+    "assign": {
+      "title": "Instandhalter zuweisen",
+      "label": "Instandhalter auswählen",
+      "placeholder": "— Auswählen —",
+      "assign": "Zuweisen",
+      "reassign": "Neu zuweisen",
+      "remove": "Zuweisung entfernen"
+    },
+    "history": {
+      "title": "Verlauf der Beobachtungen",
+      "add": "Neue Beobachtung hinzufügen",
+      "saveNote": "Beobachtung speichern",
+      "empty": "Keine Beobachtungen registriert.",
+      "assigned": "Zugewiesen an {{assignee}} von {{by}}",
+      "unassigned": "Zuweisung entfernt von {{by}}",
+      "taken": "Arbeitsauftrag bearbeitet von {{by}}"
+    },
+    "actions": {
+      "take": "Arbeitsauftrag übernehmen",
+      "finish": "Arbeitsauftrag abschließen",
+      "finishing": "Wird abgeschlossen...",
+      "preventive": "Wartungs-Checkliste",
+      "corrective": {
+        "title": "Lösung erfassen und abschließen",
+        "solutionLabel": "Durchgeführte Leistung / Angewandte Lösung"
+      }
+    },
+    "delete": {
+      "title": "Diesen Arbeitsauftrag dauerhaft löschen",
+      "button": "Arbeitsauftrag löschen",
+      "confirm": "Möchten Sie diesen Arbeitsauftrag wirklich löschen? Diese Aktion ist unwiderruflich."
+    },
+    "toasts": {
+      "loadError": "Fehler beim Laden des Arbeitsauftrags.",
+      "listMaintDenied": "Keine Berechtigung, Instandhalter aufzulisten.",
+      "selectMaint": "Bitte einen Instandhalter auswählen.",
+      "assigned": "Arbeitsauftrag zugewiesen.",
+      "assignError": "Fehler beim Zuweisen.",
+      "unassigned": "Zuweisung entfernt.",
+      "unassignError": "Fehler beim Entfernen der Zuweisung.",
+      "assignedToOther": "Dieser Arbeitsauftrag wurde einem anderen Instandhalter zugewiesen.",
+      "taken": "Arbeitsauftrag übernommen.",
+      "takeError": "Fehler beim Übernehmen.",
+      "noteAdded": "Beobachtung hinzugefügt.",
+      "noteError": "Fehler beim Hinzufügen der Beobachtung.",
+      "finishOnlyOwner": "Nur der übernehmende Instandhalter kann diesen Arbeitsauftrag abschließen.",
+      "selectCause": "Bitte die Fehlerursache auswählen, bevor abgeschlossen wird.",
+      "describeService": "Bitte die durchgeführte Leistung beschreiben.",
+      "autoCorrective": "Präventive Checkliste „NEIN“: „{{item}}“",
+      "autoBy": "System (generiert aus Präventivwartung von {{name}})",
+      "autoOpened": "{{count}} korrektive(r) Arbeitsauftrag/Arbeitsaufträge automatisch eröffnet.",
+      "finished": "Arbeitsauftrag erfolgreich abgeschlossen!",
+      "finishError": "Fehler beim Abschluss.",
+      "onlyManagerDelete": "Nur Manager können den Arbeitsauftrag löschen.",
+      "deleted": "Arbeitsauftrag erfolgreich gelöscht.",
+      "deleteError": "Fehler beim Löschen."
+    },
+    "preventive": {
+      "title": "Wartungs-Checkliste"
+    }
+  },
+
+  "calendarioGeral": {
+    "title": "Allgemeiner Wartungskalender",
+    "loading": "Planungen werden geladen...",
+    "legend": {
+      "overdue": "Überfällig",
+      "today": "Heute",
+      "future": "Zukünftig",
+      "started": "Gestartet",
+      "finished": "Abgeschlossen",
+      "finishedLate": "Verspätet abgeschlossen"
+    },
+    "details": {
+      "machine": "Maschine:",
+      "description": "Beschreibung:",
+      "currentDate": "Aktuelles Datum:",
+      "originalDate": "Ursprüngliches Datum:",
+      "status": "Status:",
+      "finishedAt": "Abschlussdatum:",
+      "checklistTitle": "Aufgaben-Checkliste:"
+    },
+    "actions": {
+      "startNow": "Wartung jetzt starten",
+      "delete": "Planung löschen"
+    },
+    "confirm": {
+      "startNow": "Wartung „{{title}}“ jetzt starten?",
+      "delete": "Möchten Sie die Planung „{{title}}“ wirklich löschen?"
+    },
+    "generated": {
+      "callDesc": "Geplante präventive Wartung: {{title}}",
+      "openedBy": "System (gestartet von {{name}})"
+    },
+    "toasts": {
+      "fillAll": "Bitte alle Felder ausfüllen.",
+      "created": "Planung erstellt!",
+      "callCreated": "Arbeitsauftrag erstellt und Planung gestartet!",
+      "startFail": "Wartung konnte nicht gestartet werden.",
+      "rescheduleFail": "Neuterminierung fehlgeschlagen.",
+      "deleted": "Planung erfolgreich gelöscht!",
+      "deleteFail": "Planung konnte nicht gelöscht werden."
+    },
+    "new": {
+      "title": "Wartung planen",
+      "machine": "Maschine",
+      "description": "Beschreibung",
+      "importTemplate": "Checkliste aus früherer Planung importieren",
+      "selectPlaceholder": "Auswählen...",
+      "none": "Keine",
+      "itemsLabel": "Checklistenpunkte (ein Eintrag pro Zeile)",
+      "save": "Planung speichern"
+    }
+  },
+
+  "historico": {
+    "title": "Wartungshistorie",
+    "loading": "Historie wird geladen...",
+    "empty": "Keine abgeschlossenen Arbeitsaufträge für die gewählten Filter.",
+    "export": {
+      "downloadExcel": "Excel herunterladen",
+      "downloadPdf": "PDF herunterladen",
+      "sheetName": "Arbeitsaufträge",
+      "columns": {
+        "machine": "Maschine",
+        "callType": "Auftragsart",
+        "openedAt": "Eröffnet am",
+        "attendedBy": "Bearbeitet von",
+        "performedService": "Durchgeführte Leistung",
+        "cause": "Fehlerursache",
+        "concludedAt": "Abschlussdatum",
+        "problem": "Problem"
+      }
+    },
+    "filters": {
+      "byType": "Nach Auftragsart filtern:",
+      "byMachine": "Nach Maschine filtern:",
+      "typeOptions": {
+        "all": "Alle",
+        "corrective": "Korrektiv",
+        "preventive": "Präventiv",
+        "predictive": "Prädiktiv"
+      },
+      "machineOptions": {
+        "all": "Alle"
+      }
+    },
+    "item": {
+      "machine": "Maschine: {{name}}",
+      "attendedBy": "Bearbeitet von: {{name}}",
+      "unknown": "Nicht angegeben",
+      "concludedAt": "Abgeschlossen am: {{date}}",
+      "problem": "Problem:",
+      "notSpecified": "Nicht spezifiziert"
+    }
+  },
+
+  "estoque": {
+    "title": "Wartungsbestand",
+    "loading": "Teile werden geladen...",
+    "empty": "Keine Teile registriert.",
+    "toolbar": {
+      "new": "+ Neues Teil",
+      "exportExcel": "Excel exportieren",
+      "exportPdf": "PDF exportieren"
+    },
+    "card": {
+      "labels": {
+        "code": "Code:",
+        "category": "Kategorie:",
+        "stock": "Bestand:",
+        "min": "Minimum:",
+        "location": "Standort:"
+      },
+      "buttons": {
+        "in": "Eingang",
+        "out": "Ausgang",
+        "edit": "Bearbeiten",
+        "delete": "Löschen"
+      }
+    },
+    "confirm": {
+      "delete": "Möchten Sie dieses Teil wirklich löschen?"
+    },
+    "toasts": {
+      "deleted": "Teil erfolgreich gelöscht!",
+      "deleteFail": "Teil konnte nicht gelöscht werden."
+    },
+    "export": {
+      "sheetName": "Bestand",
+      "columns": {
+        "code": "Code",
+        "name": "Name",
+        "category": "Kategorie",
+        "stock": "Bestand",
+        "min": "Minimum",
+        "location": "Standort"
+      }
+    }
+  },
+
+  "analiseFalhas": {
+    "title": "Analyse korrektiver Ausfälle",
+    "loading": "Daten werden analysiert...",
+    "filters": {
+      "start": "Start:",
+      "end": "Ende:",
+      "clear": "Zurücksetzen"
+    },
+    "chart": {
+      "title": "Verteilung korrektiver Ausfälle nach Maschine",
+      "dataset": "Anzahl korrektiver Ausfälle",
+      "xLabel": "Maschine",
+      "yLabel": "Menge"
+    }
+  },
+
+  "causas": {
+    "titleCrud": "Hauptursachen verwalten",
+    "titlePareto": "Pareto der Ausfälle",
+    "form": {
+      "placeholder": "Neue Ursache",
+      "add": "Hinzufügen"
+    },
+    "list": {
+      "delete": "Löschen"
+    },
+    "confirm": {
+      "delete": "Diese Ursache löschen?"
+    },
+    "chart": {
+      "seriesCalls": "Arbeitsaufträge",
+      "seriesAccumPct": "% kumuliert",
+      "xLabel": "Ursache",
+      "yLeft": "Arbeitsaufträge",
+      "yRight": "% kumuliert"
+    }
+  },
+
+  "users": {
+    "title": "Benutzerverwaltung",
+    "loading": "Benutzer werden geladen...",
+    "actions": {
+      "create": "Neuen Benutzer erstellen",
+      "edit": "Bearbeiten",
+      "delete": "Löschen"
+    },
+    "table": {
+      "fullName": "Vollständiger Name",
+      "username": "Benutzername",
+      "function": "Rolle",
+      "actions": "Aktionen"
+    },
+    "modal": {
+      "createTitle": "Neuen Benutzer erstellen",
+      "editTitle": "Benutzer bearbeiten"
+    },
+    "form": {
+      "fullName": "Vollständiger Name",
+      "tempPassword": "Temporäres Passwort",
+      "role": "Rolle",
+      "saving": "Speichern...",
+      "saveChanges": "Änderungen speichern",
+      "createUser": "Benutzer erstellen"
+    },
+    "roles": {
+      "operator": "Bediener",
+      "maintainer": "Instandhalter",
+      "manager": "Manager"
+    },
+    "validation": {
+      "fullName": "Bitte Vor- und Nachnamen eingeben."
+    },
+    "confirm": {
+      "delete": "Benutzer {{name}} löschen?"
+    },
+    "toasts": {
+      "created": "Benutzer {{name}} erfolgreich erstellt!",
+      "updated": "Benutzer erfolgreich aktualisiert!",
+      "saveError": "Fehler beim Speichern des Benutzers.",
+      "deleted": "Benutzer erfolgreich gelöscht!",
+      "deleteError": "Fehler beim Löschen des Benutzers.",
+      "authClaimNotSet": "Auth-Berechtigung nicht gesetzt.",
+      "authClaimNotUpdated": "Auth-Berechtigung nicht aktualisiert."
+    }
+  },
+
+  "layout": {
+    "sections": {
+      "manageMaintenance": "Wartung verwalten",
+      "analytics": "Analysen und KPIs",
+      "managePeople": "Team verwalten"
+    }
+  },
+
+  "dashboard": {
+    "operator": "Bediener-Dashboard",
+    "maintainer": "Wartungs-Dashboard",
+    "manager": "Manager-Dashboard"
+  },
+
+  "meusChamados": {
+    "title": "Meine Arbeitsaufträge",
+    "loginFirst": "Bitte melden Sie sich an, um Ihre Arbeitsaufträge zu sehen.",
+    "filters": {
+      "statusTitle": "Nach Status filtern",
+      "active": "Offen & In Bearbeitung",
+      "all": "Alle",
+      "closed": "Abgeschlossen",
+      "searchPlaceholder": "Nach Maschine oder Beschreibung suchen..."
+    },
+    "footerTip": "Tipp: Verwenden Sie den Filter „Abgeschlossen“ für Ihren persönlichen Verlauf.",
+    "loading": "Laden...",
+    "empty": "Keine Arbeitsaufträge gefunden.",
+    "table": {
+      "hash": "#",
+      "machine": "Maschine",
+      "description": "Beschreibung",
+      "status": "Status",
+      "assignedAt": "Zugewiesen am",
+      "openedAt": "Eröffnet am",
+      "open": "Öffnen"
+    }
+  },
+
+  "inicioTurno": {
+    "title": "Schichtbeginn",
+    "greeting": "Hallo, {{name}}. Bitte geben Sie Ihre Schicht und die Maschinen an, an denen Sie heute arbeiten werden.",
+    "loading": "Laden...",
+    "fields": {
+      "shift": "Ihre Schicht",
+      "machinesLabel": "Heute verantwortete Maschinen (eine oder mehrere auswählen)"
+    },
+    "shifts": {
+      "shift1": "1. Schicht (05:30 – 15:18)",
+      "shift2": "2. Schicht (15:18 – 00:48)"
+    },
+    "confirmBtn": "Bestätigen und Checklisten starten",
+    "alert": {
+      "selectOne": "Bitte mindestens eine Maschine auswählen."
+    }
+  },
+
+  "tarefasDiarias": {
+    "title": "Tägliche Aufgaben",
+    "greeting": "Hallo, {{name}}. Hier sind die ausstehenden Checklisten für Ihre Schicht.",
+    "checking": "Aufgaben werden geprüft...",
+    "allDone": "Sie haben alle Checklisten für diese Schicht abgeschlossen. Gut gemacht!",
+    "fillChecklist": "Checkliste ausfüllen"
+  },
+
+  "checklist": {
+    "notFound": "Maschine nicht gefunden.",
+    "loading": "Checkliste wird geladen...",
+    "title": "Tägliche Checkliste: {{machine}}",
+    "greeting": "Hallo, {{name}}. Bitte füllen Sie die folgende Checkliste aus:",
+    "empty": "Keine Checkliste konfiguriert.",
+    "yes": "Ja",
+    "no": "Nein",
+    "alreadyReported": "Bereits im Arbeitsauftrag {{id}} gemeldet",
+    "toastAlreadyReported": "⚠️ Dieser Punkt ist bereits im Arbeitsauftrag {{id}} gemeldet.",
+    "generatedDescription": "Täglicher Checklistenpunkt als „Nein“ gemeldet: „{{item}}“",
+    "send": "Checkliste absenden",
+    "sending": "Wird gesendet...",
+    "toastSent": "Checkliste gesendet! {{count}} Arbeitsauftrag/Arbeitsaufträge erzeugt.",
+    "toastFail": "Checkliste konnte nicht gesendet werden."
+  },
+
+  "operatorDashboard": {
+    "form": {
+      "title": "Neuen Arbeitsauftrag öffnen",
+      "selectMachine": "Maschine auswählen",
+      "choosePlaceholder": "Eine Maschine auswählen...",
+      "problem": "Problembeschreibung",
+      "problemPlaceholder": "Beschreiben Sie das gefundene Problem detailliert...",
+      "open": "Arbeitsauftrag öffnen",
+      "sending": "Wird gesendet...",
+      "required": "Bitte eine Maschine auswählen und das Problem beschreiben.",
+      "opened": "Arbeitsauftrag für Maschine {{machine}} erfolgreich eröffnet!",
+      "error": "Beim Eröffnen des Arbeitsauftrags ist ein Fehler aufgetreten."
+    },
+    "list": {
+      "title": "Verlauf der Arbeitsaufträge",
+      "loading": "Arbeitsaufträge werden geladen...",
+      "empty": "Sie haben noch keine Arbeitsaufträge eröffnet.",
+      "machine": "Maschine: {{name}}",
+      "openedAt": "Eröffnet am: {{date}}"
+    }
+  }
+}

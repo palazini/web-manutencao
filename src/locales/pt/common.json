@@ -1,0 +1,648 @@
+{
+  "appTitle": "Painel de Manutenção",
+
+  "nav": {
+    "home": "Início",
+    "profile": "Meu Perfil",
+    "machines": "Máquinas",
+    "myCalls": "Meus Chamados",
+    "calendar": "Calendário Geral",
+    "history": "Histórico",
+    "inventory": "Estoque",
+    "failures": "Análise de Falhas",
+    "rootCauses": "Causas Raiz",
+    "manageUsers": "Gerenciar Usuários",
+    "activeCalls": "chamado(s) ativo(s)"
+  },
+
+  "status": {
+    "open": "Aberto",
+    "in_progress": "Em andamento",
+    "closed": "Concluído",
+    "cancelled": "Cancelado"
+  },
+
+  "login": {
+    "title": "Fazer login",
+    "subtitle": "Use sua conta",
+    "userOrEmail": "E-mail ou Nome de Usuário",
+    "password": "Senha",
+    "invalid": "Usuário ou senha inválidos.",
+    "next": "Avançar",
+    "loading": "Entrando..."
+  },
+
+  "inicio": {
+    "title": "Página Inicial",
+    "welcome": "Bem-vindo de volta, <1>{{name}}</1>!",
+    "quickAccess": "Acesso Rápido",
+    "cards": {
+      "machines": {
+        "title": "Painel de Máquinas",
+        "desc": "Visualize e gerencie o prontuário de todos os equipamentos."
+      },
+      "myCalls": {
+        "title": "Meus Chamados",
+        "desc": "Veja e gerencie os chamados atribuídos a você."
+      },
+      "calendar": {
+        "title": "Calendário Geral",
+        "desc": "Veja o panorama completo de todas as manutenções."
+      },
+      "history": {
+        "title": "Histórico Geral",
+        "desc": "Consulte todos os chamados de manutenção concluídos."
+      },
+      "inventory": {
+        "title": "Estoque",
+        "desc": "Controle de entrada e saída de peças do estoque."
+      },
+      "failureAnalysis": {
+        "title": "Análise de Falhas",
+        "desc": "Veja estatísticas e relatórios de falhas de máquinas."
+      },
+      "rootCauses": {
+        "title": "Causas Raiz",
+        "desc": "Identifique e gerencie as causas raiz das falhas."
+      },
+      "manageUsers": {
+        "title": "Gerenciar Usuários",
+        "desc": "Adicione, edite ou remova colaboradores."
+      },
+      "profile": {
+        "title": "Meu Perfil",
+        "desc": "Visualize suas informações e altere sua senha."
+      }
+    }
+  },
+
+  "perfil": {
+    "title": "Meu Perfil",
+    "info": {
+      "title": "Minhas Informações",
+      "name": "Nome",
+      "email": "E-mail",
+      "role": "Função"
+    },
+    "changePassword": {
+      "title": "Alterar Senha",
+      "current": "Senha Atual",
+      "new": "Nova Senha",
+      "confirm": "Confirmar Nova Senha"
+    },
+    "actions": {
+      "save": "Alterar Senha",
+      "saving": "Alterando..."
+    },
+    "toasts": {
+      "mismatch": "As novas senhas não coincidem.",
+      "short": "A nova senha deve ter no mínimo 6 caracteres.",
+      "wrongPassword": "A senha atual está incorreta.",
+      "generic": "Ocorreu um erro ao alterar a senha.",
+      "success": "Senha alterada com sucesso!"
+    }
+  },
+
+  "maquinas": {
+    "title": "Painel de Máquinas",
+    "loading": "Carregando máquinas...",
+    "legend": {
+      "corretiva": "Corretiva (Urgente)",
+      "preventiva": "Preventiva (Agendada)",
+      "preditiva": "Preditiva (Checklist Operadores)"
+    },
+    "cardHint": "Clique para exibir detalhes",
+    "modal": {
+      "title": "Criar Nova Máquina",
+      "nameLabel": "Nome da Máquina",
+      "save": "Salvar Máquina"
+    },
+    "toasts": {
+      "nameRequired": "O nome da máquina não pode ser vazio.",
+      "created": "Máquina \"{{name}}\" criada com sucesso!",
+      "createError": "Erro ao criar a máquina."
+    }
+  },
+
+  "maquinaDetalhe": {
+    "loading": "Carregando dados da máquina...",
+    "notFound": "Máquina não encontrada.",
+    "subtitle": "Prontuário completo da máquina e histórico de manutenções.",
+    "tabs": {
+      "active": "Chamados Ativos",
+      "history": "Histórico",
+      "preventive": "Preventiva",
+      "checklist": "Checklist Diário",
+      "qrcode": "QR Code"
+    },
+    "listas": {
+      "activeTitle": "Chamados Ativos da {{name}}",
+      "activeEmpty": "Nenhum chamado ativo.",
+      "historyTitle": "Histórico da {{name}}",
+      "historyEmpty": "Nenhum chamado concluído.",
+      "statusLabel": "Status: {{status}}",
+      "openedAt": "Aberto em: {{date}}"
+    },
+    "legend": {
+      "overdue": "Vencido",
+      "today": "Hoje",
+      "future": "Futuro",
+      "started": "Iniciado",
+      "finished": "Concluído"
+    },
+    "checklist": {
+      "title": "Itens do Checklist Diário da {{name}}",
+      "empty": "Nenhum item de checklist cadastrado para esta máquina.",
+      "remove": "Remover Item",
+      "placeholder": "Adicionar novo item de verificação",
+      "add": "Adicionar",
+      "historyTitle": "Histórico de Conformidade Diária",
+      "columns": {
+        "date": "Data",
+        "turn1": "1º Turno",
+        "turn2": "2º Turno"
+      },
+      "pending": "Pendente",
+      "confirmRemove": "Tem certeza que deseja remover o item \"{{item}}\"?"
+    },
+    "toasts": {
+      "itemEmpty": "O item do checklist não pode ser vazio.",
+      "itemAdded": "Item adicionado ao checklist!",
+      "itemAddError": "Erro ao adicionar item.",
+      "itemRemoved": "Item removido do checklist!",
+      "itemRemoveError": "Erro ao remover item."
+    },
+    "agendar": {
+      "title": "Agendar Manutenção",
+      "descricao": "Descrição",
+      "itensLabel": "Itens do Checklist (um por linha)",
+      "save": "Salvar Agendamento",
+      "errors": {
+        "missing": "Preencha a descrição e pelo menos um item do checklist."
+      },
+      "toasts": {
+        "created": "Manutenção preventiva agendada!",
+        "error": "Erro ao agendar manutenção.",
+        "rescheduleError": "Falha ao reagendar."
+      }
+    },
+    "evento": {
+      "descricao": "Descrição:",
+      "data": "Data:",
+      "status": "Status:",
+      "checklistTitle": "Checklist da Tarefa:",
+      "startNow": "Iniciar Manutenção Agora",
+      "confirmStart": "Tem certeza que deseja iniciar a manutenção \"{{title}}\" agora?",
+      "callDesc": "Manutenção preventiva agendada: {{title}}",
+      "openedBy": "Sistema (Iniciado por {{name}})",
+      "toasts": {
+        "callCreated": "Chamado de manutenção criado com sucesso!",
+        "startError": "Não foi possível iniciar a manutenção."
+      }
+    },
+    "qrcode": {
+      "title": "QR Code para Acesso Rápido",
+      "info": "Baixe este código e cole na máquina para acesso rápido ao prontuário.",
+      "download": "Baixar QR Code"
+    },
+    "preventiveCalendar": {
+      "title": "Calendário de Manutenção Preventiva",
+      "subtitle": "Visualize os agendamentos já criados."
+    }
+  },
+
+  "calendar": {
+    "previous": "Anterior",
+    "today": "Hoje",
+    "next": "Próximo",
+    "month": "Mês",
+    "week": "Semana",
+    "day": "Dia",
+    "agenda": "Agenda",
+    "date": "Data",
+    "time": "Hora",
+    "showMore": "+{{total}} mais"
+  },
+
+  "common": {
+    "loading": "Carregando...",
+    "processing": "Processando...",
+    "saving": "Salvando...",
+    "deleting": "Excluindo...",
+    "yes": "Sim",
+    "no": "Não",
+    "manager": "Gestor",
+    "maintainer": "Manutentor",
+    "logout": "Sair"
+  },
+
+  "chamadoDetalhe": {
+    "notFound": "Chamado não encontrado.",
+    "header": {
+      "machine": "Máquina: {{name}}",
+      "openedBy": "Aberto por {{name}} em {{date}}"
+    },
+    "fields": {
+      "status": "Status",
+      "takenBy": "Atendido por",
+      "assignedTo": "Atribuído a",
+      "reportedProblem": "Problema Reportado",
+      "checklistDone": "Checklist Concluído",
+      "performedService": "Serviço Realizado",
+      "finishedAt": "Concluído em: {{date}}",
+      "cause": "Causa da Falha"
+    },
+    "of": "de",
+    "selects": {
+      "causePlaceholder": "Selecione a causa..."
+    },
+    "assign": {
+      "title": "Atribuir manutentor",
+      "label": "Selecionar manutentor",
+      "placeholder": "— Selecione —",
+      "assign": "Atribuir",
+      "reassign": "Reatribuir",
+      "remove": "Remover atribuição"
+    },
+    "history": {
+      "title": "Histórico de Observações",
+      "add": "Adicionar Nova Observação",
+      "saveNote": "Salvar Observação",
+      "empty": "Nenhuma observação registrada.",
+      "assigned": "Atribuído para {{assignee}} por {{by}}",
+      "unassigned": "Atribuição removida por {{by}}",
+      "taken": "Chamado atendido por {{by}}"
+    },
+    "actions": {
+      "take": "Atender Chamado",
+      "finish": "Concluir Chamado",
+      "finishing": "Concluindo...",
+      "preventive": "Checklist de Manutenção",
+      "corrective": {
+        "title": "Registrar Solução e Concluir",
+        "solutionLabel": "Serviço Realizado / Solução Aplicada"
+      }
+    },
+    "delete": {
+      "title": "Excluir definitivamente este chamado",
+      "button": "Excluir Chamado",
+      "confirm": "Tem certeza que deseja excluir este chamado? Esta ação é irreversível."
+    },
+    "toasts": {
+      "loadError": "Erro ao carregar chamado.",
+      "listMaintDenied": "Sem permissão para listar manutentores.",
+      "selectMaint": "Selecione um manutentor.",
+      "assigned": "Chamado atribuído.",
+      "assignError": "Erro ao atribuir chamado.",
+      "unassigned": "Atribuição removida.",
+      "unassignError": "Erro ao remover atribuição.",
+      "assignedToOther": "Este chamado foi atribuído a outro manutentor.",
+      "taken": "Chamado atendido.",
+      "takeError": "Erro ao atender chamado.",
+      "noteAdded": "Observação adicionada.",
+      "noteError": "Erro ao adicionar observação.",
+      "finishOnlyOwner": "Apenas o manutentor que atendeu pode concluir este chamado.",
+      "selectCause": "Selecione a causa da falha antes de concluir.",
+      "describeService": "Descreva o serviço realizado.",
+      "autoCorrective": "Item do checklist preventivo \"NÃO\": \"{{item}}\"",
+      "autoBy": "Sistema (Gerado pela Preventiva de {{name}})",
+      "autoOpened": "{{count}} chamado(s) corretivo(s) aberto(s) automaticamente.",
+      "finished": "Chamado concluído com sucesso!",
+      "finishError": "Ocorreu um erro ao concluir.",
+      "onlyManagerDelete": "Apenas gestores podem excluir chamado.",
+      "deleted": "Chamado excluído com sucesso.",
+      "deleteError": "Erro ao excluir chamado."
+    },
+    "preventive": {
+      "title": "Checklist de Manutenção"
+    }
+  },
+
+  "calendarioGeral": {
+    "title": "Calendário Geral de Manutenções",
+    "loading": "Carregando agendamentos...",
+    "legend": {
+      "overdue": "Vencido",
+      "today": "Hoje",
+      "future": "Futuro",
+      "started": "Iniciado",
+      "finished": "Concluído",
+      "finishedLate": "Concluído com Atraso"
+    },
+    "details": {
+      "machine": "Máquina:",
+      "description": "Descrição:",
+      "currentDate": "Data Atual:",
+      "originalDate": "Data Original:",
+      "status": "Status:",
+      "finishedAt": "Data de Conclusão:",
+      "checklistTitle": "Checklist da Tarefa:"
+    },
+    "actions": {
+      "startNow": "Iniciar Manutenção Agora",
+      "delete": "Excluir Agendamento"
+    },
+    "confirm": {
+      "startNow": "Iniciar manutenção \"{{title}}\" agora?",
+      "delete": "Tem certeza que deseja excluir o agendamento \"{{title}}\"?"
+    },
+    "generated": {
+      "callDesc": "Manutenção preventiva agendada: {{title}}",
+      "openedBy": "Sistema (Iniciado por {{name}})"
+    },
+    "toasts": {
+      "fillAll": "Preencha todos os campos.",
+      "created": "Agendamento criado!",
+      "callCreated": "Chamado criado e agendamento iniciado!",
+      "startFail": "Falha ao iniciar manutenção.",
+      "rescheduleFail": "Falha ao reagendar.",
+      "deleted": "Agendamento excluído com sucesso!",
+      "deleteFail": "Falha ao excluir agendamento."
+    },
+    "new": {
+      "title": "Agendar Manutenção",
+      "machine": "Máquina",
+      "description": "Descrição",
+      "importTemplate": "Importar checklist de agendamento anterior",
+      "selectPlaceholder": "Selecione...",
+      "none": "Nenhum",
+      "itemsLabel": "Itens do Checklist (um por linha)",
+      "save": "Salvar Agendamento"
+    }
+  },
+
+  "historico": {
+    "title": "Histórico de Manutenções",
+    "loading": "Carregando histórico...",
+    "empty": "Nenhum chamado concluído para os filtros selecionados.",
+    "export": {
+      "downloadExcel": "Baixar Excel",
+      "downloadPdf": "Baixar PDF",
+      "sheetName": "Chamados",
+      "columns": {
+        "machine": "Máquina",
+        "callType": "Tipo de Chamado",
+        "openedAt": "Aberto em",
+        "attendedBy": "Atendido por",
+        "performedService": "Serviço Realizado",
+        "cause": "Causa da Falha",
+        "concludedAt": "Data Conclusão",
+        "problem": "Problema"
+      }
+    },
+    "filters": {
+      "byType": "Filtrar por tipo de chamado:",
+      "byMachine": "Filtrar por máquina:",
+      "typeOptions": {
+        "all": "Todos",
+        "corrective": "Corretiva",
+        "preventive": "Preventiva",
+        "predictive": "Preditiva"
+      },
+      "machineOptions": {
+        "all": "Todos"
+      }
+    },
+    "item": {
+      "machine": "Máquina: {{name}}",
+      "attendedBy": "Atendido por: {{name}}",
+      "unknown": "Não identificado",
+      "concludedAt": "Concluído em: {{date}}",
+      "problem": "Problema:",
+      "notSpecified": "Não especificado"
+    }
+  },
+
+  "estoque": {
+    "title": "Controle de Estoque de Manutenção",
+    "loading": "Carregando peças...",
+    "empty": "Nenhuma peça cadastrada.",
+    "toolbar": {
+      "new": "+ Nova Peça",
+      "exportExcel": "Exportar Excel",
+      "exportPdf": "Exportar PDF"
+    },
+    "card": {
+      "labels": {
+        "code": "Código:",
+        "category": "Categoria:",
+        "stock": "Estoque:",
+        "min": "Mínimo:",
+        "location": "Localização:"
+      },
+      "buttons": {
+        "in": "Entrada",
+        "out": "Saída",
+        "edit": "Editar",
+        "delete": "Excluir"
+      }
+    },
+    "confirm": {
+      "delete": "Tem certeza que deseja excluir esta peça?"
+    },
+    "toasts": {
+      "deleted": "Peça excluída com sucesso!",
+      "deleteFail": "Falha ao excluir peça."
+    },
+    "export": {
+      "sheetName": "Estoque",
+      "columns": {
+        "code": "Código",
+        "name": "Nome",
+        "category": "Categoria",
+        "stock": "Estoque",
+        "min": "Mínimo",
+        "location": "Localização"
+      }
+    }
+  },
+
+  "analiseFalhas": {
+    "title": "Análise de Falhas Corretivas",
+    "loading": "Analisando dados...",
+    "filters": {
+      "start": "Início:",
+      "end": "Fim:",
+      "clear": "Limpar"
+    },
+    "chart": {
+      "title": "Distribuição de Falhas Corretivas por Máquina",
+      "dataset": "Nº de Falhas Corretivas",
+      "xLabel": "Máquina",
+      "yLabel": "Quantidade"
+    }
+  },
+
+  "causas": {
+    "titleCrud": "Gerenciar Causas Raiz",
+    "titlePareto": "Pareto de Falhas",
+    "form": {
+      "placeholder": "Nova causa",
+      "add": "Adicionar"
+    },
+    "list": {
+      "delete": "Excluir"
+    },
+    "confirm": {
+      "delete": "Excluir esta causa?"
+    },
+    "chart": {
+      "seriesCalls": "Chamados",
+      "seriesAccumPct": "% Acumulado",
+      "xLabel": "Causa",
+      "yLeft": "Chamados",
+      "yRight": "% Acumulado"
+    }
+  },
+
+  "users": {
+    "title": "Gestão de Usuários",
+    "loading": "Carregando usuários...",
+    "actions": {
+      "create": "Criar Novo Usuário",
+      "edit": "Editar",
+      "delete": "Excluir"
+    },
+    "table": {
+      "fullName": "Nome Completo",
+      "username": "Usuário",
+      "function": "Função",
+      "actions": "Ações"
+    },
+    "modal": {
+      "createTitle": "Criar Novo Usuário",
+      "editTitle": "Editar Usuário"
+    },
+    "form": {
+      "fullName": "Nome Completo",
+      "tempPassword": "Senha Provisória",
+      "role": "Função (Papel)",
+      "saving": "Salvando...",
+      "saveChanges": "Salvar Alterações",
+      "createUser": "Criar Usuário"
+    },
+    "roles": {
+      "operator": "Operador",
+      "maintainer": "Manutentor",
+      "manager": "Gestor"
+    },
+    "validation": {
+      "fullName": "Informe nome e sobrenome."
+    },
+    "confirm": {
+      "delete": "Excluir usuário {{name}}?"
+    },
+    "toasts": {
+      "created": "Usuário {{name}} criado com sucesso!",
+      "updated": "Usuário atualizado com sucesso!",
+      "saveError": "Erro ao salvar usuário.",
+      "deleted": "Usuário removido com sucesso.",
+      "deleteError": "Erro ao excluir usuário.",
+      "authClaimNotSet": "Permissão Auth não foi atribuída.",
+      "authClaimNotUpdated": "Permissão Auth não foi atualizada."
+    }
+  },
+
+  "layout": {
+    "sections": {
+      "manageMaintenance": "Gerenciar Manutenção",
+      "analytics": "Análises e KPIs",
+      "managePeople": "Gerenciar Colaboradores"
+    }
+  },
+
+  "dashboard": {
+    "operator": "Painel do Operador",
+    "maintainer": "Painel de Manutenção",
+    "manager": "Painel do Gestor"
+  },
+
+  "meusChamados": {
+    "title": "Meus Chamados",
+    "loginFirst": "Faça login para ver seus chamados.",
+    "filters": {
+      "statusTitle": "Filtrar por status",
+      "active": "Abertos & Em andamento",
+      "all": "Todos",
+      "closed": "Concluídos",
+      "searchPlaceholder": "Buscar por máquina ou descrição..."
+    },
+    "footerTip": "Dica: use o filtro “Concluídos” para histórico pessoal.",
+    "loading": "Carregando...",
+    "empty": "Nenhum chamado encontrado.",
+    "table": {
+      "hash": "#",
+      "machine": "Máquina",
+      "description": "Descrição",
+      "status": "Status",
+      "assignedAt": "Atribuído em",
+      "openedAt": "Abertura",
+      "open": "Abrir"
+    }
+  },
+
+  "inicioTurno": {
+    "title": "Início de Turno",
+    "greeting": "Olá, {{name}}. Por favor, informe seu turno e as máquinas em que irá trabalhar hoje.",
+    "loading": "Carregando...",
+    "fields": {
+      "shift": "Seu Turno",
+      "machinesLabel": "Máquinas sob sua responsabilidade hoje (selecione uma ou mais)"
+    },
+    "shifts": {
+      "shift1": "1º Turno (05:30 - 15:18)",
+      "shift2": "2º Turno (15:18 - 00:48)"
+    },
+    "confirmBtn": "Confirmar e Iniciar Checklists",
+    "alert": {
+      "selectOne": "Por favor, selecione pelo menos uma máquina."
+    }
+  },
+
+  "tarefasDiarias": {
+    "title": "Tarefas Diárias",
+    "greeting": "Olá, {{name}}. Aqui estão os checklists pendentes para o seu turno.",
+    "checking": "Verificando tarefas...",
+    "allDone": "Você completou todos os seus checklists para este turno. Bom trabalho!",
+    "fillChecklist": "Preencher Checklist"
+  },
+
+  "checklist": {
+    "notFound": "Máquina não encontrada.",
+    "loading": "Carregando checklist...",
+    "title": "Checklist Diário: {{machine}}",
+    "greeting": "Olá, {{name}}. Complete o checklist abaixo:",
+    "empty": "Nenhum checklist configurado.",
+    "yes": "Sim",
+    "no": "Não",
+    "alreadyReported": "Já reportado no chamado {{id}}",
+    "toastAlreadyReported": "⚠️ Este item já está reportado no chamado {{id}}.",
+    "generatedDescription": "Item do checklist diário reportado como \"Não\": \"{{item}}\"",
+    "send": "Enviar Checklist",
+    "sending": "Enviando...",
+    "toastSent": "Checklist enviado! {{count}} chamado(s) gerado(s).",
+    "toastFail": "Não foi possível enviar o checklist."
+  },
+
+  "operatorDashboard": {
+    "form": {
+      "title": "Abrir Novo Chamado",
+      "selectMachine": "Selecione a Máquina",
+      "choosePlaceholder": "Escolha uma máquina...",
+      "problem": "Descrição do Problema",
+      "problemPlaceholder": "Descreva detalhadamente o problema encontrado...",
+      "open": "Abrir Chamado",
+      "sending": "Enviando...",
+      "required": "Por favor, selecione uma máquina e descreva o problema.",
+      "opened": "Chamado para a máquina {{machine}} aberto com sucesso!",
+      "error": "Ocorreu um erro ao abrir o chamado."
+    },
+    "list": {
+      "title": "Histórico de Chamados",
+      "loading": "Carregando chamados...",
+      "empty": "Nenhum chamado aberto por você ainda.",
+      "machine": "Máquina: {{name}}",
+      "openedAt": "Aberto em: {{date}}"
+    }
+  }
+}

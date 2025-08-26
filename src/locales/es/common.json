@@ -1,0 +1,648 @@
+{
+  "appTitle": "Panel de Mantenimiento",
+
+  "nav": {
+    "home": "Inicio",
+    "profile": "Mi Perfil",
+    "machines": "Máquinas",
+    "myCalls": "Mis Órdenes",
+    "calendar": "Calendario General",
+    "history": "Historial",
+    "inventory": "Inventario",
+    "failures": "Análisis de Fallas",
+    "rootCauses": "Causas Raíz",
+    "manageUsers": "Gestionar Usuarios",
+    "activeCalls": "orden(es) activa(s)"
+  },
+
+  "status": {
+    "open": "Abierta",
+    "in_progress": "En curso",
+    "closed": "Concluida",
+    "cancelled": "Cancelada"
+  },
+
+  "login": {
+    "title": "Iniciar sesión",
+    "subtitle": "Usa tu cuenta",
+    "userOrEmail": "Correo o Nombre de usuario",
+    "password": "Contraseña",
+    "invalid": "Usuario o contraseña inválidos.",
+    "next": "Siguiente",
+    "loading": "Ingresando..."
+  },
+
+  "inicio": {
+    "title": "Página de inicio",
+    "welcome": "¡Bienvenido de nuevo, <1>{{name}}</1>!",
+    "quickAccess": "Acceso rápido",
+    "cards": {
+      "machines": {
+        "title": "Panel de Máquinas",
+        "desc": "Visualiza y gestiona el prontuario de todos los equipos."
+      },
+      "myCalls": {
+        "title": "Mis Órdenes",
+        "desc": "Ve y gestiona las órdenes asignadas a ti."
+      },
+      "calendar": {
+        "title": "Calendario General",
+        "desc": "Consulta la panorámica completa de todos los mantenimientos."
+      },
+      "history": {
+        "title": "Historial General",
+        "desc": "Consulta todas las órdenes de mantenimiento finalizadas."
+      },
+      "inventory": {
+        "title": "Inventario",
+        "desc": "Control de entrada y salida de repuestos del almacén."
+      },
+      "failureAnalysis": {
+        "title": "Análisis de Fallas",
+        "desc": "Mira estadísticas e informes de fallas de máquinas."
+      },
+      "rootCauses": {
+        "title": "Causas Raíz",
+        "desc": "Identifica y gestiona las causas raíz de las fallas."
+      },
+      "manageUsers": {
+        "title": "Gestionar Usuarios",
+        "desc": "Añade, edita o elimina colaboradores."
+      },
+      "profile": {
+        "title": "Mi Perfil",
+        "desc": "Consulta tu información y cambia tu contraseña."
+      }
+    }
+  },
+
+  "perfil": {
+    "title": "Mi Perfil",
+    "info": {
+      "title": "Mis datos",
+      "name": "Nombre",
+      "email": "Correo",
+      "role": "Función"
+    },
+    "changePassword": {
+      "title": "Cambiar contraseña",
+      "current": "Contraseña actual",
+      "new": "Nueva contraseña",
+      "confirm": "Confirmar nueva contraseña"
+    },
+    "actions": {
+      "save": "Cambiar contraseña",
+      "saving": "Cambiando..."
+    },
+    "toasts": {
+      "mismatch": "Las nuevas contraseñas no coinciden.",
+      "short": "La nueva contraseña debe tener al menos 6 caracteres.",
+      "wrongPassword": "La contraseña actual es incorrecta.",
+      "generic": "Ocurrió un error al cambiar la contraseña.",
+      "success": "¡Contraseña cambiada con éxito!"
+    }
+  },
+
+  "maquinas": {
+    "title": "Panel de Máquinas",
+    "loading": "Cargando máquinas...",
+    "legend": {
+      "corretiva": "Correctiva (Urgente)",
+      "preventiva": "Preventiva (Programada)",
+      "preditiva": "Predictiva (Checklist de Operadores)"
+    },
+    "cardHint": "Haz clic para ver detalles",
+    "modal": {
+      "title": "Crear Nueva Máquina",
+      "nameLabel": "Nombre de la Máquina",
+      "save": "Guardar Máquina"
+    },
+    "toasts": {
+      "nameRequired": "El nombre de la máquina no puede estar vacío.",
+      "created": "¡Máquina \"{{name}}\" creada con éxito!",
+      "createError": "Error al crear la máquina."
+    }
+  },
+
+  "maquinaDetalhe": {
+    "loading": "Cargando datos de la máquina...",
+    "notFound": "Máquina no encontrada.",
+    "subtitle": "Prontuario completo de la máquina e historial de mantenimientos.",
+    "tabs": {
+      "active": "Órdenes activas",
+      "history": "Historial",
+      "preventive": "Preventiva",
+      "checklist": "Checklist diario",
+      "qrcode": "QR Code"
+    },
+    "listas": {
+      "activeTitle": "Órdenes activas de {{name}}",
+      "activeEmpty": "No hay órdenes activas.",
+      "historyTitle": "Historial de {{name}}",
+      "historyEmpty": "No hay órdenes concluidas.",
+      "statusLabel": "Estado: {{status}}",
+      "openedAt": "Abierta el: {{date}}"
+    },
+    "legend": {
+      "overdue": "Vencido",
+      "today": "Hoy",
+      "future": "Futuro",
+      "started": "Iniciado",
+      "finished": "Concluido"
+    },
+    "checklist": {
+      "title": "Ítems del checklist diario de {{name}}",
+      "empty": "No hay ítems de checklist registrados para esta máquina.",
+      "remove": "Eliminar ítem",
+      "placeholder": "Agregar nuevo ítem de verificación",
+      "add": "Añadir",
+      "historyTitle": "Historial de conformidad diaria",
+      "columns": {
+        "date": "Fecha",
+        "turn1": "1.º Turno",
+        "turn2": "2.º Turno"
+      },
+      "pending": "Pendiente",
+      "confirmRemove": "¿Seguro que deseas eliminar el ítem \"{{item}}\"?"
+    },
+    "toasts": {
+      "itemEmpty": "El ítem del checklist no puede estar vacío.",
+      "itemAdded": "¡Ítem agregado al checklist!",
+      "itemAddError": "Error al agregar el ítem.",
+      "itemRemoved": "Ítem eliminado del checklist.",
+      "itemRemoveError": "Error al eliminar el ítem."
+    },
+    "agendar": {
+      "title": "Programar mantenimiento",
+      "descricao": "Descripción",
+      "itensLabel": "Ítems del checklist (uno por línea)",
+      "save": "Guardar programación",
+      "errors": {
+        "missing": "Completa la descripción y al menos un ítem del checklist."
+      },
+      "toasts": {
+        "created": "¡Mantenimiento preventivo programado!",
+        "error": "Error al programar el mantenimiento.",
+        "rescheduleError": "Fallo al reprogramar."
+      }
+    },
+    "evento": {
+      "descricao": "Descripción:",
+      "data": "Fecha:",
+      "status": "Estado:",
+      "checklistTitle": "Checklist de la tarea:",
+      "startNow": "Iniciar mantenimiento ahora",
+      "confirmStart": "¿Deseas iniciar el mantenimiento \"{{title}}\" ahora?",
+      "callDesc": "Mantenimiento preventivo programado: {{title}}",
+      "openedBy": "Sistema (Iniciado por {{name}})",
+      "toasts": {
+        "callCreated": "¡Orden de mantenimiento creada con éxito!",
+        "startError": "No fue posible iniciar el mantenimiento."
+      }
+    },
+    "qrcode": {
+      "title": "QR Code de acceso rápido",
+      "info": "Descarga este código y pégalo en la máquina para acceso rápido al prontuario.",
+      "download": "Descargar QR Code"
+    },
+    "preventiveCalendar": {
+      "title": "Calendario de mantenimiento preventivo",
+      "subtitle": "Visualiza las programaciones ya creadas."
+    }
+  },
+
+  "calendar": {
+    "previous": "Anterior",
+    "today": "Hoy",
+    "next": "Siguiente",
+    "month": "Mes",
+    "week": "Semana",
+    "day": "Día",
+    "agenda": "Agenda",
+    "date": "Fecha",
+    "time": "Hora",
+    "showMore": "+{{total}} más"
+  },
+
+  "common": {
+    "loading": "Cargando...",
+    "processing": "Procesando...",
+    "saving": "Guardando...",
+    "deleting": "Eliminando...",
+    "yes": "Sí",
+    "no": "No",
+    "manager": "Gestor",
+    "maintainer": "Mantenedor",
+    "logout": "Salir"
+  },
+
+  "chamadoDetalhe": {
+    "notFound": "Orden no encontrada.",
+    "header": {
+      "machine": "Máquina: {{name}}",
+      "openedBy": "Abierta por {{name}} el {{date}}"
+    },
+    "fields": {
+      "status": "Estado",
+      "takenBy": "Atendida por",
+      "assignedTo": "Asignada a",
+      "reportedProblem": "Problema reportado",
+      "checklistDone": "Checklist completado",
+      "performedService": "Servicio realizado",
+      "finishedAt": "Concluida el: {{date}}",
+      "cause": "Causa de la falla"
+    },
+    "of": "de",
+    "selects": {
+      "causePlaceholder": "Selecciona la causa..."
+    },
+    "assign": {
+      "title": "Asignar mantenedor",
+      "label": "Seleccionar mantenedor",
+      "placeholder": "— Seleccionar —",
+      "assign": "Asignar",
+      "reassign": "Reasignar",
+      "remove": "Quitar asignación"
+    },
+    "history": {
+      "title": "Historial de observaciones",
+      "add": "Agregar nueva observación",
+      "saveNote": "Guardar observación",
+      "empty": "No hay observaciones registradas.",
+      "assigned": "Asignada a {{assignee}} por {{by}}",
+      "unassigned": "Asignación eliminada por {{by}}",
+      "taken": "Orden atendida por {{by}}"
+    },
+    "actions": {
+      "take": "Atender orden",
+      "finish": "Concluir orden",
+      "finishing": "Concluyendo...",
+      "preventive": "Checklist de mantenimiento",
+      "corrective": {
+        "title": "Registrar solución y concluir",
+        "solutionLabel": "Servicio realizado / Solución aplicada"
+      }
+    },
+    "delete": {
+      "title": "Eliminar definitivamente esta orden",
+      "button": "Eliminar orden",
+      "confirm": "¿Seguro que deseas eliminar esta orden? Esta acción es irreversible."
+    },
+    "toasts": {
+      "loadError": "Error al cargar la orden.",
+      "listMaintDenied": "Sin permiso para listar mantenedores.",
+      "selectMaint": "Selecciona un mantenedor.",
+      "assigned": "Orden asignada.",
+      "assignError": "Error al asignar la orden.",
+      "unassigned": "Asignación eliminada.",
+      "unassignError": "Error al eliminar la asignación.",
+      "assignedToOther": "Esta orden fue asignada a otro mantenedor.",
+      "taken": "Orden atendida.",
+      "takeError": "Error al atender la orden.",
+      "noteAdded": "Observación agregada.",
+      "noteError": "Error al agregar la observación.",
+      "finishOnlyOwner": "Solo el mantenedor que atendió puede concluir esta orden.",
+      "selectCause": "Selecciona la causa de la falla antes de concluir.",
+      "describeService": "Describe el servicio realizado.",
+      "autoCorrective": "Ítem del checklist preventivo \"NO\": \"{{item}}\"",
+      "autoBy": "Sistema (Generado por la preventiva de {{name}})",
+      "autoOpened": "{{count}} orden(es) correctiva(s) abierta(s) automáticamente.",
+      "finished": "¡Orden concluida con éxito!",
+      "finishError": "Ocurrió un error al concluir.",
+      "onlyManagerDelete": "Solo gestores pueden eliminar la orden.",
+      "deleted": "Orden eliminada con éxito.",
+      "deleteError": "Error al eliminar la orden."
+    },
+    "preventive": {
+      "title": "Checklist de mantenimiento"
+    }
+  },
+
+  "calendarioGeral": {
+    "title": "Calendario General de Mantenimientos",
+    "loading": "Cargando programaciones...",
+    "legend": {
+      "overdue": "Vencido",
+      "today": "Hoy",
+      "future": "Futuro",
+      "started": "Iniciado",
+      "finished": "Concluido",
+      "finishedLate": "Concluido con retraso"
+    },
+    "details": {
+      "machine": "Máquina:",
+      "description": "Descripción:",
+      "currentDate": "Fecha actual:",
+      "originalDate": "Fecha original:",
+      "status": "Estado:",
+      "finishedAt": "Fecha de conclusión:",
+      "checklistTitle": "Checklist de la tarea:"
+    },
+    "actions": {
+      "startNow": "Iniciar mantenimiento ahora",
+      "delete": "Eliminar programación"
+    },
+    "confirm": {
+      "startNow": "¿Iniciar el mantenimiento \"{{title}}\" ahora?",
+      "delete": "¿Seguro que deseas eliminar la programación \"{{title}}\"?"
+    },
+    "generated": {
+      "callDesc": "Mantenimiento preventivo programado: {{title}}",
+      "openedBy": "Sistema (Iniciado por {{name}})"
+    },
+    "toasts": {
+      "fillAll": "Completa todos los campos.",
+      "created": "¡Programación creada!",
+      "callCreated": "¡Orden creada y programación iniciada!",
+      "startFail": "Fallo al iniciar el mantenimiento.",
+      "rescheduleFail": "Fallo al reprogramar.",
+      "deleted": "¡Programación eliminada con éxito!",
+      "deleteFail": "Fallo al eliminar la programación."
+    },
+    "new": {
+      "title": "Programar mantenimiento",
+      "machine": "Máquina",
+      "description": "Descripción",
+      "importTemplate": "Importar checklist de una programación anterior",
+      "selectPlaceholder": "Selecciona...",
+      "none": "Ninguno",
+      "itemsLabel": "Ítems del checklist (uno por línea)",
+      "save": "Guardar programación"
+    }
+  },
+
+  "historico": {
+    "title": "Historial de Mantenimientos",
+    "loading": "Cargando historial...",
+    "empty": "No hay órdenes concluidas para los filtros seleccionados.",
+    "export": {
+      "downloadExcel": "Descargar Excel",
+      "downloadPdf": "Descargar PDF",
+      "sheetName": "Órdenes",
+      "columns": {
+        "machine": "Máquina",
+        "callType": "Tipo de orden",
+        "openedAt": "Abierta el",
+        "attendedBy": "Atendida por",
+        "performedService": "Servicio realizado",
+        "cause": "Causa de la falla",
+        "concludedAt": "Fecha de conclusión",
+        "problem": "Problema"
+      }
+    },
+    "filters": {
+      "byType": "Filtrar por tipo de orden:",
+      "byMachine": "Filtrar por máquina:",
+      "typeOptions": {
+        "all": "Todas",
+        "corrective": "Correctiva",
+        "preventive": "Preventiva",
+        "predictive": "Predictiva"
+      },
+      "machineOptions": {
+        "all": "Todas"
+      }
+    },
+    "item": {
+      "machine": "Máquina: {{name}}",
+      "attendedBy": "Atendida por: {{name}}",
+      "unknown": "No identificado",
+      "concludedAt": "Concluida el: {{date}}",
+      "problem": "Problema:",
+      "notSpecified": "No especificado"
+    }
+  },
+
+  "estoque": {
+    "title": "Control de Inventario de Mantenimiento",
+    "loading": "Cargando piezas...",
+    "empty": "No hay piezas registradas.",
+    "toolbar": {
+      "new": "+ Nueva pieza",
+      "exportExcel": "Exportar Excel",
+      "exportPdf": "Exportar PDF"
+    },
+    "card": {
+      "labels": {
+        "code": "Código:",
+        "category": "Categoría:",
+        "stock": "Existencias:",
+        "min": "Mínimo:",
+        "location": "Ubicación:"
+      },
+      "buttons": {
+        "in": "Entrada",
+        "out": "Salida",
+        "edit": "Editar",
+        "delete": "Eliminar"
+      }
+    },
+    "confirm": {
+      "delete": "¿Seguro que deseas eliminar esta pieza?"
+    },
+    "toasts": {
+      "deleted": "¡Pieza eliminada con éxito!",
+      "deleteFail": "Fallo al eliminar la pieza."
+    },
+    "export": {
+      "sheetName": "Inventario",
+      "columns": {
+        "code": "Código",
+        "name": "Nombre",
+        "category": "Categoría",
+        "stock": "Existencias",
+        "min": "Mínimo",
+        "location": "Ubicación"
+      }
+    }
+  },
+
+  "analiseFalhas": {
+    "title": "Análisis de Fallas Correctivas",
+    "loading": "Analizando datos...",
+    "filters": {
+      "start": "Inicio:",
+      "end": "Fin:",
+      "clear": "Limpiar"
+    },
+    "chart": {
+      "title": "Distribución de fallas correctivas por máquina",
+      "dataset": "N.º de fallas correctivas",
+      "xLabel": "Máquina",
+      "yLabel": "Cantidad"
+    }
+  },
+
+  "causas": {
+    "titleCrud": "Gestionar Causas Raíz",
+    "titlePareto": "Pareto de Fallas",
+    "form": {
+      "placeholder": "Nueva causa",
+      "add": "Agregar"
+    },
+    "list": {
+      "delete": "Eliminar"
+    },
+    "confirm": {
+      "delete": "¿Eliminar esta causa?"
+    },
+    "chart": {
+      "seriesCalls": "Órdenes",
+      "seriesAccumPct": "% Acumulado",
+      "xLabel": "Causa",
+      "yLeft": "Órdenes",
+      "yRight": "% Acumulado"
+    }
+  },
+
+  "users": {
+    "title": "Gestión de Usuarios",
+    "loading": "Cargando usuarios...",
+    "actions": {
+      "create": "Crear nuevo usuario",
+      "edit": "Editar",
+      "delete": "Eliminar"
+    },
+    "table": {
+      "fullName": "Nombre completo",
+      "username": "Usuario",
+      "function": "Función",
+      "actions": "Acciones"
+    },
+    "modal": {
+      "createTitle": "Crear nuevo usuario",
+      "editTitle": "Editar usuario"
+    },
+    "form": {
+      "fullName": "Nombre completo",
+      "tempPassword": "Contraseña provisional",
+      "role": "Función (Rol)",
+      "saving": "Guardando...",
+      "saveChanges": "Guardar cambios",
+      "createUser": "Crear usuario"
+    },
+    "roles": {
+      "operator": "Operador",
+      "maintainer": "Mantenedor",
+      "manager": "Gestor"
+    },
+    "validation": {
+      "fullName": "Indica nombre y apellido."
+    },
+    "confirm": {
+      "delete": "¿Eliminar al usuario {{name}}?"
+    },
+    "toasts": {
+      "created": "¡Usuario {{name}} creado con éxito!",
+      "updated": "Usuario actualizado con éxito.",
+      "saveError": "Error al guardar el usuario.",
+      "deleted": "Usuario eliminado con éxito.",
+      "deleteError": "Error al eliminar el usuario.",
+      "authClaimNotSet": "No se asignó el permiso de Auth.",
+      "authClaimNotUpdated": "No se actualizó el permiso de Auth."
+    }
+  },
+
+  "layout": {
+    "sections": {
+      "manageMaintenance": "Gestionar mantenimiento",
+      "analytics": "Análisis y KPIs",
+      "managePeople": "Gestionar personal"
+    }
+  },
+
+  "dashboard": {
+    "operator": "Panel del Operador",
+    "maintainer": "Panel de Mantenimiento",
+    "manager": "Panel del Gestor"
+  },
+
+  "meusChamados": {
+    "title": "Mis Órdenes",
+    "loginFirst": "Inicia sesión para ver tus órdenes.",
+    "filters": {
+      "statusTitle": "Filtrar por estado",
+      "active": "Abiertas y en curso",
+      "all": "Todas",
+      "closed": "Concluidas",
+      "searchPlaceholder": "Buscar por máquina o descripción..."
+    },
+    "footerTip": "Sugerencia: usa el filtro “Concluidas” para tu historial personal.",
+    "loading": "Cargando...",
+    "empty": "No se encontraron órdenes.",
+    "table": {
+      "hash": "#",
+      "machine": "Máquina",
+      "description": "Descripción",
+      "status": "Estado",
+      "assignedAt": "Asignada el",
+      "openedAt": "Apertura",
+      "open": "Abrir"
+    }
+  },
+
+  "inicioTurno": {
+    "title": "Inicio de Turno",
+    "greeting": "Hola, {{name}}. Indica tu turno y las máquinas en las que trabajarás hoy.",
+    "loading": "Cargando...",
+    "fields": {
+      "shift": "Tu turno",
+      "machinesLabel": "Máquinas a tu cargo hoy (selecciona una o más)"
+    },
+    "shifts": {
+      "shift1": "1.º Turno (05:30 - 15:18)",
+      "shift2": "2.º Turno (15:18 - 00:48)"
+    },
+    "confirmBtn": "Confirmar e iniciar checklists",
+    "alert": {
+      "selectOne": "Selecciona al menos una máquina."
+    }
+  },
+
+  "tarefasDiarias": {
+    "title": "Tareas Diarias",
+    "greeting": "Hola, {{name}}. Aquí están los checklists pendientes para tu turno.",
+    "checking": "Verificando tareas...",
+    "allDone": "Has completado todos tus checklists para este turno. ¡Buen trabajo!",
+    "fillChecklist": "Completar checklist"
+  },
+
+  "checklist": {
+    "notFound": "Máquina no encontrada.",
+    "loading": "Cargando checklist...",
+    "title": "Checklist diario: {{machine}}",
+    "greeting": "Hola, {{name}}. Completa el checklist a continuación:",
+    "empty": "No hay checklist configurado.",
+    "yes": "Sí",
+    "no": "No",
+    "alreadyReported": "Ya reportado en la orden {{id}}",
+    "toastAlreadyReported": "⚠️ Este ítem ya está reportado en la orden {{id}}.",
+    "generatedDescription": "Ítem del checklist diario marcado como \"No\": \"{{item}}\"",
+    "send": "Enviar checklist",
+    "sending": "Enviando...",
+    "toastSent": "¡Checklist enviado! {{count}} orden(es) generada(s).",
+    "toastFail": "No fue posible enviar el checklist."
+  },
+
+  "operatorDashboard": {
+    "form": {
+      "title": "Abrir nueva orden",
+      "selectMachine": "Selecciona la máquina",
+      "choosePlaceholder": "Elige una máquina...",
+      "problem": "Descripción del problema",
+      "problemPlaceholder": "Describe detalladamente el problema encontrado...",
+      "open": "Abrir orden",
+      "sending": "Enviando...",
+      "required": "Selecciona una máquina y describe el problema.",
+      "opened": "¡Orden para la máquina {{machine}} abierta con éxito!",
+      "error": "Ocurrió un error al abrir la orden."
+    },
+    "list": {
+      "title": "Historial de órdenes",
+      "loading": "Cargando órdenes...",
+      "empty": "Aún no has abierto ninguna orden.",
+      "machine": "Máquina: {{name}}",
+      "openedAt": "Abierta el: {{date}}"
+    }
+  }
+}

@@ -1,0 +1,648 @@
+{
+  "appTitle": "保守パネル",
+
+  "nav": {
+    "home": "ホーム",
+    "profile": "マイプロフィール",
+    "machines": "機械",
+    "myCalls": "マイ作業依頼",
+    "calendar": "全体カレンダー",
+    "history": "履歴",
+    "inventory": "在庫",
+    "failures": "故障分析",
+    "rootCauses": "根本原因",
+    "manageUsers": "ユーザー管理",
+    "activeCalls": "進行中の依頼"
+  },
+
+  "status": {
+    "open": "未対応",
+    "in_progress": "進行中",
+    "closed": "完了",
+    "cancelled": "キャンセル"
+  },
+
+  "login": {
+    "title": "ログイン",
+    "subtitle": "アカウントをご利用ください",
+    "userOrEmail": "メールまたはユーザー名",
+    "password": "パスワード",
+    "invalid": "ユーザー名またはパスワードが無効です。",
+    "next": "次へ",
+    "loading": "ログイン中..."
+  },
+
+  "inicio": {
+    "title": "ホーム",
+    "welcome": "お帰りなさい、<1>{{name}}</1>！",
+    "quickAccess": "クイックアクセス",
+    "cards": {
+      "machines": {
+        "title": "機械パネル",
+        "desc": "全ての設備記録を確認・管理します。"
+      },
+      "myCalls": {
+        "title": "マイ作業依頼",
+        "desc": "自分に割り当てられた依頼を確認・管理します。"
+      },
+      "calendar": {
+        "title": "全体カレンダー",
+        "desc": "すべての保守作業の全体像を確認します。"
+      },
+      "history": {
+        "title": "全体履歴",
+        "desc": "完了したすべての保守依頼を確認します。"
+      },
+      "inventory": {
+        "title": "在庫",
+        "desc": "部品の入出庫を追跡します。"
+      },
+      "failureAnalysis": {
+        "title": "故障分析",
+        "desc": "機械故障の統計とレポートを表示します。"
+      },
+      "rootCauses": {
+        "title": "根本原因",
+        "desc": "故障の根本原因を特定・管理します。"
+      },
+      "manageUsers": {
+        "title": "ユーザー管理",
+        "desc": "チームメンバーの追加・編集・削除。"
+      },
+      "profile": {
+        "title": "マイプロフィール",
+        "desc": "自身の情報確認とパスワード変更。"
+      }
+    }
+  },
+
+  "perfil": {
+    "title": "マイプロフィール",
+    "info": {
+      "title": "私の情報",
+      "name": "氏名",
+      "email": "メール",
+      "role": "役割"
+    },
+    "changePassword": {
+      "title": "パスワードを変更",
+      "current": "現在のパスワード",
+      "new": "新しいパスワード",
+      "confirm": "新しいパスワードの確認"
+    },
+    "actions": {
+      "save": "パスワードを変更",
+      "saving": "変更中..."
+    },
+    "toasts": {
+      "mismatch": "新しいパスワードが一致しません。",
+      "short": "新しいパスワードは6文字以上である必要があります。",
+      "wrongPassword": "現在のパスワードが正しくありません。",
+      "generic": "パスワード変更時にエラーが発生しました。",
+      "success": "パスワードを変更しました！"
+    }
+  },
+
+  "maquinas": {
+    "title": "機械パネル",
+    "loading": "機械を読み込み中...",
+    "legend": {
+      "corretiva": "是正保守（緊急）",
+      "preventiva": "予防保守（計画）",
+      "preditiva": "予知保守（オペレーターチェック）"
+    },
+    "cardHint": "クリックで詳細を表示",
+    "modal": {
+      "title": "新しい機械を作成",
+      "nameLabel": "機械名",
+      "save": "機械を保存"
+    },
+    "toasts": {
+      "nameRequired": "機械名は必須です。",
+      "created": "機械「{{name}}」を作成しました！",
+      "createError": "機械の作成に失敗しました。"
+    }
+  },
+
+  "maquinaDetalhe": {
+    "loading": "機械データを読み込み中...",
+    "notFound": "機械が見つかりません。",
+    "subtitle": "機械の詳細台帳と保守履歴。",
+    "tabs": {
+      "active": "進行中の依頼",
+      "history": "履歴",
+      "preventive": "予防保守",
+      "checklist": "日次チェックリスト",
+      "qrcode": "QRコード"
+    },
+    "listas": {
+      "activeTitle": "{{name}} の進行中依頼",
+      "activeEmpty": "進行中の依頼はありません。",
+      "historyTitle": "{{name}} の履歴",
+      "historyEmpty": "完了した依頼はありません。",
+      "statusLabel": "状態：{{status}}",
+      "openedAt": "開始日：{{date}}"
+    },
+    "legend": {
+      "overdue": "期限超過",
+      "today": "本日",
+      "future": "今後",
+      "started": "開始済み",
+      "finished": "完了"
+    },
+    "checklist": {
+      "title": "{{name}} の日次チェックリスト",
+      "empty": "この機械のチェック項目は登録されていません。",
+      "remove": "項目を削除",
+      "placeholder": "新しいチェック項目を追加",
+      "add": "追加",
+      "historyTitle": "日次コンプライアンス履歴",
+      "columns": {
+        "date": "日付",
+        "turn1": "第1シフト",
+        "turn2": "第2シフト"
+      },
+      "pending": "未処理",
+      "confirmRemove": "「{{item}}」を削除しますか？"
+    },
+    "toasts": {
+      "itemEmpty": "チェック項目は必須です。",
+      "itemAdded": "チェック項目を追加しました！",
+      "itemAddError": "チェック項目の追加に失敗しました。",
+      "itemRemoved": "チェック項目を削除しました！",
+      "itemRemoveError": "チェック項目の削除に失敗しました。"
+    },
+    "agendar": {
+      "title": "保守をスケジュール",
+      "descricao": "説明",
+      "itensLabel": "チェックリスト項目（1行に1項目）",
+      "save": "スケジュールを保存",
+      "errors": {
+        "missing": "説明とチェック項目を1つ以上入力してください。"
+      },
+      "toasts": {
+        "created": "予防保守をスケジュールしました！",
+        "error": "スケジュールの作成に失敗しました。",
+        "rescheduleError": "再スケジュールに失敗しました。"
+      }
+    },
+    "evento": {
+      "descricao": "説明：",
+      "data": "日付：",
+      "status": "状態：",
+      "checklistTitle": "作業チェックリスト：",
+      "startNow": "今すぐ保守を開始",
+      "confirmStart": "保守「{{title}}」を今すぐ開始しますか？",
+      "callDesc": "予防保守スケジュール：{{title}}",
+      "openedBy": "システム（{{name}} によって開始）",
+      "toasts": {
+        "callCreated": "保守依頼を作成しました！",
+        "startError": "保守を開始できませんでした。"
+      }
+    },
+    "qrcode": {
+      "title": "クイックアクセス用QRコード",
+      "info": "このコードをダウンロードし、機械に貼付して台帳へ即時アクセス。",
+      "download": "QRコードをダウンロード"
+    },
+    "preventiveCalendar": {
+      "title": "予防保守カレンダー",
+      "subtitle": "作成済みのスケジュールを表示します。"
+    }
+  },
+
+  "calendar": {
+    "previous": "前へ",
+    "today": "今日",
+    "next": "次へ",
+    "month": "月",
+    "week": "週",
+    "day": "日",
+    "agenda": "予定",
+    "date": "日付",
+    "time": "時間",
+    "showMore": "+{{total}} 件を表示"
+  },
+
+  "common": {
+    "loading": "読み込み中...",
+    "processing": "処理中...",
+    "saving": "保存中...",
+    "deleting": "削除中...",
+    "yes": "はい",
+    "no": "いいえ",
+    "manager": "マネージャー",
+    "maintainer": "保守員",
+    "logout": "ログアウト"
+  },
+
+  "chamadoDetalhe": {
+    "notFound": "依頼が見つかりません。",
+    "header": {
+      "machine": "機械：{{name}}",
+      "openedBy": "{{name}} が {{date}} に開始"
+    },
+    "fields": {
+      "status": "状態",
+      "takenBy": "担当者",
+      "assignedTo": "割り当て先",
+      "reportedProblem": "報告された問題",
+      "checklistDone": "チェックリスト完了",
+      "performedService": "実施作業",
+      "finishedAt": "完了日：{{date}}",
+      "cause": "故障原因"
+    },
+    "of": "の",
+    "selects": {
+      "causePlaceholder": "原因を選択..."
+    },
+    "assign": {
+      "title": "保守員を割り当て",
+      "label": "保守員を選択",
+      "placeholder": "— 選択 —",
+      "assign": "割り当て",
+      "reassign": "再割り当て",
+      "remove": "割り当てを解除"
+    },
+    "history": {
+      "title": "備考履歴",
+      "add": "新しい備考を追加",
+      "saveNote": "備考を保存",
+      "empty": "備考は登録されていません。",
+      "assigned": "{{by}} が {{assignee}} に割り当て",
+      "unassigned": "{{by}} が割り当てを解除",
+      "taken": "{{by}} が依頼を担当"
+    },
+    "actions": {
+      "take": "担当する",
+      "finish": "依頼を完了",
+      "finishing": "完了処理中...",
+      "preventive": "保守チェックリスト",
+      "corrective": {
+        "title": "解決内容を登録して完了",
+        "solutionLabel": "実施作業／適用した解決策"
+      }
+    },
+    "delete": {
+      "title": "この依頼を完全に削除",
+      "button": "依頼を削除",
+      "confirm": "本当にこの依頼を削除しますか？この操作は取り消せません。"
+    },
+    "toasts": {
+      "loadError": "依頼の読み込みに失敗しました。",
+      "listMaintDenied": "保守員の一覧を表示する権限がありません。",
+      "selectMaint": "保守員を選択してください。",
+      "assigned": "依頼を割り当てました。",
+      "assignError": "割り当てに失敗しました。",
+      "unassigned": "割り当てを解除しました。",
+      "unassignError": "割り当て解除に失敗しました。",
+      "assignedToOther": "この依頼は別の保守員に割り当てられました。",
+      "taken": "依頼を担当しました。",
+      "takeError": "担当に失敗しました。",
+      "noteAdded": "備考を追加しました。",
+      "noteError": "備考の追加に失敗しました。",
+      "finishOnlyOwner": "担当した保守員のみが完了できます。",
+      "selectCause": "完了前に故障原因を選択してください。",
+      "describeService": "実施作業を記述してください。",
+      "autoCorrective": "予防チェック「いいえ」：『{{item}}』",
+      "autoBy": "システム（{{name}} の予防保守から生成）",
+      "autoOpened": "是正依頼を {{count}} 件自動作成しました。",
+      "finished": "依頼を完了しました！",
+      "finishError": "完了処理に失敗しました。",
+      "onlyManagerDelete": "管理者のみ削除できます。",
+      "deleted": "依頼を削除しました。",
+      "deleteError": "削除に失敗しました。"
+    },
+    "preventive": {
+      "title": "保守チェックリスト"
+    }
+  },
+
+  "calendarioGeral": {
+    "title": "全体保守カレンダー",
+    "loading": "スケジュールを読み込み中...",
+    "legend": {
+      "overdue": "期限超過",
+      "today": "本日",
+      "future": "今後",
+      "started": "開始済み",
+      "finished": "完了",
+      "finishedLate": "遅延完了"
+    },
+    "details": {
+      "machine": "機械：",
+      "description": "説明：",
+      "currentDate": "現在日：",
+      "originalDate": "元の日付：",
+      "status": "状態：",
+      "finishedAt": "完了日：",
+      "checklistTitle": "作業チェックリスト："
+    },
+    "actions": {
+      "startNow": "今すぐ保守を開始",
+      "delete": "スケジュールを削除"
+    },
+    "confirm": {
+      "startNow": "保守「{{title}}」を今すぐ開始しますか？",
+      "delete": "スケジュール「{{title}}」を削除しますか？"
+    },
+    "generated": {
+      "callDesc": "予防保守スケジュール：{{title}}",
+      "openedBy": "システム（{{name}} により開始）"
+    },
+    "toasts": {
+      "fillAll": "すべての項目を入力してください。",
+      "created": "スケジュールを作成しました！",
+      "callCreated": "依頼を作成し、スケジュールを開始しました！",
+      "startFail": "保守を開始できませんでした。",
+      "rescheduleFail": "再スケジュールに失敗しました。",
+      "deleted": "スケジュールを削除しました！",
+      "deleteFail": "スケジュールを削除できませんでした。"
+    },
+    "new": {
+      "title": "保守をスケジュール",
+      "machine": "機械",
+      "description": "説明",
+      "importTemplate": "過去のスケジュールからチェックリストを取り込む",
+      "selectPlaceholder": "選択...",
+      "none": "なし",
+      "itemsLabel": "チェックリスト項目（1行1項目）",
+      "save": "スケジュールを保存"
+    }
+  },
+
+  "historico": {
+    "title": "保守履歴",
+    "loading": "履歴を読み込み中...",
+    "empty": "選択した条件に該当する完了済み依頼はありません。",
+    "export": {
+      "downloadExcel": "Excelをダウンロード",
+      "downloadPdf": "PDFをダウンロード",
+      "sheetName": "依頼",
+      "columns": {
+        "machine": "機械",
+        "callType": "依頼種別",
+        "openedAt": "開始日",
+        "attendedBy": "担当者",
+        "performedService": "実施作業",
+        "cause": "故障原因",
+        "concludedAt": "完了日",
+        "problem": "問題"
+      }
+    },
+    "filters": {
+      "byType": "依頼種別で絞り込み：",
+      "byMachine": "機械で絞り込み：",
+      "typeOptions": {
+        "all": "すべて",
+        "corrective": "是正",
+        "preventive": "予防",
+        "predictive": "予知"
+      },
+      "machineOptions": {
+        "all": "すべて"
+      }
+    },
+    "item": {
+      "machine": "機械：{{name}}",
+      "attendedBy": "担当者：{{name}}",
+      "unknown": "未記載",
+      "concludedAt": "完了日：{{date}}",
+      "problem": "問題：",
+      "notSpecified": "未指定"
+    }
+  },
+
+  "estoque": {
+    "title": "保守在庫管理",
+    "loading": "部品を読み込み中...",
+    "empty": "登録された部品はありません。",
+    "toolbar": {
+      "new": "+ 新しい部品",
+      "exportExcel": "Excelにエクスポート",
+      "exportPdf": "PDFにエクスポート"
+    },
+    "card": {
+      "labels": {
+        "code": "コード：",
+        "category": "カテゴリ：",
+        "stock": "在庫：",
+        "min": "最小値：",
+        "location": "保管場所："
+      },
+      "buttons": {
+        "in": "入庫",
+        "out": "出庫",
+        "edit": "編集",
+        "delete": "削除"
+      }
+    },
+    "confirm": {
+      "delete": "この部品を削除しますか？"
+    },
+    "toasts": {
+      "deleted": "部品を削除しました！",
+      "deleteFail": "部品を削除できませんでした。"
+    },
+    "export": {
+      "sheetName": "在庫",
+      "columns": {
+        "code": "コード",
+        "name": "名称",
+        "category": "カテゴリ",
+        "stock": "在庫",
+        "min": "最小値",
+        "location": "保管場所"
+      }
+    }
+  },
+
+  "analiseFalhas": {
+    "title": "是正故障の分析",
+    "loading": "データ分析中...",
+    "filters": {
+      "start": "開始：",
+      "end": "終了：",
+      "clear": "クリア"
+    },
+    "chart": {
+      "title": "機械別の是正故障分布",
+      "dataset": "是正故障件数",
+      "xLabel": "機械",
+      "yLabel": "件数"
+    }
+  },
+
+  "causas": {
+    "titleCrud": "根本原因の管理",
+    "titlePareto": "故障パレート",
+    "form": {
+      "placeholder": "新しい原因",
+      "add": "追加"
+    },
+    "list": {
+      "delete": "削除"
+    },
+    "confirm": {
+      "delete": "この原因を削除しますか？"
+    },
+    "chart": {
+      "seriesCalls": "依頼",
+      "seriesAccumPct": "累積％",
+      "xLabel": "原因",
+      "yLeft": "依頼",
+      "yRight": "累積％"
+    }
+  },
+
+  "users": {
+    "title": "ユーザー管理",
+    "loading": "ユーザーを読み込み中...",
+    "actions": {
+      "create": "新規ユーザーを作成",
+      "edit": "編集",
+      "delete": "削除"
+    },
+    "table": {
+      "fullName": "氏名",
+      "username": "ユーザー名",
+      "function": "役割",
+      "actions": "操作"
+    },
+    "modal": {
+      "createTitle": "新規ユーザーを作成",
+      "editTitle": "ユーザーを編集"
+    },
+    "form": {
+      "fullName": "氏名",
+      "tempPassword": "一時パスワード",
+      "role": "役割",
+      "saving": "保存中...",
+      "saveChanges": "変更を保存",
+      "createUser": "ユーザーを作成"
+    },
+    "roles": {
+      "operator": "オペレーター",
+      "maintainer": "保守員",
+      "manager": "マネージャー"
+    },
+    "validation": {
+      "fullName": "姓と名を入力してください。"
+    },
+    "confirm": {
+      "delete": "ユーザー {{name}} を削除しますか？"
+    },
+    "toasts": {
+      "created": "ユーザー {{name}} を作成しました！",
+      "updated": "ユーザーを更新しました！",
+      "saveError": "ユーザーの保存に失敗しました。",
+      "deleted": "ユーザーを削除しました！",
+      "deleteError": "ユーザーの削除に失敗しました。",
+      "authClaimNotSet": "認可クレームが設定されていません。",
+      "authClaimNotUpdated": "認可クレームの更新に失敗しました。"
+    }
+  },
+
+  "layout": {
+    "sections": {
+      "manageMaintenance": "保守を管理",
+      "analytics": "分析とKPI",
+      "managePeople": "チーム管理"
+    }
+  },
+
+  "dashboard": {
+    "operator": "オペレーターダッシュボード",
+    "maintainer": "保守ダッシュボード",
+    "manager": "マネージャーダッシュボード"
+  },
+
+  "meusChamados": {
+    "title": "マイ作業依頼",
+    "loginFirst": "依頼を見るにはログインしてください。",
+    "filters": {
+      "statusTitle": "状態でフィルター",
+      "active": "未対応・進行中",
+      "all": "すべて",
+      "closed": "完了",
+      "searchPlaceholder": "機械名または説明で検索..."
+    },
+    "footerTip": "ヒント：「完了」でフィルターすると自分の履歴を確認できます。",
+    "loading": "読み込み中...",
+    "empty": "依頼は見つかりませんでした。",
+    "table": {
+      "hash": "#",
+      "machine": "機械",
+      "description": "説明",
+      "status": "状態",
+      "assignedAt": "割り当て日",
+      "openedAt": "開始日",
+      "open": "開く"
+    }
+  },
+
+  "inicioTurno": {
+    "title": "シフト開始",
+    "greeting": "こんにちは、{{name}}。本日のシフトと担当機械を選択してください。",
+    "loading": "読み込み中...",
+    "fields": {
+      "shift": "あなたのシフト",
+      "machinesLabel": "本日担当する機械（1台以上を選択）"
+    },
+    "shifts": {
+      "shift1": "第1シフト（05:30–15:18）",
+      "shift2": "第2シフト（15:18–00:48）"
+    },
+    "confirmBtn": "確認してチェックリスト開始",
+    "alert": {
+      "selectOne": "少なくとも1台の機械を選択してください。"
+    }
+  },
+
+  "tarefasDiarias": {
+    "title": "日次タスク",
+    "greeting": "こんにちは、{{name}}。あなたのシフトで未了のチェックリストは以下です。",
+    "checking": "タスクを確認中...",
+    "allDone": "このシフトのチェックリストはすべて完了しました。お疲れさま！",
+    "fillChecklist": "チェックリストを記入"
+  },
+
+  "checklist": {
+    "notFound": "機械が見つかりません。",
+    "loading": "チェックリストを読み込み中...",
+    "title": "日次チェックリスト：{{machine}}",
+    "greeting": "こんにちは、{{name}}。以下のチェックを実施してください：",
+    "empty": "チェックリストは設定されていません。",
+    "yes": "はい",
+    "no": "いいえ",
+    "alreadyReported": "依頼 {{id}} で既に報告済み",
+    "toastAlreadyReported": "⚠️ この項目は依頼 {{id}} で既に報告されています。",
+    "generatedDescription": "日次チェック項目「いいえ」：『{{item}}』",
+    "send": "チェックリストを送信",
+    "sending": "送信中...",
+    "toastSent": "チェックリストを送信しました！{{count}} 件の依頼を生成しました。",
+    "toastFail": "チェックリストを送信できませんでした。"
+  },
+
+  "operatorDashboard": {
+    "form": {
+      "title": "新しい依頼を開く",
+      "selectMachine": "機械を選択",
+      "choosePlaceholder": "機械を選んでください...",
+      "problem": "問題の説明",
+      "problemPlaceholder": "発生した問題を詳しく記述してください...",
+      "open": "依頼を開く",
+      "sending": "送信中...",
+      "required": "機械を選択し、問題を記述してください。",
+      "opened": "機械 {{machine}} の依頼を作成しました！",
+      "error": "依頼の作成に失敗しました。"
+    },
+    "list": {
+      "title": "依頼履歴",
+      "loading": "依頼を読み込み中...",
+      "empty": "まだ依頼を作成していません。",
+      "machine": "機械：{{name}}",
+      "openedAt": "開始日：{{date}}"
+    }
+  }
+}

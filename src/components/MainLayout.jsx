@@ -1,11 +1,14 @@
+// src/components/MainLayout.jsx
 import React, { useState, useEffect } from 'react'; // Adicionado useState
 import { Routes, Route, NavLink, Link } from 'react-router-dom';
 import { auth, db } from '../firebase';
 import { collection, query, where, onSnapshot } from 'firebase/firestore';
 import { signOut } from 'firebase/auth';
-import { FiHome, FiLogOut, FiCheckSquare, FiUser, FiCalendar, FiList, FiClock, FiUsers, FiServer, FiEdit, FiCheckCircle, FiMenu, FiX, FiBarChart2, FiPackage, FiClipboard  } from 'react-icons/fi';
+import {
+  FiHome, FiLogOut, FiCheckSquare, FiUser, FiCalendar, FiUsers,
+  FiServer, FiMenu, FiX, FiBarChart2, FiPackage, FiClipboard, FiPieChart
+} from 'react-icons/fi';
 import styles from './MainLayout.module.css';
-import { FiPieChart } from 'react-icons/fi';
 
 import OperatorDashboard from './OperatorDashboard.jsx';
 import MaquinasPage from '../pages/MaquinasPage.jsx';
@@ -16,17 +19,22 @@ import HistoricoPage from '../pages/HistoricoPage.jsx';
 import PerfilPage from '../pages/PerfilPage.jsx';
 import MaquinasLayout from '../pages/MaquinasLayout.jsx';
 import HistoricoLayout from "../pages/HistoricoLayout.jsx";
-import AnaliseFalhasPage from '../pages/AnaliseFalhasPage.jsx'; // NOVO
+import AnaliseFalhasPage from '../pages/AnaliseFalhasPage.jsx';
 import GerirUtilizadoresPage from '../pages/GerirUtilizadoresPage.jsx';
 import CalendarioGeralPage from '../pages/CalendarioGeralPage.jsx';
 import CausasRaizPage from '../pages/CausasRaizPage.jsx';
 import EstoquePage from '../pages/EstoquePage.jsx';
 import MeusChamados from '../pages/MeusChamados';
+import LanguageMenu from '../components/LanguageMenu.jsx';
+
 
 import logo from '../assets/logo-sidebar.png';
 
+import { useTranslation } from 'react-i18next';
+
 const MainLayout = ({ user }) => {
-  
+  const { t, i18n } = useTranslation();
+
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [hasOpenCalls, setHasOpenCalls] = useState(false);
   const [hasSoonDue, setHasSoonDue] = useState(false);
@@ -34,13 +42,11 @@ const MainLayout = ({ user }) => {
   const hasMyActiveCalls = myActiveCount > 0;
 
   useEffect(() => {
-    // query para pegar todos chamados com status "Aberto" ou "Em Andamento"
     const q = query(
       collection(db, 'chamados'),
       where('status', 'in', ['Aberto', 'Em Andamento'])
     );
     const unsub = onSnapshot(q, snap => {
-      // se vier pelo menos 1 doc, ligamos o alerta
       setHasOpenCalls(snap.size > 0);
     }, err => {
       console.error('Erro ao ouvir chamados abertos:', err);
@@ -53,7 +59,6 @@ const MainLayout = ({ user }) => {
     const now = new Date();
     const cutoff = new Date(now.getTime() + daysAhead * 24 * 60 * 60 * 1000);
 
-    // só event.status === 'agendado'
     const q = query(
       collection(db, 'agendamentosPreventivos'),
       where('status', '==', 'agendado'),
@@ -101,32 +106,31 @@ const MainLayout = ({ user }) => {
   };
 
   const getDashboardTitle = () => {
-    if (user.role === 'operador') return 'Painel do Operador';
-    if (user.role === 'manutentor') return 'Painel de Manutenção';
-    if (user.role === 'gestor') return 'Painel do Gestor';
-    return 'Painel';
+    if (user.role === 'operador')   return t('dashboard.operator');
+    if (user.role === 'manutentor') return t('dashboard.maintainer');
+    if (user.role === 'gestor')     return t('dashboard.manager');
+    return '—';
   };
 
   const NavContent = () => (
     <>
       <NavLink to="/" className={({ isActive }) => isActive ? `${styles.navLink} ${styles.activeLink}` : styles.navLink} end>
         <FiHome className={styles.navIcon} />
-        <span>Início</span>
+        <span>{t('nav.home')}</span>
       </NavLink>
 
       <NavLink to="/perfil" className={({ isActive }) => isActive ? `${styles.navLink} ${styles.activeLink}` : styles.navLink}>
         <FiUser className={styles.navIcon} />
-        <span>Meu Perfil</span>
+        <span>{t('nav.profile')}</span>
       </NavLink>
 
       {(user.role === 'manutentor' || user.role === 'gestor') && (
         <>
-          <h3 className={styles.navSectionTitle}>Gerenciar Manutenção</h3>
+          <h3 className={styles.navSectionTitle}>{t('layout.sections.manageMaintenance')}</h3>
           <NavLink
             to="/maquinas"
             className={({ isActive }) => {
               const base = styles.navLink;
-              // se está ativo *ou* tem chamados abertos, adiciona classe de alerta
               if (isActive) return `${base} ${styles.activeLink}`;
               if (hasOpenCalls) return `${base} ${styles.alertLink}`;
               return base;
@@ -136,7 +140,7 @@ const MainLayout = ({ user }) => {
               <FiServer className={styles.navIcon} />
               {hasOpenCalls && <span className={styles.alertBadge} />}
             </div>
-            <span>Máquinas</span>
+            <span>{t('nav.machines')}</span>
           </NavLink>
         </>
       )}
@@ -153,48 +157,47 @@ const MainLayout = ({ user }) => {
         >
           <div style={{ position: 'relative' }}>
             <FiClipboard className={styles.navIcon} />
-            {hasMyActiveCalls && <span className={styles.alertBadge} title={`${myActiveCount} chamado(s) ativo(s)`} />}
+            {hasMyActiveCalls && <span className={styles.alertBadge} title={`${myActiveCount} ${t('nav.activeCalls')}`} />}
           </div>
-          <span>Meus Chamados</span>
+          <span>{t('nav.myCalls')}</span>
         </NavLink>
       )}
 
       {(user.role === 'manutentor' || user.role === 'gestor') && (
-            <NavLink
-              to="/calendario-geral"
-              className={({ isActive }) => {
-                let cls = styles.navLink;
-                if (isActive) return `${cls} ${styles.activeLink}`;
-                if (hasSoonDue) return `${cls} ${styles.alertLink}`;
-                return cls;
-              }}
-            >
-                <FiCalendar className={styles.navIcon} />
-                <span>Calendário Geral</span>
-            </NavLink>
+        <NavLink
+          to="/calendario-geral"
+          className={({ isActive }) => {
+            let cls = styles.navLink;
+            if (isActive) return `${cls} ${styles.activeLink}`;
+            if (hasSoonDue) return `${cls} ${styles.alertLink}`;
+            return cls;
+          }}
+        >
+          <FiCalendar className={styles.navIcon} />
+          <span>{t('nav.calendar')}</span>
+        </NavLink>
       )}
 
       {(user.role === 'manutentor' || user.role === 'gestor') && (
         <NavLink to="/historico" className={({ isActive }) => isActive ? `${styles.navLink} ${styles.activeLink}` : styles.navLink}>
           <FiCheckSquare className={styles.navIcon} />
-          <span>Histórico</span>
+          <span>{t('nav.history')}</span>
         </NavLink>
       )}
 
       {(user.role === 'manutentor' || user.role === 'gestor') && (
         <NavLink to="/estoque" className={({ isActive }) => isActive ? `${styles.navLink} ${styles.activeLink}` : styles.navLink}>
           <FiPackage  className={styles.navIcon} />
-          <span>Estoque</span>
+          <span>{t('nav.inventory')}</span>
         </NavLink>
       )}
 
       {user.role === 'gestor' && (
         <>
-          {/* NOVA SEÇÃO DE ANÁLISE */}
-          <h3 className={styles.navSectionTitle}>Análises e KPIs</h3>
+          <h3 className={styles.navSectionTitle}>{t('layout.sections.analytics')}</h3>
           <NavLink to="/analise-falhas" className={({ isActive }) => isActive ? `${styles.navLink} ${styles.activeLink}` : styles.navLink}>
             <FiBarChart2 className={styles.navIcon} />
-            <span>Análise de Falhas</span>
+            <span>{t('nav.failures')}</span>
           </NavLink>
 
           <NavLink
@@ -206,13 +209,13 @@ const MainLayout = ({ user }) => {
             }
           >
             <FiPieChart className={styles.navIcon} />
-            <span>Causas Raiz</span>
+            <span>{t('nav.rootCauses')}</span>
           </NavLink>
 
-          <h3 className={styles.navSectionTitle}>Gerenciar Colaboradores</h3>
+          <h3 className={styles.navSectionTitle}>{t('layout.sections.managePeople')}</h3>
           <NavLink to="/gerir-utilizadores" className={({ isActive }) => isActive ? `${styles.navLink} ${styles.activeLink}` : styles.navLink}>
             <FiUsers className={styles.navIcon} />
-            <span>Gerir Utilizadores</span>
+            <span>{t('nav.manageUsers')}</span>
           </NavLink>
         </>
       )}
@@ -233,7 +236,7 @@ const MainLayout = ({ user }) => {
         </nav>
         <div className={styles.userInfo}>
           <span className={styles.userEmail}>{user.nome}</span>
-          <button onClick={handleLogout} className={styles.logoutButton} title="Sair">
+          <button onClick={handleLogout} className={styles.logoutButton} title={t('common.logout', 'Sair')}>
             <FiLogOut />
           </button>
         </div>
@@ -254,7 +257,7 @@ const MainLayout = ({ user }) => {
         </nav>
         <div className={styles.userInfo}>
           <span className={styles.userEmail}>{user.nome}</span>
-          <button onClick={handleLogout} className={styles.logoutButton} title="Sair">
+          <button onClick={handleLogout} className={styles.logoutButton} title={t('common.logout', 'Sair')}>
             <FiLogOut />
           </button>
         </div>
@@ -267,6 +270,7 @@ const MainLayout = ({ user }) => {
             {isMobileMenuOpen ? <FiX /> : <FiMenu />}
           </button>
           <h1>{getDashboardTitle()}</h1>
+          <LanguageMenu className={styles.langMenu} />
         </header>
 
         <Routes>

@@ -1,0 +1,648 @@
+{
+  "appTitle": "維護面板",
+
+  "nav": {
+    "home": "主頁",
+    "profile": "我的資料",
+    "machines": "機器",
+    "myCalls": "我的工單",
+    "calendar": "總日曆",
+    "history": "歷史記錄",
+    "inventory": "庫存",
+    "failures": "故障分析",
+    "rootCauses": "根本原因",
+    "manageUsers": "使用者管理",
+    "activeCalls": "進行中的工單"
+  },
+
+  "status": {
+    "open": "開啟",
+    "in_progress": "進行中",
+    "closed": "已關閉",
+    "cancelled": "已取消"
+  },
+
+  "login": {
+    "title": "登入",
+    "subtitle": "使用您的帳號",
+    "userOrEmail": "電子郵件或使用者名稱",
+    "password": "密碼",
+    "invalid": "使用者名稱或密碼無效。",
+    "next": "下一步",
+    "loading": "正在登入..."
+  },
+
+  "inicio": {
+    "title": "首頁",
+    "welcome": "歡迎回來，<1>{{name}}</1>！",
+    "quickAccess": "快速存取",
+    "cards": {
+      "machines": {
+        "title": "機器面板",
+        "desc": "查看並管理所有設備的檔案。"
+      },
+      "myCalls": {
+        "title": "我的工單",
+        "desc": "查看並管理指派給您的工單。"
+      },
+      "calendar": {
+        "title": "總日曆",
+        "desc": "檢視所有維護工作的完整總覽。"
+      },
+      "history": {
+        "title": "總體歷史",
+        "desc": "檢視全部已完成的維護工單。"
+      },
+      "inventory": {
+        "title": "庫存",
+        "desc": "追蹤零件的入庫與出庫。"
+      },
+      "failureAnalysis": {
+        "title": "故障分析",
+        "desc": "檢視機器故障的統計與報告。"
+      },
+      "rootCauses": {
+        "title": "根本原因",
+        "desc": "識別並管理故障的根本原因。"
+      },
+      "manageUsers": {
+        "title": "使用者管理",
+        "desc": "新增、編輯或刪除團隊成員。"
+      },
+      "profile": {
+        "title": "我的資料",
+        "desc": "檢視您的資訊並變更密碼。"
+      }
+    }
+  },
+
+  "perfil": {
+    "title": "我的資料",
+    "info": {
+      "title": "我的資訊",
+      "name": "姓名",
+      "email": "電子郵件",
+      "role": "角色"
+    },
+    "changePassword": {
+      "title": "變更密碼",
+      "current": "目前密碼",
+      "new": "新密碼",
+      "confirm": "確認新密碼"
+    },
+    "actions": {
+      "save": "變更密碼",
+      "saving": "變更中..."
+    },
+    "toasts": {
+      "mismatch": "新密碼不一致。",
+      "short": "新密碼至少需 6 個字元。",
+      "wrongPassword": "目前密碼錯誤。",
+      "generic": "變更密碼時發生錯誤。",
+      "success": "密碼變更成功！"
+    }
+  },
+
+  "maquinas": {
+    "title": "機器面板",
+    "loading": "正在載入機器...",
+    "legend": {
+      "corretiva": "矯正性（緊急）",
+      "preventiva": "預防性（排程）",
+      "preditiva": "預測性（操作員檢查表）"
+    },
+    "cardHint": "點擊以查看詳情",
+    "modal": {
+      "title": "建立新機器",
+      "nameLabel": "機器名稱",
+      "save": "儲存機器"
+    },
+    "toasts": {
+      "nameRequired": "機器名稱不能為空。",
+      "created": "機器「{{name}}」建立成功！",
+      "createError": "建立機器時發生錯誤。"
+    }
+  },
+
+  "maquinaDetalhe": {
+    "loading": "正在載入機器資料...",
+    "notFound": "找不到機器。",
+    "subtitle": "完整的機器檔案與維護紀錄。",
+    "tabs": {
+      "active": "進行中的工單",
+      "history": "歷史",
+      "preventive": "預防性",
+      "checklist": "每日檢查表",
+      "qrcode": "QR Code"
+    },
+    "listas": {
+      "activeTitle": "{{name}} 的進行中工單",
+      "activeEmpty": "沒有進行中的工單。",
+      "historyTitle": "{{name}} 的歷史",
+      "historyEmpty": "沒有已完成的工單。",
+      "statusLabel": "狀態：{{status}}",
+      "openedAt": "開啟於：{{date}}"
+    },
+    "legend": {
+      "overdue": "已逾期",
+      "today": "今天",
+      "future": "未來",
+      "started": "已開始",
+      "finished": "已完成"
+    },
+    "checklist": {
+      "title": "{{name}} 的每日檢查項目",
+      "empty": "此機器尚未登錄檢查項目。",
+      "remove": "移除項目",
+      "placeholder": "新增檢查項目",
+      "add": "新增",
+      "historyTitle": "每日合規紀錄",
+      "columns": {
+        "date": "日期",
+        "turn1": "第一班",
+        "turn2": "第二班"
+      },
+      "pending": "待處理",
+      "confirmRemove": "確定要移除「{{item}}」嗎？"
+    },
+    "toasts": {
+      "itemEmpty": "檢查項目不能為空。",
+      "itemAdded": "已新增檢查項目！",
+      "itemAddError": "新增檢查項目時發生錯誤。",
+      "itemRemoved": "已移除檢查項目！",
+      "itemRemoveError": "移除檢查項目時發生錯誤。"
+    },
+    "agendar": {
+      "title": "排程維護",
+      "descricao": "描述",
+      "itensLabel": "檢查表項目（每行一項）",
+      "save": "儲存排程",
+      "errors": {
+        "missing": "請填寫描述並至少新增一個檢查項目。"
+      },
+      "toasts": {
+        "created": "預防性維護已排程！",
+        "error": "排程維護時發生錯誤。",
+        "rescheduleError": "重新排程失敗。"
+      }
+    },
+    "evento": {
+      "descricao": "描述：",
+      "data": "日期：",
+      "status": "狀態：",
+      "checklistTitle": "任務檢查表：",
+      "startNow": "立即開始維護",
+      "confirmStart": "確定現在開始維護「{{title}}」嗎？",
+      "callDesc": "預防性維護排程：{{title}}",
+      "openedBy": "系統（由 {{name}} 啟動）",
+      "toasts": {
+        "callCreated": "維護工單建立成功！",
+        "startError": "無法開始維護。"
+      }
+    },
+    "qrcode": {
+      "title": "快速存取 QR Code",
+      "info": "下載此 QR Code 並貼在機器上以快速存取檔案。",
+      "download": "下載 QR Code"
+    },
+    "preventiveCalendar": {
+      "title": "預防性維護日曆",
+      "subtitle": "檢視已建立的排程。"
+    }
+  },
+
+  "calendar": {
+    "previous": "上一頁",
+    "today": "今天",
+    "next": "下一頁",
+    "month": "月",
+    "week": "週",
+    "day": "日",
+    "agenda": "議程",
+    "date": "日期",
+    "time": "時間",
+    "showMore": "+{{total}} 更多"
+  },
+
+  "common": {
+    "loading": "載入中...",
+    "processing": "處理中...",
+    "saving": "儲存中...",
+    "deleting": "刪除中...",
+    "yes": "是",
+    "no": "否",
+    "manager": "經理",
+    "maintainer": "維護員",
+    "logout": "登出"
+  },
+
+  "chamadoDetalhe": {
+    "notFound": "找不到工單。",
+    "header": {
+      "machine": "機器：{{name}}",
+      "openedBy": "由 {{name}} 於 {{date}} 開啟"
+    },
+    "fields": {
+      "status": "狀態",
+      "takenBy": "承辦人",
+      "assignedTo": "指派給",
+      "reportedProblem": "回報問題",
+      "checklistDone": "檢查表完成",
+      "performedService": "執行的作業",
+      "finishedAt": "完成於：{{date}}",
+      "cause": "故障原因"
+    },
+    "of": "之",
+    "selects": {
+      "causePlaceholder": "選擇原因..."
+    },
+    "assign": {
+      "title": "指派維護員",
+      "label": "選擇維護員",
+      "placeholder": "— 請選擇 —",
+      "assign": "指派",
+      "reassign": "重新指派",
+      "remove": "移除指派"
+    },
+    "history": {
+      "title": "備註紀錄",
+      "add": "新增備註",
+      "saveNote": "儲存備註",
+      "empty": "尚無備註紀錄。",
+      "assigned": "由 {{by}} 指派給 {{assignee}}",
+      "unassigned": "由 {{by}} 移除指派",
+      "taken": "工單由 {{by}} 接手處理"
+    },
+    "actions": {
+      "take": "接手工單",
+      "finish": "完成工單",
+      "finishing": "完成中...",
+      "preventive": "維護檢查表",
+      "corrective": {
+        "title": "登錄解決方案並完成",
+        "solutionLabel": "執行的作業／採用的解決方案"
+      }
+    },
+    "delete": {
+      "title": "永久刪除此工單",
+      "button": "刪除工單",
+      "confirm": "確定要刪除此工單嗎？此動作無法復原。"
+    },
+    "toasts": {
+      "loadError": "載入工單時發生錯誤。",
+      "listMaintDenied": "無權限檢視維護員清單。",
+      "selectMaint": "請選擇一位維護員。",
+      "assigned": "工單已指派。",
+      "assignError": "指派工單時發生錯誤。",
+      "unassigned": "已移除指派。",
+      "unassignError": "移除指派時發生錯誤。",
+      "assignedToOther": "此工單已指派給其他維護員。",
+      "taken": "工單已接手。",
+      "takeError": "接手工單時發生錯誤。",
+      "noteAdded": "已新增備註。",
+      "noteError": "新增備註時發生錯誤。",
+      "finishOnlyOwner": "只有接手的維護員可以完成此工單。",
+      "selectCause": "完成前請先選擇故障原因。",
+      "describeService": "請描述執行的作業。",
+      "autoCorrective": "預防性檢查表項目「否」：『{{item}}』",
+      "autoBy": "系統（由 {{name}} 的預防性維護產生）",
+      "autoOpened": "已自動開啟 {{count}} 件矯正性工單。",
+      "finished": "工單完成成功！",
+      "finishError": "完成工單時發生錯誤。",
+      "onlyManagerDelete": "只有經理可以刪除此工單。",
+      "deleted": "工單刪除成功。",
+      "deleteError": "刪除工單時發生錯誤。"
+    },
+    "preventive": {
+      "title": "維護檢查表"
+    }
+  },
+
+  "calendarioGeral": {
+    "title": "維護總日曆",
+    "loading": "正在載入排程...",
+    "legend": {
+      "overdue": "已逾期",
+      "today": "今天",
+      "future": "未來",
+      "started": "已開始",
+      "finished": "已完成",
+      "finishedLate": "延遲完成"
+    },
+    "details": {
+      "machine": "機器：",
+      "description": "描述：",
+      "currentDate": "目前日期：",
+      "originalDate": "原始日期：",
+      "status": "狀態：",
+      "finishedAt": "完成日期：",
+      "checklistTitle": "任務檢查表："
+    },
+    "actions": {
+      "startNow": "立即開始維護",
+      "delete": "刪除排程"
+    },
+    "confirm": {
+      "startNow": "要立即開始維護「{{title}}」嗎？",
+      "delete": "確定刪除排程「{{title}}」嗎？"
+    },
+    "generated": {
+      "callDesc": "預防性維護排程：{{title}}",
+      "openedBy": "系統（由 {{name}} 啟動）"
+    },
+    "toasts": {
+      "fillAll": "請填寫所有欄位。",
+      "created": "排程建立成功！",
+      "callCreated": "已建立工單並啟動排程！",
+      "startFail": "無法開始維護。",
+      "rescheduleFail": "重新排程失敗。",
+      "deleted": "排程刪除成功！",
+      "deleteFail": "刪除排程失敗。"
+    },
+    "new": {
+      "title": "排程維護",
+      "machine": "機器",
+      "description": "描述",
+      "importTemplate": "從先前排程匯入檢查表",
+      "selectPlaceholder": "請選擇...",
+      "none": "無",
+      "itemsLabel": "檢查表項目（每行一項）",
+      "save": "儲存排程"
+    }
+  },
+
+  "historico": {
+    "title": "維護歷史",
+    "loading": "正在載入歷史...",
+    "empty": "所選篩選條件下沒有已完成的工單。",
+    "export": {
+      "downloadExcel": "下載 Excel",
+      "downloadPdf": "下載 PDF",
+      "sheetName": "工單",
+      "columns": {
+        "machine": "機器",
+        "callType": "工單類型",
+        "openedAt": "開啟於",
+        "attendedBy": "承辦人",
+        "performedService": "執行的作業",
+        "cause": "故障原因",
+        "concludedAt": "完成日期",
+        "problem": "問題"
+      }
+    },
+    "filters": {
+      "byType": "依工單類型篩選：",
+      "byMachine": "依機器篩選：",
+      "typeOptions": {
+        "all": "全部",
+        "corrective": "矯正性",
+        "preventive": "預防性",
+        "predictive": "預測性"
+      },
+      "machineOptions": {
+        "all": "全部"
+      }
+    },
+    "item": {
+      "machine": "機器：{{name}}",
+      "attendedBy": "承辦人：{{name}}",
+      "unknown": "未標明",
+      "concludedAt": "完成於：{{date}}",
+      "problem": "問題：",
+      "notSpecified": "未指定"
+    }
+  },
+
+  "estoque": {
+    "title": "維護庫存管理",
+    "loading": "正在載入零件...",
+    "empty": "尚無登錄的零件。",
+    "toolbar": {
+      "new": "+ 新零件",
+      "exportExcel": "匯出 Excel",
+      "exportPdf": "匯出 PDF"
+    },
+    "card": {
+      "labels": {
+        "code": "代碼：",
+        "category": "類別：",
+        "stock": "庫存：",
+        "min": "最小值：",
+        "location": "位置："
+      },
+      "buttons": {
+        "in": "入庫",
+        "out": "出庫",
+        "edit": "編輯",
+        "delete": "刪除"
+      }
+    },
+    "confirm": {
+      "delete": "確定要刪除此零件嗎？"
+    },
+    "toasts": {
+      "deleted": "零件刪除成功！",
+      "deleteFail": "刪除零件失敗。"
+    },
+    "export": {
+      "sheetName": "庫存",
+      "columns": {
+        "code": "代碼",
+        "name": "名稱",
+        "category": "類別",
+        "stock": "庫存",
+        "min": "最小值",
+        "location": "位置"
+      }
+    }
+  },
+
+  "analiseFalhas": {
+    "title": "矯正性故障分析",
+    "loading": "資料分析中...",
+    "filters": {
+      "start": "開始：",
+      "end": "結束：",
+      "clear": "清除"
+    },
+    "chart": {
+      "title": "各機器的矯正性故障分佈",
+      "dataset": "矯正性故障數量",
+      "xLabel": "機器",
+      "yLabel": "數量"
+    }
+  },
+
+  "causas": {
+    "titleCrud": "管理根本原因",
+    "titlePareto": "故障帕累托圖",
+    "form": {
+      "placeholder": "新增原因",
+      "add": "新增"
+    },
+    "list": {
+      "delete": "刪除"
+    },
+    "confirm": {
+      "delete": "要刪除此原因嗎？"
+    },
+    "chart": {
+      "seriesCalls": "工單",
+      "seriesAccumPct": "累計百分比",
+      "xLabel": "原因",
+      "yLeft": "工單",
+      "yRight": "累計百分比"
+    }
+  },
+
+  "users": {
+    "title": "使用者管理",
+    "loading": "正在載入使用者...",
+    "actions": {
+      "create": "建立新使用者",
+      "edit": "編輯",
+      "delete": "刪除"
+    },
+    "table": {
+      "fullName": "全名",
+      "username": "使用者名稱",
+      "function": "角色",
+      "actions": "操作"
+    },
+    "modal": {
+      "createTitle": "建立新使用者",
+      "editTitle": "編輯使用者"
+    },
+    "form": {
+      "fullName": "全名",
+      "tempPassword": "臨時密碼",
+      "role": "角色",
+      "saving": "儲存中...",
+      "saveChanges": "儲存變更",
+      "createUser": "建立使用者"
+    },
+    "roles": {
+      "operator": "操作員",
+      "maintainer": "維護員",
+      "manager": "經理"
+    },
+    "validation": {
+      "fullName": "請輸入名與姓。"
+    },
+    "confirm": {
+      "delete": "要刪除使用者 {{name}} 嗎？"
+    },
+    "toasts": {
+      "created": "使用者 {{name}} 建立成功！",
+      "updated": "使用者更新成功！",
+      "saveError": "儲存使用者時發生錯誤。",
+      "deleted": "使用者刪除成功！",
+      "deleteError": "刪除使用者時發生錯誤。",
+      "authClaimNotSet": "尚未設定 Auth 權限。",
+      "authClaimNotUpdated": "Auth 權限未更新。"
+    }
+  },
+
+  "layout": {
+    "sections": {
+      "manageMaintenance": "管理維護",
+      "analytics": "分析與 KPI",
+      "managePeople": "管理團隊"
+    }
+  },
+
+  "dashboard": {
+    "operator": "操作員面板",
+    "maintainer": "維護面板",
+    "manager": "經理面板"
+  },
+
+  "meusChamados": {
+    "title": "我的工單",
+    "loginFirst": "請先登入以查看您的工單。",
+    "filters": {
+      "statusTitle": "依狀態篩選",
+      "active": "開啟與進行中",
+      "all": "全部",
+      "closed": "已關閉",
+      "searchPlaceholder": "以機器或描述搜尋..."
+    },
+    "footerTip": "小技巧：使用「已關閉」篩選來查看個人歷史。",
+    "loading": "載入中...",
+    "empty": "找不到工單。",
+    "table": {
+      "hash": "#",
+      "machine": "機器",
+      "description": "描述",
+      "status": "狀態",
+      "assignedAt": "指派於",
+      "openedAt": "開啟於",
+      "open": "開啟"
+    }
+  },
+
+  "inicioTurno": {
+    "title": "班次開始",
+    "greeting": "您好，{{name}}。請填寫您的班次與今日負責的機器。",
+    "loading": "載入中...",
+    "fields": {
+      "shift": "您的班次",
+      "machinesLabel": "您今日負責的機器（可選一台或多台）"
+    },
+    "shifts": {
+      "shift1": "第一班（05:30 - 15:18）",
+      "shift2": "第二班（15:18 - 00:48）"
+    },
+    "confirmBtn": "確認並開始檢查表",
+    "alert": {
+      "selectOne": "請至少選擇一台機器。"
+    }
+  },
+
+  "tarefasDiarias": {
+    "title": "每日任務",
+    "greeting": "您好，{{name}}。以下為您此班次待辦的檢查表。",
+    "checking": "正在檢查任務...",
+    "allDone": "您已完成此班次的所有檢查表，做得好！",
+    "fillChecklist": "填寫檢查表"
+  },
+
+  "checklist": {
+    "notFound": "找不到機器。",
+    "loading": "正在載入檢查表...",
+    "title": "每日檢查表：{{machine}}",
+    "greeting": "您好，{{name}}。請完成下列檢查：",
+    "empty": "尚未設定檢查表。",
+    "yes": "是",
+    "no": "否",
+    "alreadyReported": "已在工單 {{id}} 中回報",
+    "toastAlreadyReported": "⚠️ 此項目已在工單 {{id}} 中回報。",
+    "generatedDescription": "每日檢查表項目標記為「否」：『{{item}}』",
+    "send": "送出檢查表",
+    "sending": "送出中...",
+    "toastSent": "檢查表已送出！已產生 {{count}} 張工單。",
+    "toastFail": "無法送出檢查表。"
+  },
+
+  "operatorDashboard": {
+    "form": {
+      "title": "開啟新工單",
+      "selectMachine": "選擇機器",
+      "choosePlaceholder": "請選擇一台機器...",
+      "problem": "問題描述",
+      "problemPlaceholder": "請詳細描述發現的問題...",
+      "open": "開啟工單",
+      "sending": "送出中...",
+      "required": "請選擇機器並描述問題。",
+      "opened": "已成功為機器 {{machine}} 開啟工單！",
+      "error": "開啟工單時發生錯誤。"
+    },
+    "list": {
+      "title": "工單歷史",
+      "loading": "正在載入工單...",
+      "empty": "您尚未開啟任何工單。",
+      "machine": "機器：{{name}}",
+      "openedAt": "開啟於：{{date}}"
+    }
+  }
+}

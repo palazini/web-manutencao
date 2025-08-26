@@ -1,5 +1,3 @@
-// src/pages/AnaliseFalhasPage.jsx
-
 import React, { useState, useEffect, useMemo } from 'react';
 import { db } from '../firebase';
 import { collection, query, onSnapshot, where, orderBy } from 'firebase/firestore';
@@ -16,16 +14,13 @@ import {
   Legend
 } from 'chart.js';
 
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  Title,
-  Tooltip,
-  Legend
-);
+import { useTranslation } from 'react-i18next';
+
+ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
 const AnaliseFalhasPage = () => {
+  const { t } = useTranslation();
+
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate]     = useState(null);
   const [chamadosCorretivos, setChamadosCorretivos] = useState([]);
@@ -33,9 +28,7 @@ const AnaliseFalhasPage = () => {
 
   useEffect(() => {
     const constraints = [where('tipo', '==', 'corretiva')];
-    if (startDate) {
-      constraints.push(where('dataConclusao', '>=', startDate));
-    }
+    if (startDate) constraints.push(where('dataConclusao', '>=', startDate));
     if (endDate) {
       const endOfDay = new Date(endDate);
       endOfDay.setHours(23, 59, 59, 999);
@@ -59,42 +52,45 @@ const AnaliseFalhasPage = () => {
     });
     const sorted = Object.entries(falhasPorMaquina).sort(([, a], [, b]) => b - a);
     return {
-      labels: sorted.map(item => item[0]),
+      labels: sorted.map(([nome]) => nome),
       datasets: [{
-        label: 'Nº de Falhas Corretivas',
-        data: sorted.map(item => item[1]),
+        label: t('analiseFalhas.chart.dataset'),
+        data: sorted.map(([, count]) => count),
         backgroundColor: '#4B70E2',
         borderColor: '#3a56b3',
         borderWidth: 1
       }]
     };
-  }, [chamadosCorretivos]);
+  }, [chamadosCorretivos, t]);
 
-  const chartOptions = {
+  const chartOptions = useMemo(() => ({
     responsive: true,
     maintainAspectRatio: false,
     plugins: {
       legend: { position: 'top' },
-      title: { display: true, text: 'Distribuição de Falhas Corretivas por Máquina', font: { size: 18 } }
+      title: { display: true, text: t('analiseFalhas.chart.title'), font: { size: 18 } }
     },
-    scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }
-  };
+    scales: {
+      x: { title: { display: true, text: t('analiseFalhas.chart.xLabel') } },
+      y: { beginAtZero: true, ticks: { stepSize: 1 }, title: { display: true, text: t('analiseFalhas.chart.yLabel') } }
+    }
+  }), [t]);
 
   return (
     <>
-      {/* Apenas o header dentro de seu card */}
+      {/* Cabeçalho no card, como no seu layout */}
       <div className={styles.card}>
         <header className={styles.header}>
-          <h1>Análise de Falhas Corretivas</h1>
+          <h1>{t('analiseFalhas.title')}</h1>
         </header>
       </div>
 
       <main className={styles.main}>
-        {/* Card contendo filtro e gráfico */}
+        {/* Filtros + gráfico dentro do card */}
         <div className={styles.card}>
           <div className={styles.filterContainer}>
             <div>
-              <label htmlFor="startDate">Início:</label>
+              <label htmlFor="startDate">{t('analiseFalhas.filters.start')}</label>
               <input
                 type="date"
                 id="startDate"
@@ -103,7 +99,7 @@ const AnaliseFalhasPage = () => {
               />
             </div>
             <div>
-              <label htmlFor="endDate">Fim:</label>
+              <label htmlFor="endDate">{t('analiseFalhas.filters.end')}</label>
               <input
                 type="date"
                 id="endDate"
@@ -112,15 +108,15 @@ const AnaliseFalhasPage = () => {
               />
             </div>
             <button
-            className={styles.clearButton}
-            onClick={() => { setStartDate(null); setEndDate(null); }}
-          >
-            Limpar
-          </button>
+              className={styles.clearButton}
+              onClick={() => { setStartDate(null); setEndDate(null); }}
+            >
+              {t('analiseFalhas.filters.clear')}
+            </button>
           </div>
 
           {loading ? (
-            <p>Analisando dados...</p>
+            <p>{t('analiseFalhas.loading')}</p>
           ) : (
             <div className={styles.chartContainer}>
               <Bar options={chartOptions} data={chartData} />

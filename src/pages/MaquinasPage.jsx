@@ -1,5 +1,3 @@
-// src/pages/MaquinasPage.jsx
-
 import React, { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { db } from '../firebase';
@@ -8,8 +6,10 @@ import toast from 'react-hot-toast';
 import styles from './MaquinasPage.module.css';
 import Modal from '../components/Modal.jsx';
 import { FiPlus } from 'react-icons/fi';
+import { useTranslation } from 'react-i18next';
 
 const MaquinasPage = () => {
+  const { t } = useTranslation();
   const [maquinas, setMaquinas] = useState([]);
   const [chamadosAtivos, setChamadosAtivos] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -27,7 +27,7 @@ const MaquinasPage = () => {
       setChamadosAtivos(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
       setLoading(false);
     });
-    
+
     return () => {
       unsubMaquinas();
       unsubChamados();
@@ -61,23 +61,20 @@ const MaquinasPage = () => {
   const handleCriarMaquina = async (e) => {
     e.preventDefault();
     if (nomeNovaMaquina.trim() === '') {
-      toast.error("O nome da máquina não pode ser vazio.");
+      toast.error(t('maquinas.toasts.nameRequired'));
       return;
     }
     try {
       await addDoc(collection(db, 'maquinas'), {
         nome: nomeNovaMaquina,
         checklistDiario: [],
-        operadoresPorTurno: {
-          turno1: [],
-          turno2: [],
-        },
+        operadoresPorTurno: { turno1: [], turno2: [] },
       });
-      toast.success(`Máquina "${nomeNovaMaquina}" criada com sucesso!`);
+      toast.success(t('maquinas.toasts.created', { name: nomeNovaMaquina }));
       setNomeNovaMaquina('');
       setIsModalOpen(false);
     } catch (error) {
-      toast.error("Erro ao criar a máquina.");
+      toast.error(t('maquinas.toasts.createError'));
       console.error(error);
     }
   };
@@ -85,44 +82,48 @@ const MaquinasPage = () => {
   return (
     <>
       <header style={{ padding: '20px', backgroundColor: '#ffffff', borderBottom: '1px solid #e0e0e0' }}>
-        <h1>Painel de Máquinas</h1>
+        <h1>{t('maquinas.title')}</h1>
       </header>
+
       <div style={{ padding: '20px' }}>
         {loading ? (
-          <p>Carregando máquinas...</p>
+          <p>{t('maquinas.loading')}</p>
         ) : (
           <>
             <div className={styles.legendContainer}>
               <div className={styles.legendItem}>
-                <div className={`${styles.legendColorBox} ${styles.statusCorretiva}`}></div>
-                <span>Corretiva (Urgente)</span>
+                <div className={`${styles.legendColorBox} ${styles.statusCorretiva}`} />
+                <span>{t('maquinas.legend.corretiva')}</span>
               </div>
               <div className={styles.legendItem}>
-                <div className={`${styles.legendColorBox} ${styles.statusPreventiva}`}></div>
-                <span>Preventiva (Agendada)</span>
+                <div className={`${styles.legendColorBox} ${styles.statusPreventiva}`} />
+                <span>{t('maquinas.legend.preventiva')}</span>
               </div>
               <div className={styles.legendItem}>
-                <div className={`${styles.legendColorBox} ${styles.statusPreditiva}`}></div>
-                <span>Preditiva (Checklist Operadores)</span>
+                <div className={`${styles.legendColorBox} ${styles.statusPreditiva}`} />
+                <span>{t('maquinas.legend.preditiva')}</span>
               </div>
             </div>
 
             <div className={styles.grid}>
               {maquinasComStatus.map(maquina => (
-                <Link 
-                  to={`/maquinas/${maquina.id}`} 
-                  key={maquina.id} 
+                <Link
+                  to={`/maquinas/${maquina.id}`}
+                  key={maquina.id}
                   className={`${styles.card} ${getStatusClass(maquina.statusDestaque)}`}
                 >
                   <h2>{maquina.nome}</h2>
-                  <p>Clique para exibir detalhes</p>
+                  <p>{t('maquinas.cardHint')}</p>
                 </Link>
               ))}
 
-              {/* CARD DE ADICIONAR SIMPLIFICADO */}
-              <div 
+              {/* CARD DE ADICIONAR */}
+              <div
                 className={`${styles.card} ${styles.addCard}`}
                 onClick={() => setIsModalOpen(true)}
+                role="button"
+                aria-label={t('maquinas.modal.title')}
+                title={t('maquinas.modal.title')}
               >
                 <FiPlus className={styles.addIcon} />
               </div>
@@ -131,25 +132,30 @@ const MaquinasPage = () => {
         )}
       </div>
 
-      <Modal 
-        isOpen={isModalOpen} 
+      <Modal
+        isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        title="Criar Nova Máquina"
+        title={t('maquinas.modal.title')}
       >
         <form onSubmit={handleCriarMaquina}>
-          <div style={{marginBottom: '15px'}}>
-            <label htmlFor="nome-maquina" style={{display: 'block', marginBottom: '5px', fontWeight: '500'}}>Nome da Máquina</label>
-            <input 
+          <div style={{ marginBottom: '15px' }}>
+            <label htmlFor="nome-maquina" style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>
+              {t('maquinas.modal.nameLabel')}
+            </label>
+            <input
               id="nome-maquina"
               type="text"
               value={nomeNovaMaquina}
               onChange={(e) => setNomeNovaMaquina(e.target.value)}
-              style={{width: '100%', padding: '8px', boxSizing: 'border-box'}}
+              style={{ width: '100%', padding: '8px', boxSizing: 'border-box' }}
               required
             />
           </div>
-          <button type="submit" style={{padding: '10px 15px', border: 'none', borderRadius: '4px', backgroundColor: '#4B70E2', color: 'white', cursor: 'pointer'}}>
-            Salvar Máquina
+          <button
+            type="submit"
+            style={{ padding: '10px 15px', border: 'none', borderRadius: '4px', backgroundColor: '#4B70E2', color: 'white', cursor: 'pointer' }}
+          >
+            {t('maquinas.modal.save')}
           </button>
         </form>
       </Modal>

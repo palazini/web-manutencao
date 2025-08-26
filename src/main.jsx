@@ -5,6 +5,7 @@ import 'react-big-calendar/lib/css/react-big-calendar.css';
 import App from './App.jsx';
 import './index.css';
 import { registerSW } from 'virtual:pwa-register'
+import './i18n';
 
 const updateSW = registerSW({
   onNeedRefresh() {

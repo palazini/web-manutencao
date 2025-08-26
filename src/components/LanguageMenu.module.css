@@ -1,0 +1,74 @@
+.menuRoot {
+  position: relative;
+}
+
+/* Botão “chip” com idioma atual */
+.langBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 999px;
+  padding: 6px 10px;
+  cursor: pointer;
+  line-height: 1;
+  transition: box-shadow .15s ease, border-color .15s ease, transform .05s ease;
+}
+.langBtn:hover { box-shadow: 0 2px 8px rgba(0,0,0,.08); }
+.langBtn:active { transform: translateY(1px); }
+.langBtn:focus-visible {
+  outline: 2px solid #4f46e5;
+  outline-offset: 2px;
+}
+
+.flagWrap svg {
+  width: 20px;
+  height: 14px;
+  display: block;
+}
+.langCode {
+  font-weight: 600;
+  font-size: 12px;
+  color: #334155;
+}
+
+/* Popover */
+.langList {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  min-width: 190px;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 6px;
+  box-shadow: 0 10px 30px rgba(0,0,0,.12);
+  z-index: 50;
+}
+
+/* Itens do menu */
+.langItem {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 24px 1fr auto;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  border-radius: 8px;
+  color: #0f172a;
+  text-align: left;
+}
+.langItem:hover { background: #f8fafc; }
+.langItem:disabled {
+  opacity: .7;
+  cursor: default;
+}
+.langItemActive {
+  background: #eef2ff;
+}
+.langLabel { font-size: 14px; }
+.langCodeSmall { font-size: 12px; color: #64748b; }

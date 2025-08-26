@@ -1,34 +1,34 @@
-// src/pages/ChecklistPage.jsx
-
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import styles from './ChecklistPage.module.css';
-import { 
+import {
   collection, addDoc, serverTimestamp,
   doc, getDoc,
   query, where, onSnapshot, getDocs, limit
 } from 'firebase/firestore';
 import { db } from '../firebase';
 import toast from 'react-hot-toast';
+import { useTranslation } from 'react-i18next';
 
 const ChecklistPage = ({ user }) => {
   const { maquinaId } = useParams();
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const [maquina, setMaquina] = useState(null);
   const [perguntas, setPerguntas] = useState([]);
   const [respostas, setRespostas] = useState({});
-  const [blockedItems, setBlockedItems] = useState({}); 
+  const [blockedItems, setBlockedItems] = useState({});
   const [loading, setLoading] = useState(true);
   const [enviando, setEnviando] = useState(false);
 
   const slugify = (s) =>
-  (s || '')
-    .trim()
-    .toLowerCase()
-    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
-    .replace(/[^a-z0-9]+/g, '_')
-    .replace(/^_|_$/g, '');
+    (s || '')
+      .trim()
+      .toLowerCase()
+      .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^a-z0-9]+/g, '_')
+      .replace(/^_|_$/g, '');
 
   // 1) Busca checklist da máquina
   useEffect(() => {
@@ -37,7 +37,7 @@ const ChecklistPage = ({ user }) => {
       const maquinaRef = doc(db, 'maquinas', maquinaId);
       const snap = await getDoc(maquinaRef);
       if (!snap.exists()) {
-        toast.error("Máquina não encontrada.");
+        toast.error(t('checklist.notFound'));
         setLoading(false);
         return;
       }
@@ -53,22 +53,21 @@ const ChecklistPage = ({ user }) => {
 
       setLoading(false);
     })();
-  }, [maquinaId]);
+  }, [maquinaId, t]);
 
-  // 2) Monitora em tempo real chamados abertos para esta máquina e constrói blockedItems
+  // 2) Monitora chamados abertos/andamento para esta máquina e marca bloqueios
   useEffect(() => {
     if (!maquinaId) return;
-    const q = query(
+    const qRef = query(
       collection(db, 'chamados'),
       where('maquinaId', '==', maquinaId),
       where('tipo', '==', 'preditiva'),
       where('status', 'in', ['Aberto','Em Andamento'])
     );
-    const unsub = onSnapshot(q, snap => {
+    const unsub = onSnapshot(qRef, snap => {
       const bloqueios = {};
       snap.docs.forEach(d => {
         const data = d.data();
-        // usa a mesma key que será usada no envio
         const key = data.checklistItemKey || slugify(data.item);
         bloqueios[key] = d.id;
       });
@@ -80,7 +79,7 @@ const ChecklistPage = ({ user }) => {
   const handleRespostaChange = (pergunta, valor) => {
     const key = slugify(pergunta);
     if (valor === 'nao' && blockedItems[key]) {
-      toast(`⚠️ Este item já está reportado no chamado ${blockedItems[key]}.`);
+      toast(t('checklist.toastAlreadyReported', { id: blockedItems[key] }));
       return;
     }
     setRespostas(prev => ({ ...prev, [pergunta]: valor }));
@@ -97,8 +96,7 @@ const ChecklistPage = ({ user }) => {
           const key = slugify(pergunta);
           // só cria se não houver bloqueio (snapshot) E não existir no servidor agora
           if (!blockedItems[key]) {
-            // checagem final (servidor) para evitar desatualização local
-            const q = query(
+            const qChk = query(
               collection(db, 'chamados'),
               where('maquinaId', '==', maquinaId),
               where('tipo', '==', 'preditiva'),
@@ -106,19 +104,17 @@ const ChecklistPage = ({ user }) => {
               where('status', 'in', ['Aberto','Em Andamento']),
               limit(1)
             );
-            const snap = await getDocs(q);
-            if (!snap.empty) {
-              continue; // já existe aberto/andamento para este item
-            }
+            const snap = await getDocs(qChk);
+            if (!snap.empty) continue;
 
             await addDoc(collection(db, 'chamados'), {
-              maquina: maquina.nome,
+              maquina: maquina?.nome,
               maquinaId,
               item: pergunta,
               checklistItemKey: key,
-              descricao: `Item do checklist diário reportado como "Não": "${pergunta}"`,
-              status: "Aberto",
-              tipo: "preditiva",
+              descricao: t('checklist.generatedDescription', { item: pergunta }),
+              status: 'Aberto',
+              tipo: 'preditiva',
               operadorId: user.uid,
               operadorNome: user.nome,
               dataAbertura: serverTimestamp(),
@@ -132,33 +128,34 @@ const ChecklistPage = ({ user }) => {
         operadorId: user.uid,
         operadorNome: user.nome,
         maquinaId,
-        maquinaNome: maquina.nome,
+        maquinaNome: maquina?.nome,
         dataSubmissao: serverTimestamp(),
         respostas
       });
 
-      toast.success(`Checklist enviado! ${gerados} chamado(s) gerado(s).`);
+      toast.success(t('checklist.toastSent', { count: gerados }));
       navigate('/');
     } catch (err) {
       console.error(err);
-      toast.error("Não foi possível enviar o checklist.");
+      toast.error(t('checklist.toastFail'));
     } finally {
       setLoading(false);
       setEnviando(false);
     }
   };
 
-  if (loading) return <p>Carregando checklist...</p>;
+  if (loading) return <p>{t('checklist.loading')}</p>;
 
   return (
     <div className={styles.pageContainer}>
       <div className={styles.card}>
         <div className={styles.header}>
-          <h1>Checklist Diário: {maquina.nome}</h1>
-          <p>Olá, {user.nome}. Complete o checklist abaixo:</p>
+          <h1>{t('checklist.title', { machine: maquina?.nome || '' })}</h1>
+          <p>{t('checklist.greeting', { name: user?.nome || '' })}</p>
         </div>
 
-        {perguntas.length === 0 && <p>Nenhum checklist configurado.</p>}
+        {perguntas.length === 0 && <p>{t('checklist.empty')}</p>}
+
         {perguntas.map((pergunta, i) => {
           const key = slugify(pergunta);
           const isBlocked = Boolean(blockedItems[key]);
@@ -173,7 +170,7 @@ const ChecklistPage = ({ user }) => {
                   checked={respostas[pergunta] === 'sim'}
                   onChange={() => handleRespostaChange(pergunta, 'sim')}
                 />
-                <label htmlFor={`sim-${i}`}>Sim</label>
+                <label htmlFor={`sim-${i}`}>{t('checklist.yes')}</label>
 
                 <input
                   type="radio"
@@ -184,9 +181,11 @@ const ChecklistPage = ({ user }) => {
                   onChange={() => handleRespostaChange(pergunta, 'nao')}
                   style={{ marginLeft: '1rem' }}
                 />
-                <label htmlFor={`nao-${i}`}>Não</label>
+                <label htmlFor={`nao-${i}`}>{t('checklist.no')}</label>
 
-                {isBlocked && (<small>Já reportado no chamado {blockedItems[key]}</small>)}
+                {isBlocked && (
+                  <small>{t('checklist.alreadyReported', { id: blockedItems[key] })}</small>
+                )}
               </div>
             </div>
           );
@@ -198,7 +197,7 @@ const ChecklistPage = ({ user }) => {
             className={styles.submitButton}
             disabled={loading}
           >
-            {loading ? 'Enviando...' : 'Enviar Checklist'}
+            {loading ? t('checklist.sending') : t('checklist.send')}
           </button>
         </div>
       </div>

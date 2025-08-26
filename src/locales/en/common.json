@@ -1,0 +1,648 @@
+{
+  "appTitle": "Maintenance Panel",
+
+  "nav": {
+    "home": "Home",
+    "profile": "My Profile",
+    "machines": "Machines",
+    "myCalls": "My Work Orders",
+    "calendar": "General Calendar",
+    "history": "History",
+    "inventory": "Inventory",
+    "failures": "Failure Analysis",
+    "rootCauses": "Root Causes",
+    "manageUsers": "Manage Users",
+    "activeCalls": "active work order(s)"
+  },
+
+  "status": {
+    "open": "Open",
+    "in_progress": "In Progress",
+    "closed": "Closed",
+    "cancelled": "Cancelled"
+  },
+
+  "login": {
+    "title": "Login",
+    "subtitle": "Use your account",
+    "userOrEmail": "E-mail or Username",
+    "password": "Password",
+    "invalid": "Invalid username or password.",
+    "next": "Next",
+    "loading": "Logging in..."
+  },
+
+  "inicio": {
+    "title": "Home Page",
+    "welcome": "Welcome back, <1>{{name}}</1>!",
+    "quickAccess": "Quick Access",
+    "cards": {
+      "machines": {
+        "title": "Machines Panel",
+        "desc": "View and manage the records of all equipment."
+      },
+      "myCalls": {
+        "title": "My Work Orders",
+        "desc": "View and manage the work orders assigned to you."
+      },
+      "calendar": {
+        "title": "General Calendar",
+        "desc": "See the complete overview of all maintenance schedules."
+      },
+      "history": {
+        "title": "General History",
+        "desc": "Check all completed maintenance work orders."
+      },
+      "inventory": {
+        "title": "Inventory",
+        "desc": "Track parts stock in and out."
+      },
+      "failureAnalysis": {
+        "title": "Failure Analysis",
+        "desc": "View statistics and machine failure reports."
+      },
+      "rootCauses": {
+        "title": "Root Causes",
+        "desc": "Identify and manage the root causes of failures."
+      },
+      "manageUsers": {
+        "title": "Manage Users",
+        "desc": "Add, edit, or remove team members."
+      },
+      "profile": {
+        "title": "My Profile",
+        "desc": "View your information and change your password."
+      }
+    }
+  },
+
+  "perfil": {
+    "title": "My Profile",
+    "info": {
+      "title": "My Information",
+      "name": "Name",
+      "email": "E-mail",
+      "role": "Role"
+    },
+    "changePassword": {
+      "title": "Change Password",
+      "current": "Current Password",
+      "new": "New Password",
+      "confirm": "Confirm New Password"
+    },
+    "actions": {
+      "save": "Change Password",
+      "saving": "Changing..."
+    },
+    "toasts": {
+      "mismatch": "New passwords do not match.",
+      "short": "The new password must be at least 6 characters long.",
+      "wrongPassword": "The current password is incorrect.",
+      "generic": "An error occurred while changing the password.",
+      "success": "Password successfully changed!"
+    }
+  },
+
+  "maquinas": {
+    "title": "Machines Panel",
+    "loading": "Loading machines...",
+    "legend": {
+      "corretiva": "Corrective (Urgent)",
+      "preventiva": "Preventive (Scheduled)",
+      "preditiva": "Predictive (Operators Checklist)"
+    },
+    "cardHint": "Click to view details",
+    "modal": {
+      "title": "Create New Machine",
+      "nameLabel": "Machine Name",
+      "save": "Save Machine"
+    },
+    "toasts": {
+      "nameRequired": "The machine name cannot be empty.",
+      "created": "Machine \"{{name}}\" successfully created!",
+      "createError": "Error creating the machine."
+    }
+  },
+
+  "maquinaDetalhe": {
+    "loading": "Loading machine data...",
+    "notFound": "Machine not found.",
+    "subtitle": "Complete machine record and maintenance history.",
+    "tabs": {
+      "active": "Active Work Orders",
+      "history": "History",
+      "preventive": "Preventive",
+      "checklist": "Daily Checklist",
+      "qrcode": "QR Code"
+    },
+    "listas": {
+      "activeTitle": "Active Work Orders for {{name}}",
+      "activeEmpty": "No active work orders.",
+      "historyTitle": "History of {{name}}",
+      "historyEmpty": "No completed work orders.",
+      "statusLabel": "Status: {{status}}",
+      "openedAt": "Opened on: {{date}}"
+    },
+    "legend": {
+      "overdue": "Overdue",
+      "today": "Today",
+      "future": "Future",
+      "started": "Started",
+      "finished": "Finished"
+    },
+    "checklist": {
+      "title": "Daily Checklist Items for {{name}}",
+      "empty": "No checklist items registered for this machine.",
+      "remove": "Remove Item",
+      "placeholder": "Add new verification item",
+      "add": "Add",
+      "historyTitle": "Daily Compliance History",
+      "columns": {
+        "date": "Date",
+        "turn1": "1st Shift",
+        "turn2": "2nd Shift"
+      },
+      "pending": "Pending",
+      "confirmRemove": "Are you sure you want to remove the item \"{{item}}\"?"
+    },
+    "toasts": {
+      "itemEmpty": "The checklist item cannot be empty.",
+      "itemAdded": "Item added to checklist!",
+      "itemAddError": "Error adding the item.",
+      "itemRemoved": "Item removed from checklist!",
+      "itemRemoveError": "Error removing the item."
+    },
+    "agendar": {
+      "title": "Schedule Maintenance",
+      "descricao": "Description",
+      "itensLabel": "Checklist Items (one per line)",
+      "save": "Save Schedule",
+      "errors": {
+        "missing": "Fill in the description and at least one checklist item."
+      },
+      "toasts": {
+        "created": "Preventive maintenance scheduled!",
+        "error": "Error scheduling maintenance.",
+        "rescheduleError": "Failed to reschedule."
+      }
+    },
+    "evento": {
+      "descricao": "Description:",
+      "data": "Date:",
+      "status": "Status:",
+      "checklistTitle": "Task Checklist:",
+      "startNow": "Start Maintenance Now",
+      "confirmStart": "Are you sure you want to start maintenance \"{{title}}\" now?",
+      "callDesc": "Scheduled preventive maintenance: {{title}}",
+      "openedBy": "System (Started by {{name}})",
+      "toasts": {
+        "callCreated": "Maintenance work order successfully created!",
+        "startError": "Unable to start maintenance."
+      }
+    },
+    "qrcode": {
+      "title": "Quick Access QR Code",
+      "info": "Download this code and place it on the machine for quick access to the record.",
+      "download": "Download QR Code"
+    },
+    "preventiveCalendar": {
+      "title": "Preventive Maintenance Calendar",
+      "subtitle": "View already scheduled maintenance."
+    }
+  },
+
+  "calendar": {
+    "previous": "Previous",
+    "today": "Today",
+    "next": "Next",
+    "month": "Month",
+    "week": "Week",
+    "day": "Day",
+    "agenda": "Agenda",
+    "date": "Date",
+    "time": "Time",
+    "showMore": "+{{total}} more"
+  },
+
+  "common": {
+    "loading": "Loading...",
+    "processing": "Processing...",
+    "saving": "Saving...",
+    "deleting": "Deleting...",
+    "yes": "Yes",
+    "no": "No",
+    "manager": "Manager",
+    "maintainer": "Maintainer",
+    "logout": "Logout"
+  },
+
+  "chamadoDetalhe": {
+    "notFound": "Work order not found.",
+    "header": {
+      "machine": "Machine: {{name}}",
+      "openedBy": "Opened by {{name}} on {{date}}"
+    },
+    "fields": {
+      "status": "Status",
+      "takenBy": "Handled by",
+      "assignedTo": "Assigned to",
+      "reportedProblem": "Reported Problem",
+      "checklistDone": "Checklist Completed",
+      "performedService": "Service Performed",
+      "finishedAt": "Closed on: {{date}}",
+      "cause": "Failure Cause"
+    },
+    "of": "of",
+    "selects": {
+      "causePlaceholder": "Select the cause..."
+    },
+    "assign": {
+      "title": "Assign Maintainer",
+      "label": "Select Maintainer",
+      "placeholder": "— Select —",
+      "assign": "Assign",
+      "reassign": "Reassign",
+      "remove": "Remove Assignment"
+    },
+    "history": {
+      "title": "Observation History",
+      "add": "Add New Observation",
+      "saveNote": "Save Observation",
+      "empty": "No observations registered.",
+      "assigned": "Assigned to {{assignee}} by {{by}}",
+      "unassigned": "Assignment removed by {{by}}",
+      "taken": "Work order handled by {{by}}"
+    },
+    "actions": {
+      "take": "Handle Work Order",
+      "finish": "Close Work Order",
+      "finishing": "Closing...",
+      "preventive": "Maintenance Checklist",
+      "corrective": {
+        "title": "Register Solution and Close",
+        "solutionLabel": "Service Performed / Solution Applied"
+      }
+    },
+    "delete": {
+      "title": "Permanently delete this work order",
+      "button": "Delete Work Order",
+      "confirm": "Are you sure you want to delete this work order? This action is irreversible."
+    },
+    "toasts": {
+      "loadError": "Error loading work order.",
+      "listMaintDenied": "No permission to list maintainers.",
+      "selectMaint": "Select a maintainer.",
+      "assigned": "Work order assigned.",
+      "assignError": "Error assigning work order.",
+      "unassigned": "Assignment removed.",
+      "unassignError": "Error removing assignment.",
+      "assignedToOther": "This work order was assigned to another maintainer.",
+      "taken": "Work order handled.",
+      "takeError": "Error handling work order.",
+      "noteAdded": "Observation added.",
+      "noteError": "Error adding observation.",
+      "finishOnlyOwner": "Only the maintainer who handled can close this work order.",
+      "selectCause": "Select the failure cause before closing.",
+      "describeService": "Describe the service performed.",
+      "autoCorrective": "Preventive checklist item \"NO\": \"{{item}}\"",
+      "autoBy": "System (Generated from Preventive of {{name}})",
+      "autoOpened": "{{count}} corrective work order(s) automatically opened.",
+      "finished": "Work order successfully closed!",
+      "finishError": "An error occurred while closing.",
+      "onlyManagerDelete": "Only managers can delete the work order.",
+      "deleted": "Work order successfully deleted.",
+      "deleteError": "Error deleting the work order."
+    },
+    "preventive": {
+      "title": "Maintenance Checklist"
+    }
+  },
+
+  "calendarioGeral": {
+    "title": "General Maintenance Calendar",
+    "loading": "Loading schedules...",
+    "legend": {
+      "overdue": "Overdue",
+      "today": "Today",
+      "future": "Future",
+      "started": "Started",
+      "finished": "Finished",
+      "finishedLate": "Finished Late"
+    },
+    "details": {
+      "machine": "Machine:",
+      "description": "Description:",
+      "currentDate": "Current Date:",
+      "originalDate": "Original Date:",
+      "status": "Status:",
+      "finishedAt": "Completion Date:",
+      "checklistTitle": "Task Checklist:"
+    },
+    "actions": {
+      "startNow": "Start Maintenance Now",
+      "delete": "Delete Schedule"
+    },
+    "confirm": {
+      "startNow": "Start maintenance \"{{title}}\" now?",
+      "delete": "Are you sure you want to delete the schedule \"{{title}}\"?"
+    },
+    "generated": {
+      "callDesc": "Scheduled preventive maintenance: {{title}}",
+      "openedBy": "System (Started by {{name}})"
+    },
+    "toasts": {
+      "fillAll": "Fill in all fields.",
+      "created": "Schedule created!",
+      "callCreated": "Work order created and schedule started!",
+      "startFail": "Failed to start maintenance.",
+      "rescheduleFail": "Failed to reschedule.",
+      "deleted": "Schedule successfully deleted!",
+      "deleteFail": "Failed to delete schedule."
+    },
+    "new": {
+      "title": "Schedule Maintenance",
+      "machine": "Machine",
+      "description": "Description",
+      "importTemplate": "Import checklist from previous schedule",
+      "selectPlaceholder": "Select...",
+      "none": "None",
+      "itemsLabel": "Checklist Items (one per line)",
+      "save": "Save Schedule"
+    }
+  },
+
+  "historico": {
+    "title": "Maintenance History",
+    "loading": "Loading history...",
+    "empty": "No completed work orders for the selected filters.",
+    "export": {
+      "downloadExcel": "Download Excel",
+      "downloadPdf": "Download PDF",
+      "sheetName": "Work Orders",
+      "columns": {
+        "machine": "Machine",
+        "callType": "Work Order Type",
+        "openedAt": "Opened on",
+        "attendedBy": "Handled by",
+        "performedService": "Service Performed",
+        "cause": "Failure Cause",
+        "concludedAt": "Completion Date",
+        "problem": "Problem"
+      }
+    },
+    "filters": {
+      "byType": "Filter by work order type:",
+      "byMachine": "Filter by machine:",
+      "typeOptions": {
+        "all": "All",
+        "corrective": "Corrective",
+        "preventive": "Preventive",
+        "predictive": "Predictive"
+      },
+      "machineOptions": {
+        "all": "All"
+      }
+    },
+    "item": {
+      "machine": "Machine: {{name}}",
+      "attendedBy": "Handled by: {{name}}",
+      "unknown": "Not identified",
+      "concludedAt": "Closed on: {{date}}",
+      "problem": "Problem:",
+      "notSpecified": "Not specified"
+    }
+  },
+
+  "estoque": {
+    "title": "Maintenance Inventory Control",
+    "loading": "Loading parts...",
+    "empty": "No parts registered.",
+    "toolbar": {
+      "new": "+ New Part",
+      "exportExcel": "Export Excel",
+      "exportPdf": "Export PDF"
+    },
+    "card": {
+      "labels": {
+        "code": "Code:",
+        "category": "Category:",
+        "stock": "Stock:",
+        "min": "Minimum:",
+        "location": "Location:"
+      },
+      "buttons": {
+        "in": "Inbound",
+        "out": "Outbound",
+        "edit": "Edit",
+        "delete": "Delete"
+      }
+    },
+    "confirm": {
+      "delete": "Are you sure you want to delete this part?"
+    },
+    "toasts": {
+      "deleted": "Part successfully deleted!",
+      "deleteFail": "Failed to delete part."
+    },
+    "export": {
+      "sheetName": "Inventory",
+      "columns": {
+        "code": "Code",
+        "name": "Name",
+        "category": "Category",
+        "stock": "Stock",
+        "min": "Minimum",
+        "location": "Location"
+      }
+    }
+  },
+
+  "analiseFalhas": {
+    "title": "Corrective Failure Analysis",
+    "loading": "Analyzing data...",
+    "filters": {
+      "start": "Start:",
+      "end": "End:",
+      "clear": "Clear"
+    },
+    "chart": {
+      "title": "Distribution of Corrective Failures by Machine",
+      "dataset": "No. of Corrective Failures",
+      "xLabel": "Machine",
+      "yLabel": "Quantity"
+    }
+  },
+
+  "causas": {
+    "titleCrud": "Manage Root Causes",
+    "titlePareto": "Failures Pareto",
+    "form": {
+      "placeholder": "New cause",
+      "add": "Add"
+    },
+    "list": {
+      "delete": "Delete"
+    },
+    "confirm": {
+      "delete": "Delete this cause?"
+    },
+    "chart": {
+      "seriesCalls": "Work Orders",
+      "seriesAccumPct": "% Accumulated",
+      "xLabel": "Cause",
+      "yLeft": "Work Orders",
+      "yRight": "% Accumulated"
+    }
+  },
+
+  "users": {
+    "title": "User Management",
+    "loading": "Loading users...",
+    "actions": {
+      "create": "Create New User",
+      "edit": "Edit",
+      "delete": "Delete"
+    },
+    "table": {
+      "fullName": "Full Name",
+      "username": "Username",
+      "function": "Role",
+      "actions": "Actions"
+    },
+    "modal": {
+      "createTitle": "Create New User",
+      "editTitle": "Edit User"
+    },
+    "form": {
+      "fullName": "Full Name",
+      "tempPassword": "Temporary Password",
+      "role": "Role",
+      "saving": "Saving...",
+      "saveChanges": "Save Changes",
+      "createUser": "Create User"
+    },
+    "roles": {
+      "operator": "Operator",
+      "maintainer": "Maintainer",
+      "manager": "Manager"
+    },
+    "validation": {
+      "fullName": "Enter first and last name."
+    },
+    "confirm": {
+      "delete": "Delete user {{name}}?"
+    },
+    "toasts": {
+      "created": "User {{name}} successfully created!",
+      "updated": "User successfully updated!",
+      "saveError": "Error saving user.",
+      "deleted": "User successfully deleted!",
+      "deleteError": "Error deleting user.",
+      "authClaimNotSet": "Auth permission not set.",
+      "authClaimNotUpdated": "Auth permission not updated."
+    }
+  },
+
+  "layout": {
+    "sections": {
+      "manageMaintenance": "Manage Maintenance",
+      "analytics": "Analytics and KPIs",
+      "managePeople": "Manage Team"
+    }
+  },
+
+  "dashboard": {
+    "operator": "Operator Dashboard",
+    "maintainer": "Maintenance Dashboard",
+    "manager": "Manager Dashboard"
+  },
+
+  "meusChamados": {
+    "title": "My Work Orders",
+    "loginFirst": "Please log in to view your work orders.",
+    "filters": {
+      "statusTitle": "Filter by status",
+      "active": "Open & In Progress",
+      "all": "All",
+      "closed": "Closed",
+      "searchPlaceholder": "Search by machine or description..."
+    },
+    "footerTip": "Tip: use the “Closed” filter for your personal history.",
+    "loading": "Loading...",
+    "empty": "No work orders found.",
+    "table": {
+      "hash": "#",
+      "machine": "Machine",
+      "description": "Description",
+      "status": "Status",
+      "assignedAt": "Assigned on",
+      "openedAt": "Opened on",
+      "open": "Open"
+    }
+  },
+
+  "inicioTurno": {
+    "title": "Shift Start",
+    "greeting": "Hello, {{name}}. Please provide your shift and the machines you will be working on today.",
+    "loading": "Loading...",
+    "fields": {
+      "shift": "Your Shift",
+      "machinesLabel": "Machines under your responsibility today (select one or more)"
+    },
+    "shifts": {
+      "shift1": "1st Shift (05:30 - 15:18)",
+      "shift2": "2nd Shift (15:18 - 00:48)"
+    },
+    "confirmBtn": "Confirm and Start Checklists",
+    "alert": {
+      "selectOne": "Please select at least one machine."
+    }
+  },
+
+  "tarefasDiarias": {
+    "title": "Daily Tasks",
+    "greeting": "Hello, {{name}}. Here are the pending checklists for your shift.",
+    "checking": "Checking tasks...",
+    "allDone": "You have completed all your checklists for this shift. Great job!",
+    "fillChecklist": "Fill Checklist"
+  },
+
+  "checklist": {
+    "notFound": "Machine not found.",
+    "loading": "Loading checklist...",
+    "title": "Daily Checklist: {{machine}}",
+    "greeting": "Hello, {{name}}. Complete the checklist below:",
+    "empty": "No checklist configured.",
+    "yes": "Yes",
+    "no": "No",
+    "alreadyReported": "Already reported in work order {{id}}",
+    "toastAlreadyReported": "⚠️ This item is already reported in work order {{id}}.",
+    "generatedDescription": "Daily checklist item reported as \"No\": \"{{item}}\"",
+    "send": "Submit Checklist",
+    "sending": "Submitting...",
+    "toastSent": "Checklist submitted! {{count}} work order(s) generated.",
+    "toastFail": "Unable to submit checklist."
+  },
+
+  "operatorDashboard": {
+    "form": {
+      "title": "Open New Work Order",
+      "selectMachine": "Select Machine",
+      "choosePlaceholder": "Choose a machine...",
+      "problem": "Problem Description",
+      "problemPlaceholder": "Describe the problem found in detail...",
+      "open": "Open Work Order",
+      "sending": "Sending...",
+      "required": "Please select a machine and describe the problem.",
+      "opened": "Work order for machine {{machine}} successfully opened!",
+      "error": "An error occurred while opening the work order."
+    },
+    "list": {
+      "title": "Work Order History",
+      "loading": "Loading work orders...",
+      "empty": "You haven’t opened any work orders yet.",
+      "machine": "Machine: {{name}}",
+      "openedAt": "Opened on: {{date}}"
+    }
+  }
+}

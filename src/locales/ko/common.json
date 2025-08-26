@@ -1,0 +1,648 @@
+{
+  "appTitle": "유지보수 패널",
+
+  "nav": {
+    "home": "홈",
+    "profile": "내 프로필",
+    "machines": "기계",
+    "myCalls": "내 작업 요청",
+    "calendar": "전체 캘린더",
+    "history": "이력",
+    "inventory": "재고",
+    "failures": "고장 분석",
+    "rootCauses": "근본 원인",
+    "manageUsers": "사용자 관리",
+    "activeCalls": "진행 중 요청"
+  },
+
+  "status": {
+    "open": "열림",
+    "in_progress": "진행 중",
+    "closed": "완료",
+    "cancelled": "취소됨"
+  },
+
+  "login": {
+    "title": "로그인",
+    "subtitle": "계정을 사용하세요",
+    "userOrEmail": "이메일 또는 사용자 이름",
+    "password": "비밀번호",
+    "invalid": "사용자 이름 또는 비밀번호가 잘못되었습니다.",
+    "next": "다음",
+    "loading": "로그인 중..."
+  },
+
+  "inicio": {
+    "title": "홈",
+    "welcome": "다시 오신 것을 환영합니다, <1>{{name}}</1>!",
+    "quickAccess": "빠른 접근",
+    "cards": {
+      "machines": {
+        "title": "기계 패널",
+        "desc": "모든 장비 기록을 확인하고 관리합니다."
+      },
+      "myCalls": {
+        "title": "내 작업 요청",
+        "desc": "할당된 작업 요청을 확인하고 관리합니다."
+      },
+      "calendar": {
+        "title": "전체 캘린더",
+        "desc": "모든 유지보수의 전체 개요."
+      },
+      "history": {
+        "title": "전체 이력",
+        "desc": "완료된 모든 유지보수 요청을 확인합니다."
+      },
+      "inventory": {
+        "title": "재고",
+        "desc": "부품의 입출고를 추적합니다."
+      },
+      "failureAnalysis": {
+        "title": "고장 분석",
+        "desc": "기계 고장의 통계 및 보고서."
+      },
+      "rootCauses": {
+        "title": "근본 원인",
+        "desc": "고장의 근본 원인을 식별하고 관리합니다."
+      },
+      "manageUsers": {
+        "title": "사용자 관리",
+        "desc": "팀원을 추가, 편집 또는 삭제합니다."
+      },
+      "profile": {
+        "title": "내 프로필",
+        "desc": "내 정보를 확인하고 비밀번호를 변경합니다."
+      }
+    }
+  },
+
+  "perfil": {
+    "title": "내 프로필",
+    "info": {
+      "title": "내 정보",
+      "name": "이름",
+      "email": "이메일",
+      "role": "역할"
+    },
+    "changePassword": {
+      "title": "비밀번호 변경",
+      "current": "현재 비밀번호",
+      "new": "새 비밀번호",
+      "confirm": "새 비밀번호 확인"
+    },
+    "actions": {
+      "save": "비밀번호 변경",
+      "saving": "변경 중..."
+    },
+    "toasts": {
+      "mismatch": "새 비밀번호가 일치하지 않습니다.",
+      "short": "새 비밀번호는 최소 6자 이상이어야 합니다.",
+      "wrongPassword": "현재 비밀번호가 잘못되었습니다.",
+      "generic": "비밀번호 변경 중 오류가 발생했습니다.",
+      "success": "비밀번호가 성공적으로 변경되었습니다!"
+    }
+  },
+
+  "maquinas": {
+    "title": "기계 패널",
+    "loading": "기계를 불러오는 중...",
+    "legend": {
+      "corretiva": "수정 보전 (긴급)",
+      "preventiva": "예방 보전 (계획됨)",
+      "preditiva": "예지 보전 (작업자 체크리스트)"
+    },
+    "cardHint": "자세히 보려면 클릭",
+    "modal": {
+      "title": "새 기계 생성",
+      "nameLabel": "기계 이름",
+      "save": "기계 저장"
+    },
+    "toasts": {
+      "nameRequired": "기계 이름은 비워둘 수 없습니다.",
+      "created": "기계 \"{{name}}\"이(가) 생성되었습니다!",
+      "createError": "기계 생성 중 오류가 발생했습니다."
+    }
+  },
+
+  "maquinaDetalhe": {
+    "loading": "기계 데이터를 불러오는 중...",
+    "notFound": "기계를 찾을 수 없습니다.",
+    "subtitle": "기계 대장과 유지보수 이력.",
+    "tabs": {
+      "active": "진행 중 요청",
+      "history": "이력",
+      "preventive": "예방 보전",
+      "checklist": "일일 체크리스트",
+      "qrcode": "QR 코드"
+    },
+    "listas": {
+      "activeTitle": "{{name}}의 진행 중 요청",
+      "activeEmpty": "진행 중 요청이 없습니다.",
+      "historyTitle": "{{name}}의 이력",
+      "historyEmpty": "완료된 요청이 없습니다.",
+      "statusLabel": "상태: {{status}}",
+      "openedAt": "시작일: {{date}}"
+    },
+    "legend": {
+      "overdue": "기한 초과",
+      "today": "오늘",
+      "future": "예정",
+      "started": "시작됨",
+      "finished": "완료됨"
+    },
+    "checklist": {
+      "title": "{{name}}의 일일 체크리스트",
+      "empty": "이 기계에는 등록된 체크 항목이 없습니다.",
+      "remove": "항목 삭제",
+      "placeholder": "새 체크 항목 추가",
+      "add": "추가",
+      "historyTitle": "일일 준수 이력",
+      "columns": {
+        "date": "날짜",
+        "turn1": "1교대",
+        "turn2": "2교대"
+      },
+      "pending": "보류 중",
+      "confirmRemove": "\"{{item}}\" 항목을 삭제하시겠습니까?"
+    },
+    "toasts": {
+      "itemEmpty": "체크 항목은 비워둘 수 없습니다.",
+      "itemAdded": "체크리스트에 항목이 추가되었습니다!",
+      "itemAddError": "항목 추가 중 오류가 발생했습니다.",
+      "itemRemoved": "체크리스트에서 항목이 제거되었습니다!",
+      "itemRemoveError": "항목 제거 중 오류가 발생했습니다."
+    },
+    "agendar": {
+      "title": "유지보수 일정 등록",
+      "descricao": "설명",
+      "itensLabel": "체크리스트 항목 (줄당 1개)",
+      "save": "일정 저장",
+      "errors": {
+        "missing": "설명과 체크 항목을 최소 1개 이상 입력하세요."
+      },
+      "toasts": {
+        "created": "예방 보전이 일정에 등록되었습니다!",
+        "error": "일정 등록 중 오류가 발생했습니다.",
+        "rescheduleError": "재일정에 실패했습니다."
+      }
+    },
+    "evento": {
+      "descricao": "설명:",
+      "data": "날짜:",
+      "status": "상태:",
+      "checklistTitle": "작업 체크리스트:",
+      "startNow": "지금 유지보수 시작",
+      "confirmStart": "지금 \"{{title}}\" 유지보수를 시작할까요?",
+      "callDesc": "예방 보전 일정: {{title}}",
+      "openedBy": "시스템 ({{name}}이(가) 시작함)",
+      "toasts": {
+        "callCreated": "유지보수 요청이 생성되었습니다!",
+        "startError": "유지보수를 시작할 수 없습니다."
+      }
+    },
+    "qrcode": {
+      "title": "빠른 접근 QR 코드",
+      "info": "이 코드를 다운로드하여 기계에 부착하면 대장에 빠르게 접근할 수 있습니다.",
+      "download": "QR 코드 다운로드"
+    },
+    "preventiveCalendar": {
+      "title": "예방 보전 캘린더",
+      "subtitle": "이미 생성된 일정을 확인합니다."
+    }
+  },
+
+  "calendar": {
+    "previous": "이전",
+    "today": "오늘",
+    "next": "다음",
+    "month": "월",
+    "week": "주",
+    "day": "일",
+    "agenda": "일정",
+    "date": "날짜",
+    "time": "시간",
+    "showMore": "+{{total}} 더보기"
+  },
+
+  "common": {
+    "loading": "불러오는 중...",
+    "processing": "처리 중...",
+    "saving": "저장 중...",
+    "deleting": "삭제 중...",
+    "yes": "예",
+    "no": "아니오",
+    "manager": "관리자",
+    "maintainer": "유지보수원",
+    "logout": "로그아웃"
+  },
+
+  "chamadoDetalhe": {
+    "notFound": "요청을 찾을 수 없습니다.",
+    "header": {
+      "machine": "기계: {{name}}",
+      "openedBy": "{{name}}이(가) {{date}}에 시작함"
+    },
+    "fields": {
+      "status": "상태",
+      "takenBy": "담당자",
+      "assignedTo": "할당 대상",
+      "reportedProblem": "보고된 문제",
+      "checklistDone": "체크리스트 완료",
+      "performedService": "수행된 작업",
+      "finishedAt": "완료일: {{date}}",
+      "cause": "고장 원인"
+    },
+    "of": "의",
+    "selects": {
+      "causePlaceholder": "원인 선택..."
+    },
+    "assign": {
+      "title": "유지보수원 배정",
+      "label": "유지보수원 선택",
+      "placeholder": "— 선택 —",
+      "assign": "배정",
+      "reassign": "재배정",
+      "remove": "배정 해제"
+    },
+    "history": {
+      "title": "메모 이력",
+      "add": "새 메모 추가",
+      "saveNote": "메모 저장",
+      "empty": "등록된 메모가 없습니다.",
+      "assigned": "{{by}}이(가) {{assignee}}에게 배정함",
+      "unassigned": "{{by}}이(가) 배정을 해제함",
+      "taken": "{{by}}이(가) 요청을 담당함"
+    },
+    "actions": {
+      "take": "담당하기",
+      "finish": "요청 완료",
+      "finishing": "완료 처리 중...",
+      "preventive": "유지보수 체크리스트",
+      "corrective": {
+        "title": "해결 내용 기록 후 완료",
+        "solutionLabel": "수행 작업 / 적용된 해결책"
+      }
+    },
+    "delete": {
+      "title": "이 요청을 영구 삭제",
+      "button": "요청 삭제",
+      "confirm": "정말 이 요청을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다."
+    },
+    "toasts": {
+      "loadError": "요청을 불러오는 중 오류가 발생했습니다.",
+      "listMaintDenied": "유지보수원 목록 조회 권한이 없습니다.",
+      "selectMaint": "유지보수원을 선택하세요.",
+      "assigned": "요청이 배정되었습니다.",
+      "assignError": "배정 중 오류가 발생했습니다.",
+      "unassigned": "배정이 해제되었습니다.",
+      "unassignError": "배정 해제 중 오류가 발생했습니다.",
+      "assignedToOther": "이 요청은 다른 유지보수원에게 배정되었습니다.",
+      "taken": "요청을 담당했습니다.",
+      "takeError": "담당 처리 중 오류가 발생했습니다.",
+      "noteAdded": "메모가 추가되었습니다.",
+      "noteError": "메모 추가 중 오류가 발생했습니다.",
+      "finishOnlyOwner": "담당자만 이 요청을 완료할 수 있습니다.",
+      "selectCause": "완료 전에 고장 원인을 선택하세요.",
+      "describeService": "수행된 작업을 설명하세요.",
+      "autoCorrective": "예방 체크리스트 항목 \"아니오\": \"{{item}}\"",
+      "autoBy": "시스템 ({{name}}의 예방 보전에서 생성됨)",
+      "autoOpened": "수정 요청 {{count}}건이 자동으로 생성되었습니다.",
+      "finished": "요청이 성공적으로 완료되었습니다!",
+      "finishError": "요청 완료 중 오류가 발생했습니다.",
+      "onlyManagerDelete": "관리자만 요청을 삭제할 수 있습니다.",
+      "deleted": "요청이 삭제되었습니다.",
+      "deleteError": "요청 삭제 중 오류가 발생했습니다."
+    },
+    "preventive": {
+      "title": "유지보수 체크리스트"
+    }
+  },
+
+  "calendarioGeral": {
+    "title": "유지보수 종합 캘린더",
+    "loading": "일정을 불러오는 중...",
+    "legend": {
+      "overdue": "기한 초과",
+      "today": "오늘",
+      "future": "예정",
+      "started": "시작됨",
+      "finished": "완료됨",
+      "finishedLate": "지연 완료"
+    },
+    "details": {
+      "machine": "기계:",
+      "description": "설명:",
+      "currentDate": "현재 날짜:",
+      "originalDate": "원래 날짜:",
+      "status": "상태:",
+      "finishedAt": "완료 날짜:",
+      "checklistTitle": "작업 체크리스트:"
+    },
+    "actions": {
+      "startNow": "지금 유지보수 시작",
+      "delete": "일정 삭제"
+    },
+    "confirm": {
+      "startNow": "\"{{title}}\" 유지보수를 지금 시작할까요?",
+      "delete": "\"{{title}}\" 일정을 삭제할까요?"
+    },
+    "generated": {
+      "callDesc": "예방 보전 일정: {{title}}",
+      "openedBy": "시스템 ({{name}}이(가) 시작함)"
+    },
+    "toasts": {
+      "fillAll": "모든 필드를 입력하세요.",
+      "created": "일정이 생성되었습니다!",
+      "callCreated": "요청이 생성되고 일정이 시작되었습니다!",
+      "startFail": "유지보수를 시작할 수 없습니다.",
+      "rescheduleFail": "재일정에 실패했습니다.",
+      "deleted": "일정이 삭제되었습니다!",
+      "deleteFail": "일정을 삭제할 수 없습니다."
+    },
+    "new": {
+      "title": "유지보수 일정 등록",
+      "machine": "기계",
+      "description": "설명",
+      "importTemplate": "이전 일정에서 체크리스트 가져오기",
+      "selectPlaceholder": "선택...",
+      "none": "없음",
+      "itemsLabel": "체크리스트 항목 (줄당 1개)",
+      "save": "일정 저장"
+    }
+  },
+
+  "historico": {
+    "title": "유지보수 이력",
+    "loading": "이력을 불러오는 중...",
+    "empty": "선택한 조건에 해당하는 완료된 요청이 없습니다.",
+    "export": {
+      "downloadExcel": "Excel 다운로드",
+      "downloadPdf": "PDF 다운로드",
+      "sheetName": "요청",
+      "columns": {
+        "machine": "기계",
+        "callType": "요청 유형",
+        "openedAt": "시작일",
+        "attendedBy": "담당자",
+        "performedService": "수행된 작업",
+        "cause": "고장 원인",
+        "concludedAt": "완료일",
+        "problem": "문제"
+      }
+    },
+    "filters": {
+      "byType": "요청 유형으로 필터:",
+      "byMachine": "기계로 필터:",
+      "typeOptions": {
+        "all": "전체",
+        "corrective": "수정",
+        "preventive": "예방",
+        "predictive": "예지"
+      },
+      "machineOptions": {
+        "all": "전체"
+      }
+    },
+    "item": {
+      "machine": "기계: {{name}}",
+      "attendedBy": "담당자: {{name}}",
+      "unknown": "미표기",
+      "concludedAt": "완료일: {{date}}",
+      "problem": "문제:",
+      "notSpecified": "미지정"
+    }
+  },
+
+  "estoque": {
+    "title": "유지보수 재고 관리",
+    "loading": "부품을 불러오는 중...",
+    "empty": "등록된 부품이 없습니다.",
+    "toolbar": {
+      "new": "+ 새 부품",
+      "exportExcel": "Excel로 내보내기",
+      "exportPdf": "PDF로 내보내기"
+    },
+    "card": {
+      "labels": {
+        "code": "코드:",
+        "category": "카테고리:",
+        "stock": "재고:",
+        "min": "최소:",
+        "location": "위치:"
+      },
+      "buttons": {
+        "in": "입고",
+        "out": "출고",
+        "edit": "편집",
+        "delete": "삭제"
+      }
+    },
+    "confirm": {
+      "delete": "이 부품을 삭제하시겠습니까?"
+    },
+    "toasts": {
+      "deleted": "부품이 삭제되었습니다!",
+      "deleteFail": "부품 삭제에 실패했습니다."
+    },
+    "export": {
+      "sheetName": "재고",
+      "columns": {
+        "code": "코드",
+        "name": "이름",
+        "category": "카테고리",
+        "stock": "재고",
+        "min": "최소",
+        "location": "위치"
+      }
+    }
+  },
+
+  "analiseFalhas": {
+    "title": "수정 보전 고장 분석",
+    "loading": "데이터 분석 중...",
+    "filters": {
+      "start": "시작:",
+      "end": "종료:",
+      "clear": "초기화"
+    },
+    "chart": {
+      "title": "기계별 수정 보전 고장 분포",
+      "dataset": "수정 고장 건수",
+      "xLabel": "기계",
+      "yLabel": "수량"
+    }
+  },
+
+  "causas": {
+    "titleCrud": "근본 원인 관리",
+    "titlePareto": "고장 파레토",
+    "form": {
+      "placeholder": "새 원인",
+      "add": "추가"
+    },
+    "list": {
+      "delete": "삭제"
+    },
+    "confirm": {
+      "delete": "이 원인을 삭제할까요?"
+    },
+    "chart": {
+      "seriesCalls": "요청",
+      "seriesAccumPct": "누적 %",
+      "xLabel": "원인",
+      "yLeft": "요청",
+      "yRight": "누적 %"
+    }
+  },
+
+  "users": {
+    "title": "사용자 관리",
+    "loading": "사용자를 불러오는 중...",
+    "actions": {
+      "create": "새 사용자 생성",
+      "edit": "편집",
+      "delete": "삭제"
+    },
+    "table": {
+      "fullName": "전체 이름",
+      "username": "사용자 이름",
+      "function": "역할",
+      "actions": "작업"
+    },
+    "modal": {
+      "createTitle": "새 사용자 생성",
+      "editTitle": "사용자 편집"
+    },
+    "form": {
+      "fullName": "전체 이름",
+      "tempPassword": "임시 비밀번호",
+      "role": "역할",
+      "saving": "저장 중...",
+      "saveChanges": "변경 저장",
+      "createUser": "사용자 생성"
+    },
+    "roles": {
+      "operator": "작업자",
+      "maintainer": "유지보수원",
+      "manager": "관리자"
+    },
+    "validation": {
+      "fullName": "이름과 성을 입력하세요."
+    },
+    "confirm": {
+      "delete": "사용자 {{name}}을(를) 삭제하시겠습니까?"
+    },
+    "toasts": {
+      "created": "사용자 {{name}}이(가) 생성되었습니다!",
+      "updated": "사용자가 업데이트되었습니다!",
+      "saveError": "사용자 저장 중 오류가 발생했습니다.",
+      "deleted": "사용자가 삭제되었습니다!",
+      "deleteError": "사용자 삭제 중 오류가 발생했습니다.",
+      "authClaimNotSet": "Auth 권한이 설정되지 않았습니다.",
+      "authClaimNotUpdated": "Auth 권한이 업데이트되지 않았습니다."
+    }
+  },
+
+  "layout": {
+    "sections": {
+      "manageMaintenance": "유지보수 관리",
+      "analytics": "분석 및 KPI",
+      "managePeople": "팀 관리"
+    }
+  },
+
+  "dashboard": {
+    "operator": "작업자 대시보드",
+    "maintainer": "유지보수 대시보드",
+    "manager": "관리자 대시보드"
+  },
+
+  "meusChamados": {
+    "title": "내 작업 요청",
+    "loginFirst": "작업 요청을 보려면 로그인하세요.",
+    "filters": {
+      "statusTitle": "상태별 필터",
+      "active": "열림 & 진행 중",
+      "all": "전체",
+      "closed": "완료",
+      "searchPlaceholder": "기계 또는 설명으로 검색..."
+    },
+    "footerTip": "팁: \"완료\" 필터로 개인 이력을 확인하세요.",
+    "loading": "불러오는 중...",
+    "empty": "작업 요청을 찾을 수 없습니다.",
+    "table": {
+      "hash": "#",
+      "machine": "기계",
+      "description": "설명",
+      "status": "상태",
+      "assignedAt": "할당일",
+      "openedAt": "시작일",
+      "open": "열기"
+    }
+  },
+
+  "inicioTurno": {
+    "title": "교대 시작",
+    "greeting": "안녕하세요, {{name}}님. 오늘의 교대와 담당 기계를 선택하세요.",
+    "loading": "불러오는 중...",
+    "fields": {
+      "shift": "내 교대",
+      "machinesLabel": "오늘 담당할 기계 (하나 이상 선택)"
+    },
+    "shifts": {
+      "shift1": "1교대 (05:30 - 15:18)",
+      "shift2": "2교대 (15:18 - 00:48)"
+    },
+    "confirmBtn": "확인하고 체크리스트 시작",
+    "alert": {
+      "selectOne": "최소 한 대의 기계를 선택하세요."
+    }
+  },
+
+  "tarefasDiarias": {
+    "title": "일일 작업",
+    "greeting": "안녕하세요, {{name}}님. 이번 교대에서 미완료 체크리스트는 다음과 같습니다.",
+    "checking": "작업 확인 중...",
+    "allDone": "이 교대의 모든 체크리스트를 완료했습니다. 훌륭해요!",
+    "fillChecklist": "체크리스트 작성"
+  },
+
+  "checklist": {
+    "notFound": "기계를 찾을 수 없습니다.",
+    "loading": "체크리스트 불러오는 중...",
+    "title": "일일 체크리스트: {{machine}}",
+    "greeting": "안녕하세요, {{name}}님. 아래 체크리스트를 완료해 주세요:",
+    "empty": "체크리스트가 설정되지 않았습니다.",
+    "yes": "예",
+    "no": "아니오",
+    "alreadyReported": "요청 {{id}}에 이미 보고됨",
+    "toastAlreadyReported": "⚠️ 이 항목은 요청 {{id}}에 이미 보고되었습니다.",
+    "generatedDescription": "일일 체크 항목이 \"아니오\"로 표시됨: \"{{item}}\"",
+    "send": "체크리스트 제출",
+    "sending": "제출 중...",
+    "toastSent": "체크리스트가 제출되었습니다! {{count}}개의 요청이 생성되었습니다.",
+    "toastFail": "체크리스트를 제출할 수 없습니다."
+  },
+
+  "operatorDashboard": {
+    "form": {
+      "title": "새 요청 열기",
+      "selectMachine": "기계 선택",
+      "choosePlaceholder": "기계를 선택하세요...",
+      "problem": "문제 설명",
+      "problemPlaceholder": "발견한 문제를 자세히 작성하세요...",
+      "open": "요청 열기",
+      "sending": "전송 중...",
+      "required": "기계를 선택하고 문제를 설명하세요.",
+      "opened": "기계 {{machine}}에 대한 요청이 성공적으로 생성되었습니다!",
+      "error": "요청 생성 중 오류가 발생했습니다."
+    },
+    "list": {
+      "title": "요청 이력",
+      "loading": "요청을 불러오는 중...",
+      "empty": "아직 요청을 연 적이 없습니다.",
+      "machine": "기계: {{name}}",
+      "openedAt": "시작일: {{date}}"
+    }
+  }
+}

@@ -1,61 +1,94 @@
-// src/pages/TarefasDiariasPage.jsx
-
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { db } from '../firebase';
 import { collection, query, where, getDocs, onSnapshot } from 'firebase/firestore';
 import styles from './TarefasDiariasPage.module.css';
+import { useTranslation } from 'react-i18next';
 
-// A página agora recebe 'dadosTurno' como prop
+// A página recebe 'dadosTurno' como prop
 const TarefasDiariasPage = ({ user, dadosTurno }) => {
+  const { t } = useTranslation();
+
   const [tarefasPendentes, setTarefasPendentes] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  // helper: divide um array em pedaços de tamanho n
+  const chunk = (arr, n) => {
+    const out = [];
+    for (let i = 0; i < arr.length; i += n) out.push(arr.slice(i, i + n));
+    return out;
+  };
+
   useEffect(() => {
-    if (!dadosTurno) return; // Não faz nada se os dados do turno ainda não chegaram
+    if (!dadosTurno || !user?.uid) return;
+
+    let unsubscribe = () => {}; // garante cleanup mesmo com async
 
     const carregarTarefas = async () => {
-      // 1. Busca os dados completos das máquinas selecionadas
-      const qMaquinas = query(collection(db, 'maquinas'), where('__name__', 'in', dadosTurno.maquinas));
-      const maquinasSnapshot = await getDocs(qMaquinas);
-      const maquinasDoOperador = maquinasSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      setLoading(true);
 
-      // 2. Ouve em tempo real as submissões de hoje para verificar o que já foi feito
+      // 1) Busca as máquinas selecionadas (em chunks de até 10 IDs)
+      let maquinasDoOperador = [];
+      const ids = Array.isArray(dadosTurno.maquinas) ? dadosTurno.maquinas : [];
+      if (ids.length === 0) {
+        setTarefasPendentes([]);
+        setLoading(false);
+        return;
+      }
+
+      const idChunks = chunk(ids, 10);
+      const results = await Promise.all(
+        idChunks.map(async (ids10) => {
+          const qMaquinas = query(collection(db, 'maquinas'), where('__name__', 'in', ids10));
+          const snap = await getDocs(qMaquinas);
+          return snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        })
+      );
+      maquinasDoOperador = results.flat();
+
+      // 2) Ouve as submissões de HOJE para esse operador
       const hoje = new Date();
       const inicioDoDia = new Date(hoje.getFullYear(), hoje.getMonth(), hoje.getDate());
-      
+
       const qSubmissoes = query(
         collection(db, 'checklistSubmissions'),
         where('operadorId', '==', user.uid),
         where('dataSubmissao', '>=', inicioDoDia)
       );
 
-      const unsubscribe = onSnapshot(qSubmissoes, (submissoesSnapshot) => {
-        const maquinasJaFeitas = new Set(submissoesSnapshot.docs.map(doc => doc.data().maquinaId));
+      unsubscribe = onSnapshot(qSubmissoes, (submissoesSnapshot) => {
+        const maquinasJaFeitas = new Set(
+          submissoesSnapshot.docs.map(doc => doc.data().maquinaId)
+        );
         const pendentes = maquinasDoOperador.filter(maq => !maquinasJaFeitas.has(maq.id));
         setTarefasPendentes(pendentes);
         setLoading(false);
+      }, (err) => {
+        console.error('Erro ao ouvir checklistSubmissions:', err);
+        setLoading(false);
       });
-
-      return () => unsubscribe();
     };
 
     carregarTarefas();
-  }, [user.uid, dadosTurno]);
+
+    return () => {
+      try { unsubscribe(); } catch {}
+    };
+  }, [user?.uid, dadosTurno]);
 
   return (
     <div className={styles.pageContainer}>
       <header className={styles.header}>
-        <h1>Tarefas Diárias</h1>
-        <p>Olá, {user.nome}. Aqui estão os checklists pendentes para o seu turno.</p>
+        <h1>{t('tarefasDiarias.title')}</h1>
+        <p>{t('tarefasDiarias.greeting', { name: user?.nome || '' })}</p>
       </header>
 
-      {loading && <p>Verificando tarefas...</p>}
-      
+      {loading && <p>{t('tarefasDiarias.checking')}</p>}
+
       {!loading && tarefasPendentes.length === 0 && (
-        <p>Você completou todos os seus checklists para este turno. Bom trabalho!</p>
+        <p>{t('tarefasDiarias.allDone')}</p>
       )}
-      
+
       {!loading && tarefasPendentes.length > 0 && (
         <ul className={styles.taskList}>
           {tarefasPendentes.map(maquina => (
@@ -63,7 +96,7 @@ const TarefasDiariasPage = ({ user, dadosTurno }) => {
               <div className={styles.taskInfo}>
                 <strong>{maquina.nome}</strong>
               </div>
-              <span>Preencher Checklist</span>
+              <span>{t('tarefasDiarias.fillChecklist')}</span>
             </Link>
           ))}
         </ul>

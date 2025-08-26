@@ -1,0 +1,648 @@
+{
+  "appTitle": "Tableau de maintenance",
+
+  "nav": {
+    "home": "Accueil",
+    "profile": "Mon profil",
+    "machines": "Machines",
+    "myCalls": "Mes ordres",
+    "calendar": "Calendrier général",
+    "history": "Historique",
+    "inventory": "Inventaire",
+    "failures": "Analyse des pannes",
+    "rootCauses": "Causes racines",
+    "manageUsers": "Gérer les utilisateurs",
+    "activeCalls": "ordre(s) actif(s)"
+  },
+
+  "status": {
+    "open": "Ouvert",
+    "in_progress": "En cours",
+    "closed": "Clôturé",
+    "cancelled": "Annulé"
+  },
+
+  "login": {
+    "title": "Connexion",
+    "subtitle": "Utilisez votre compte",
+    "userOrEmail": "E-mail ou nom d’utilisateur",
+    "password": "Mot de passe",
+    "invalid": "Nom d’utilisateur ou mot de passe invalide.",
+    "next": "Suivant",
+    "loading": "Connexion…"
+  },
+
+  "inicio": {
+    "title": "Page d’accueil",
+    "welcome": "Bon retour, <1>{{name}}</1> !",
+    "quickAccess": "Accès rapide",
+    "cards": {
+      "machines": {
+        "title": "Tableau des machines",
+        "desc": "Consultez et gérez les dossiers de tous les équipements."
+      },
+      "myCalls": {
+        "title": "Mes ordres",
+        "desc": "Consultez et gérez les ordres qui vous sont assignés."
+      },
+      "calendar": {
+        "title": "Calendrier général",
+        "desc": "Vue d’ensemble de toutes les maintenances."
+      },
+      "history": {
+        "title": "Historique général",
+        "desc": "Consultez tous les ordres de maintenance terminés."
+      },
+      "inventory": {
+        "title": "Inventaire",
+        "desc": "Suivi des entrées et sorties de pièces."
+      },
+      "failureAnalysis": {
+        "title": "Analyse des pannes",
+        "desc": "Statistiques et rapports de pannes machines."
+      },
+      "rootCauses": {
+        "title": "Causes racines",
+        "desc": "Identifiez et gérez les causes racines des pannes."
+      },
+      "manageUsers": {
+        "title": "Gérer les utilisateurs",
+        "desc": "Ajoutez, modifiez ou supprimez des membres."
+      },
+      "profile": {
+        "title": "Mon profil",
+        "desc": "Consultez vos informations et changez votre mot de passe."
+      }
+    }
+  },
+
+  "perfil": {
+    "title": "Mon profil",
+    "info": {
+      "title": "Mes informations",
+      "name": "Nom",
+      "email": "E-mail",
+      "role": "Rôle"
+    },
+    "changePassword": {
+      "title": "Changer le mot de passe",
+      "current": "Mot de passe actuel",
+      "new": "Nouveau mot de passe",
+      "confirm": "Confirmer le nouveau mot de passe"
+    },
+    "actions": {
+      "save": "Changer le mot de passe",
+      "saving": "Changement…"
+    },
+    "toasts": {
+      "mismatch": "Les nouveaux mots de passe ne correspondent pas.",
+      "short": "Le nouveau mot de passe doit contenir au moins 6 caractères.",
+      "wrongPassword": "Le mot de passe actuel est incorrect.",
+      "generic": "Erreur lors du changement de mot de passe.",
+      "success": "Mot de passe changé avec succès !"
+    }
+  },
+
+  "maquinas": {
+    "title": "Tableau des machines",
+    "loading": "Chargement des machines…",
+    "legend": {
+      "corretiva": "Corrective (Urgente)",
+      "preventiva": "Préventive (Planifiée)",
+      "preditiva": "Prédictive (Checklist des opérateurs)"
+    },
+    "cardHint": "Cliquez pour voir les détails",
+    "modal": {
+      "title": "Créer une nouvelle machine",
+      "nameLabel": "Nom de la machine",
+      "save": "Enregistrer la machine"
+    },
+    "toasts": {
+      "nameRequired": "Le nom de la machine ne peut pas être vide.",
+      "created": "Machine « {{name}} » créée avec succès !",
+      "createError": "Erreur lors de la création de la machine."
+    }
+  },
+
+  "maquinaDetalhe": {
+    "loading": "Chargement des données de la machine…",
+    "notFound": "Machine non trouvée.",
+    "subtitle": "Dossier complet de la machine et historique des maintenances.",
+    "tabs": {
+      "active": "Ordres actifs",
+      "history": "Historique",
+      "preventive": "Préventive",
+      "checklist": "Checklist quotidienne",
+      "qrcode": "QR Code"
+    },
+    "listas": {
+      "activeTitle": "Ordres actifs de {{name}}",
+      "activeEmpty": "Aucun ordre actif.",
+      "historyTitle": "Historique de {{name}}",
+      "historyEmpty": "Aucun ordre clôturé.",
+      "statusLabel": "Statut : {{status}}",
+      "openedAt": "Ouvert le : {{date}}"
+    },
+    "legend": {
+      "overdue": "En retard",
+      "today": "Aujourd’hui",
+      "future": "À venir",
+      "started": "Démarré",
+      "finished": "Clôturé"
+    },
+    "checklist": {
+      "title": "Éléments de la checklist quotidienne de {{name}}",
+      "empty": "Aucun élément de checklist enregistré pour cette machine.",
+      "remove": "Supprimer l’élément",
+      "placeholder": "Ajouter un nouvel élément de vérification",
+      "add": "Ajouter",
+      "historyTitle": "Historique de conformité quotidienne",
+      "columns": {
+        "date": "Date",
+        "turn1": "1er quart",
+        "turn2": "2e quart"
+      },
+      "pending": "En attente",
+      "confirmRemove": "Voulez-vous vraiment supprimer l’élément « {{item}} » ?"
+    },
+    "toasts": {
+      "itemEmpty": "L’élément de checklist ne peut pas être vide.",
+      "itemAdded": "Élément ajouté à la checklist !",
+      "itemAddError": "Erreur lors de l’ajout de l’élément.",
+      "itemRemoved": "Élément supprimé de la checklist.",
+      "itemRemoveError": "Erreur lors de la suppression de l’élément."
+    },
+    "agendar": {
+      "title": "Planifier une maintenance",
+      "descricao": "Description",
+      "itensLabel": "Éléments de checklist (un par ligne)",
+      "save": "Enregistrer la planification",
+      "errors": {
+        "missing": "Renseignez la description et au moins un élément de checklist."
+      },
+      "toasts": {
+        "created": "Maintenance préventive planifiée !",
+        "error": "Erreur lors de la planification.",
+        "rescheduleError": "Échec du replanification."
+      }
+    },
+    "evento": {
+      "descricao": "Description :",
+      "data": "Date :",
+      "status": "Statut :",
+      "checklistTitle": "Checklist de la tâche :",
+      "startNow": "Démarrer la maintenance maintenant",
+      "confirmStart": "Voulez-vous démarrer la maintenance « {{title}} » maintenant ?",
+      "callDesc": "Maintenance préventive planifiée : {{title}}",
+      "openedBy": "Système (démarré par {{name}})",
+      "toasts": {
+        "callCreated": "Ordre de maintenance créé avec succès !",
+        "startError": "Impossible de démarrer la maintenance."
+      }
+    },
+    "qrcode": {
+      "title": "QR Code d’accès rapide",
+      "info": "Téléchargez ce code et collez-le sur la machine pour un accès rapide au dossier.",
+      "download": "Télécharger le QR Code"
+    },
+    "preventiveCalendar": {
+      "title": "Calendrier de maintenance préventive",
+      "subtitle": "Visualisez les planifications déjà créées."
+    }
+  },
+
+  "calendar": {
+    "previous": "Précédent",
+    "today": "Aujourd’hui",
+    "next": "Suivant",
+    "month": "Mois",
+    "week": "Semaine",
+    "day": "Jour",
+    "agenda": "Agenda",
+    "date": "Date",
+    "time": "Heure",
+    "showMore": "+{{total}} de plus"
+  },
+
+  "common": {
+    "loading": "Chargement…",
+    "processing": "Traitement…",
+    "saving": "Enregistrement…",
+    "deleting": "Suppression…",
+    "yes": "Oui",
+    "no": "Non",
+    "manager": "Gestionnaire",
+    "maintainer": "Mainteneur",
+    "logout": "Déconnexion"
+  },
+
+  "chamadoDetalhe": {
+    "notFound": "Ordre non trouvé.",
+    "header": {
+      "machine": "Machine : {{name}}",
+      "openedBy": "Ouvert par {{name}} le {{date}}"
+    },
+    "fields": {
+      "status": "Statut",
+      "takenBy": "Pris en charge par",
+      "assignedTo": "Assigné à",
+      "reportedProblem": "Problème signalé",
+      "checklistDone": "Checklist complétée",
+      "performedService": "Service effectué",
+      "finishedAt": "Clôturé le : {{date}}",
+      "cause": "Cause de la panne"
+    },
+    "of": "de",
+    "selects": {
+      "causePlaceholder": "Sélectionnez la cause…"
+    },
+    "assign": {
+      "title": "Assigner un mainteneur",
+      "label": "Sélectionner un mainteneur",
+      "placeholder": "— Sélectionner —",
+      "assign": "Assigner",
+      "reassign": "Réassigner",
+      "remove": "Retirer l’assignation"
+    },
+    "history": {
+      "title": "Historique des observations",
+      "add": "Ajouter une nouvelle observation",
+      "saveNote": "Enregistrer l’observation",
+      "empty": "Aucune observation enregistrée.",
+      "assigned": "Assigné à {{assignee}} par {{by}}",
+      "unassigned": "Assignation retirée par {{by}}",
+      "taken": "Ordre pris en charge par {{by}}"
+    },
+    "actions": {
+      "take": "Prendre en charge",
+      "finish": "Clôturer l’ordre",
+      "finishing": "Clôture en cours…",
+      "preventive": "Checklist de maintenance",
+      "corrective": {
+        "title": "Enregistrer la solution et clôturer",
+        "solutionLabel": "Service effectué / Solution appliquée"
+      }
+    },
+    "delete": {
+      "title": "Supprimer définitivement cet ordre",
+      "button": "Supprimer l’ordre",
+      "confirm": "Êtes-vous sûr de vouloir supprimer cet ordre ? Cette action est irréversible."
+    },
+    "toasts": {
+      "loadError": "Erreur lors du chargement de l’ordre.",
+      "listMaintDenied": "Permission refusée pour lister les mainteneurs.",
+      "selectMaint": "Sélectionnez un mainteneur.",
+      "assigned": "Ordre assigné.",
+      "assignError": "Erreur lors de l’assignation.",
+      "unassigned": "Assignation retirée.",
+      "unassignError": "Erreur lors du retrait de l’assignation.",
+      "assignedToOther": "Cet ordre a été assigné à un autre mainteneur.",
+      "taken": "Ordre pris en charge.",
+      "takeError": "Erreur lors de la prise en charge.",
+      "noteAdded": "Observation ajoutée.",
+      "noteError": "Erreur lors de l’ajout de l’observation.",
+      "finishOnlyOwner": "Seul le mainteneur qui a pris en charge peut clôturer cet ordre.",
+      "selectCause": "Sélectionnez la cause de la panne avant de clôturer.",
+      "describeService": "Décrivez le service effectué.",
+      "autoCorrective": "Élément de checklist préventive « NON » : « {{item}} »",
+      "autoBy": "Système (généré par la préventive de {{name}})",
+      "autoOpened": "{{count}} ordre(s) correctif(s) ouvert(s) automatiquement.",
+      "finished": "Ordre clôturé avec succès !",
+      "finishError": "Erreur lors de la clôture.",
+      "onlyManagerDelete": "Seuls les gestionnaires peuvent supprimer l’ordre.",
+      "deleted": "Ordre supprimé avec succès.",
+      "deleteError": "Erreur lors de la suppression de l’ordre."
+    },
+    "preventive": {
+      "title": "Checklist de maintenance"
+    }
+  },
+
+  "calendarioGeral": {
+    "title": "Calendrier général des maintenances",
+    "loading": "Chargement des planifications…",
+    "legend": {
+      "overdue": "En retard",
+      "today": "Aujourd’hui",
+      "future": "À venir",
+      "started": "Démarré",
+      "finished": "Clôturé",
+      "finishedLate": "Clôturé en retard"
+    },
+    "details": {
+      "machine": "Machine :",
+      "description": "Description :",
+      "currentDate": "Date actuelle :",
+      "originalDate": "Date d’origine :",
+      "status": "Statut :",
+      "finishedAt": "Date de clôture :",
+      "checklistTitle": "Checklist de la tâche :"
+    },
+    "actions": {
+      "startNow": "Démarrer la maintenance maintenant",
+      "delete": "Supprimer la planification"
+    },
+    "confirm": {
+      "startNow": "Démarrer la maintenance « {{title}} » maintenant ?",
+      "delete": "Supprimer la planification « {{title}} » ?"
+    },
+    "generated": {
+      "callDesc": "Maintenance préventive planifiée : {{title}}",
+      "openedBy": "Système (démarré par {{name}})"
+    },
+    "toasts": {
+      "fillAll": "Veuillez remplir tous les champs.",
+      "created": "Planification créée !",
+      "callCreated": "Ordre créé et planification démarrée !",
+      "startFail": "Échec du démarrage de la maintenance.",
+      "rescheduleFail": "Échec du replanification.",
+      "deleted": "Planification supprimée avec succès !",
+      "deleteFail": "Échec de la suppression de la planification."
+    },
+    "new": {
+      "title": "Planifier une maintenance",
+      "machine": "Machine",
+      "description": "Description",
+      "importTemplate": "Importer la checklist d’une planification précédente",
+      "selectPlaceholder": "Sélectionner…",
+      "none": "Aucune",
+      "itemsLabel": "Éléments de checklist (un par ligne)",
+      "save": "Enregistrer la planification"
+    }
+  },
+
+  "historico": {
+    "title": "Historique des maintenances",
+    "loading": "Chargement de l’historique…",
+    "empty": "Aucun ordre clôturé pour les filtres sélectionnés.",
+    "export": {
+      "downloadExcel": "Télécharger Excel",
+      "downloadPdf": "Télécharger PDF",
+      "sheetName": "Ordres",
+      "columns": {
+        "machine": "Machine",
+        "callType": "Type d’ordre",
+        "openedAt": "Ouvert le",
+        "attendedBy": "Pris en charge par",
+        "performedService": "Service effectué",
+        "cause": "Cause de la panne",
+        "concludedAt": "Date de clôture",
+        "problem": "Problème"
+      }
+    },
+    "filters": {
+      "byType": "Filtrer par type d’ordre :",
+      "byMachine": "Filtrer par machine :",
+      "typeOptions": {
+        "all": "Tous",
+        "corrective": "Corrective",
+        "preventive": "Préventive",
+        "predictive": "Prédictive"
+      },
+      "machineOptions": {
+        "all": "Toutes"
+      }
+    },
+    "item": {
+      "machine": "Machine : {{name}}",
+      "attendedBy": "Pris en charge par : {{name}}",
+      "unknown": "Non indiqué",
+      "concludedAt": "Clôturé le : {{date}}",
+      "problem": "Problème :",
+      "notSpecified": "Non spécifié"
+    }
+  },
+
+  "estoque": {
+    "title": "Gestion de l’inventaire de maintenance",
+    "loading": "Chargement des pièces…",
+    "empty": "Aucune pièce enregistrée.",
+    "toolbar": {
+      "new": "+ Nouvelle pièce",
+      "exportExcel": "Exporter en Excel",
+      "exportPdf": "Exporter en PDF"
+    },
+    "card": {
+      "labels": {
+        "code": "Code :",
+        "category": "Catégorie :",
+        "stock": "Stock :",
+        "min": "Minimum :",
+        "location": "Emplacement :"
+      },
+      "buttons": {
+        "in": "Entrée",
+        "out": "Sortie",
+        "edit": "Modifier",
+        "delete": "Supprimer"
+      }
+    },
+    "confirm": {
+      "delete": "Supprimer cette pièce ?"
+    },
+    "toasts": {
+      "deleted": "Pièce supprimée avec succès !",
+      "deleteFail": "Échec de la suppression de la pièce."
+    },
+    "export": {
+      "sheetName": "Inventaire",
+      "columns": {
+        "code": "Code",
+        "name": "Nom",
+        "category": "Catégorie",
+        "stock": "Stock",
+        "min": "Minimum",
+        "location": "Emplacement"
+      }
+    }
+  },
+
+  "analiseFalhas": {
+    "title": "Analyse des pannes correctives",
+    "loading": "Analyse des données…",
+    "filters": {
+      "start": "Début :",
+      "end": "Fin :",
+      "clear": "Effacer"
+    },
+    "chart": {
+      "title": "Répartition des pannes correctives par machine",
+      "dataset": "Nb de pannes correctives",
+      "xLabel": "Machine",
+      "yLabel": "Quantité"
+    }
+  },
+
+  "causas": {
+    "titleCrud": "Gérer les causes racines",
+    "titlePareto": "Pareto des pannes",
+    "form": {
+      "placeholder": "Nouvelle cause",
+      "add": "Ajouter"
+    },
+    "list": {
+      "delete": "Supprimer"
+    },
+    "confirm": {
+      "delete": "Supprimer cette cause ?"
+    },
+    "chart": {
+      "seriesCalls": "Ordres",
+      "seriesAccumPct": "% cumulé",
+      "xLabel": "Cause",
+      "yLeft": "Ordres",
+      "yRight": "% cumulé"
+    }
+  },
+
+  "users": {
+    "title": "Gestion des utilisateurs",
+    "loading": "Chargement des utilisateurs…",
+    "actions": {
+      "create": "Créer un nouvel utilisateur",
+      "edit": "Modifier",
+      "delete": "Supprimer"
+    },
+    "table": {
+      "fullName": "Nom complet",
+      "username": "Nom d’utilisateur",
+      "function": "Rôle",
+      "actions": "Actions"
+    },
+    "modal": {
+      "createTitle": "Créer un nouvel utilisateur",
+      "editTitle": "Modifier l’utilisateur"
+    },
+    "form": {
+      "fullName": "Nom complet",
+      "tempPassword": "Mot de passe provisoire",
+      "role": "Rôle",
+      "saving": "Enregistrement…",
+      "saveChanges": "Enregistrer les modifications",
+      "createUser": "Créer un utilisateur"
+    },
+    "roles": {
+      "operator": "Opérateur",
+      "maintainer": "Mainteneur",
+      "manager": "Gestionnaire"
+    },
+    "validation": {
+      "fullName": "Indiquez prénom et nom."
+    },
+    "confirm": {
+      "delete": "Supprimer l’utilisateur {{name}} ?"
+    },
+    "toasts": {
+      "created": "Utilisateur {{name}} créé avec succès !",
+      "updated": "Utilisateur mis à jour avec succès !",
+      "saveError": "Erreur lors de l’enregistrement de l’utilisateur.",
+      "deleted": "Utilisateur supprimé avec succès !",
+      "deleteError": "Erreur lors de la suppression de l’utilisateur.",
+      "authClaimNotSet": "Droit Auth non attribué.",
+      "authClaimNotUpdated": "Droit Auth non mis à jour."
+    }
+  },
+
+  "layout": {
+    "sections": {
+      "manageMaintenance": "Gérer la maintenance",
+      "analytics": "Analyses et KPI",
+      "managePeople": "Gérer l’équipe"
+    }
+  },
+
+  "dashboard": {
+    "operator": "Tableau de l’opérateur",
+    "maintainer": "Tableau de maintenance",
+    "manager": "Tableau du gestionnaire"
+  },
+
+  "meusChamados": {
+    "title": "Mes ordres",
+    "loginFirst": "Veuillez vous connecter pour voir vos ordres.",
+    "filters": {
+      "statusTitle": "Filtrer par statut",
+      "active": "Ouverts & En cours",
+      "all": "Tous",
+      "closed": "Clôturés",
+      "searchPlaceholder": "Rechercher par machine ou description…"
+    },
+    "footerTip": "Astuce : utilisez le filtre « Clôturés » pour votre historique personnel.",
+    "loading": "Chargement…",
+    "empty": "Aucun ordre trouvé.",
+    "table": {
+      "hash": "#",
+      "machine": "Machine",
+      "description": "Description",
+      "status": "Statut",
+      "assignedAt": "Assigné le",
+      "openedAt": "Ouvert le",
+      "open": "Ouvrir"
+    }
+  },
+
+  "inicioTurno": {
+    "title": "Début de quart",
+    "greeting": "Bonjour, {{name}}. Indiquez votre quart et les machines sur lesquelles vous travaillerez aujourd’hui.",
+    "loading": "Chargement…",
+    "fields": {
+      "shift": "Votre quart",
+      "machinesLabel": "Machines sous votre responsabilité aujourd’hui (sélectionnez-en une ou plusieurs)"
+    },
+    "shifts": {
+      "shift1": "1er quart (05:30 - 15:18)",
+      "shift2": "2e quart (15:18 - 00:48)"
+    },
+    "confirmBtn": "Confirmer et démarrer les checklists",
+    "alert": {
+      "selectOne": "Sélectionnez au moins une machine."
+    }
+  },
+
+  "tarefasDiarias": {
+    "title": "Tâches quotidiennes",
+    "greeting": "Bonjour, {{name}}. Voici les checklists en attente pour votre quart.",
+    "checking": "Vérification des tâches…",
+    "allDone": "Vous avez terminé toutes vos checklists pour ce quart. Bravo !",
+    "fillChecklist": "Remplir la checklist"
+  },
+
+  "checklist": {
+    "notFound": "Machine non trouvée.",
+    "loading": "Chargement de la checklist…",
+    "title": "Checklist quotidienne : {{machine}}",
+    "greeting": "Bonjour, {{name}}. Complétez la checklist ci-dessous :",
+    "empty": "Aucune checklist configurée.",
+    "yes": "Oui",
+    "no": "Non",
+    "alreadyReported": "Déjà signalé dans l’ordre {{id}}",
+    "toastAlreadyReported": "⚠️ Cet élément est déjà signalé dans l’ordre {{id}}.",
+    "generatedDescription": "Élément de la checklist quotidienne marqué « Non » : « {{item}} »",
+    "send": "Envoyer la checklist",
+    "sending": "Envoi…",
+    "toastSent": "Checklist envoyée ! {{count}} ordre(s) généré(s).",
+    "toastFail": "Impossible d’envoyer la checklist."
+  },
+
+  "operatorDashboard": {
+    "form": {
+      "title": "Ouvrir un nouvel ordre",
+      "selectMachine": "Sélectionner la machine",
+      "choosePlaceholder": "Choisissez une machine…",
+      "problem": "Description du problème",
+      "problemPlaceholder": "Décrivez en détail le problème constaté…",
+      "open": "Ouvrir l’ordre",
+      "sending": "Envoi…",
+      "required": "Sélectionnez une machine et décrivez le problème.",
+      "opened": "Ordre pour la machine {{machine}} ouvert avec succès !",
+      "error": "Erreur lors de l’ouverture de l’ordre."
+    },
+    "list": {
+      "title": "Historique des ordres",
+      "loading": "Chargement des ordres…",
+      "empty": "Vous n’avez pas encore ouvert d’ordre.",
+      "machine": "Machine : {{name}}",
+      "openedAt": "Ouvert le : {{date}}"
+    }
+  }
+}

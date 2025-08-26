@@ -1,24 +1,28 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import toast from 'react-hot-toast';
-import { useParams, useNavigate } from 'react-router-dom';
-import { doc, onSnapshot, updateDoc, serverTimestamp, Timestamp, getDoc, arrayUnion, collection, addDoc, query, where, orderBy, deleteDoc } from 'firebase/firestore';
+import { useParams, useNavigate, Link } from 'react-router-dom';
+import {
+  doc, onSnapshot, updateDoc, serverTimestamp, Timestamp, getDoc,
+  arrayUnion, collection, addDoc, query, where, orderBy, deleteDoc
+} from 'firebase/firestore';
 import { db } from '../firebase';
 import styles from './ChamadoDetalhe.module.css';
+import { useTranslation } from 'react-i18next';
+import { statusKey } from '../i18n/format';
 
-function formatTS(tsOrDate) {
+// (mantém util se precisar em algum ponto específico)
+function asDate(v) {
   try {
-    if (!tsOrDate) return '—';
-    if (typeof tsOrDate.toDate === 'function') {
-      return tsOrDate.toDate().toLocaleString('pt-BR');
-    }
-    const d = tsOrDate instanceof Date ? tsOrDate : new Date(tsOrDate);
-    return isNaN(d.getTime()) ? '—' : d.toLocaleString('pt-BR');
-  } catch {
-    return '—';
-  }
+    if (!v) return null;
+    if (typeof v.toDate === 'function') return v.toDate();
+    if (v instanceof Date) return v;
+    const d = new Date(v);
+    return isNaN(d.getTime()) ? null : d;
+  } catch { return null; }
 }
 
 const ChamadoDetalhe = ({ user }) => {
+  const { t, i18n } = useTranslation();
   const { id } = useParams();
   const navigate = useNavigate();
 
@@ -26,7 +30,7 @@ const ChamadoDetalhe = ({ user }) => {
   const [loading, setLoading] = useState(true);
   const [isUpdating, setIsUpdating] = useState(false);
 
-  // campos de conclusão
+  // conclusão
   const [solucao, setSolucao] = useState('');
   const [checklist, setChecklist] = useState([]);
   const [causas, setCausas] = useState([]);
@@ -46,6 +50,16 @@ const ChamadoDetalhe = ({ user }) => {
   const [isDeleting, setIsDeleting] = useState(false);
   const podeExcluir = isGestor && ['Aberto', 'Em Andamento', 'Concluído'].includes(chamado?.status);
 
+  // formatter de data/hora conforme idioma atual
+  const fmtDate = useMemo(
+    () => new Intl.DateTimeFormat(i18n.language, { dateStyle: 'short' }),
+    [i18n.language]
+  );
+  const fmtDateTime = useMemo(
+    () => new Intl.DateTimeFormat(i18n.language, { dateStyle: 'short', timeStyle: 'short' }),
+    [i18n.language]
+  );
+
   // --------- carregar chamado ---------
   useEffect(() => {
     const ref = doc(db, 'chamados', id);
@@ -60,33 +74,25 @@ const ChamadoDetalhe = ({ user }) => {
         const data = { id: snap.id, ...snap.data() };
         setChamado(data);
 
-        // preparar checklist (se houver)
         if (Array.isArray(data.checklist)) {
-          const lista = data.checklist.map((it) => ({
-            ...it,
-            resposta: it.resposta || 'sim'
-          }));
+          const lista = data.checklist.map((it) => ({ ...it, resposta: it.resposta || 'sim' }));
           setChecklist(lista);
         }
 
-        // pré-selecionar manutentor se já houver atribuição
         if (data.assignedTo) setSelectedManutentor(data.assignedTo);
-
-        // causa (não-preventiva)
         setCausa(data.causa || '');
-
         setLoading(false);
       },
       (err) => {
         console.error('Erro ao ouvir chamado:', err);
-        toast.error('Erro ao carregar chamado.');
+        toast.error(t('chamadoDetalhe.toasts.loadError'));
         setLoading(false);
       }
     );
     return () => unsub();
-  }, [id]);
+  }, [id, t]);
 
-  // --------- carregar causas raiz ---------
+  // --------- causas raiz ---------
   useEffect(() => {
     const unsub = onSnapshot(
       collection(db, 'causasRaiz'),
@@ -99,38 +105,32 @@ const ChamadoDetalhe = ({ user }) => {
     return () => unsub();
   }, []);
 
-  // --------- carregar lista de manutentores (somente gestor) ---------
+  // --------- manutentores (somente gestor) ---------
   useEffect(() => {
     if (!isGestor) return;
     const q = query(
       collection(db, 'usuarios'),
       where('role', '==', 'manutentor'),
-      orderBy('nome', 'asc') // se não tiver "nome", trocamos depois
+      orderBy('nome', 'asc')
     );
     const unsub = onSnapshot(
       q,
       (snap) => {
         const lista = snap.docs.map((d) => {
           const u = d.data() || {};
-          return {
-            uid: d.id,
-            nome: u.nome || u.displayName || u.email || d.id
-          };
+          return { uid: d.id, nome: u.nome || u.displayName || u.email || d.id };
         });
         setManutentores(lista);
       },
-      (err) => {
-        console.error('Erro ao listar manutentores:', err);
-        toast.error('Sem permissão para listar manutentores.');
-      }
+      () => toast.error(t('chamadoDetalhe.toasts.listMaintDenied'))
     );
     return () => unsub();
-  }, [isGestor]);
+  }, [isGestor, t]);
 
   // --------- ações: atribuir / remover atribuição ---------
   async function handleAtribuir() {
     if (!selectedManutentor) {
-      toast.error('Selecione um manutentor.');
+      toast.error(t('chamadoDetalhe.toasts.selectMaint'));
       return;
     }
     setAssigning(true);
@@ -144,15 +144,18 @@ const ChamadoDetalhe = ({ user }) => {
         assignedAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
         observacoes: arrayUnion({
-          texto: `Atribuído para ${alvo?.nome || selectedManutentor} por ${user?.nome || user?.displayName || 'Gestor'}`,
+          texto: t('chamadoDetalhe.history.assigned', {
+            assignee: alvo?.nome || selectedManutentor,
+            by: user?.nome || user?.displayName || t('common.manager')
+          }),
           autor: 'Sistema',
           data: Timestamp.now()
         })
       });
-      toast.success('Chamado atribuído.');
+      toast.success(t('chamadoDetalhe.toasts.assigned'));
     } catch (e) {
       console.error(e);
-      toast.error('Erro ao atribuir chamado.');
+      toast.error(t('chamadoDetalhe.toasts.assignError'));
     } finally {
       setAssigning(false);
     }
@@ -169,16 +172,18 @@ const ChamadoDetalhe = ({ user }) => {
         assignedAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
         observacoes: arrayUnion({
-          texto: `Atribuição removida por ${user?.nome || user?.displayName || 'Gestor'}`,
+          texto: t('chamadoDetalhe.history.unassigned', {
+            by: user?.nome || user?.displayName || t('common.manager')
+          }),
           autor: 'Sistema',
           data: Timestamp.now()
         })
       });
       setSelectedManutentor('');
-      toast.success('Atribuição removida.');
+      toast.success(t('chamadoDetalhe.toasts.unassigned'));
     } catch (e) {
       console.error(e);
-      toast.error('Erro ao remover atribuição.');
+      toast.error(t('chamadoDetalhe.toasts.unassignError'));
     } finally {
       setAssigning(false);
     }
@@ -197,7 +202,7 @@ const ChamadoDetalhe = ({ user }) => {
 
   async function handleAtenderChamado() {
     if (chamado?.assignedTo && chamado.assignedTo !== user?.uid) {
-      toast.error('Este chamado foi atribuído a outro manutentor.');
+      toast.error(t('chamadoDetalhe.toasts.assignedToOther'));
       return;
     }
     setIsUpdating(true);
@@ -209,15 +214,17 @@ const ChamadoDetalhe = ({ user }) => {
         manutentorNome: user?.nome || user?.displayName || user?.email || '—',
         updatedAt: serverTimestamp(),
         observacoes: arrayUnion({
-          texto: `Chamado atendido por ${user?.nome || user?.displayName || 'Manutentor'}`,
+          texto: t('chamadoDetalhe.history.taken', {
+            by: user?.nome || user?.displayName || t('common.maintainer')
+          }),
           autor: 'Sistema',
           data: Timestamp.now()
         })
       });
-      toast.success('Chamado atendido.');
+      toast.success(t('chamadoDetalhe.toasts.taken'));
     } catch (e) {
       console.error(e);
-      toast.error('Erro ao atender chamado.');
+      toast.error(t('chamadoDetalhe.toasts.takeError'));
     } finally {
       setIsUpdating(false);
     }
@@ -244,10 +251,10 @@ const ChamadoDetalhe = ({ user }) => {
         })
       });
       setNovaObservacao('');
-      toast.success('Observação adicionada.');
+      toast.success(t('chamadoDetalhe.toasts.noteAdded'));
     } catch (e) {
       console.error(e);
-      toast.error('Erro ao adicionar observação.');
+      toast.error(t('chamadoDetalhe.toasts.noteError'));
     } finally {
       setIsUpdating(false);
     }
@@ -257,7 +264,7 @@ const ChamadoDetalhe = ({ user }) => {
     e.preventDefault();
 
     if (chamado?.manutentorId && chamado.manutentorId !== user?.uid) {
-      toast.error('Apenas o manutentor que atendeu pode concluir este chamado.');
+      toast.error(t('chamadoDetalhe.toasts.finishOnlyOwner'));
       return;
     }
 
@@ -271,7 +278,6 @@ const ChamadoDetalhe = ({ user }) => {
 
     try {
       if (chamado?.tipo === 'preventiva') {
-        // salva checklist e cria corretivos se houver "não"
         const itensComFalha = (checklist || []).filter((i) => i.resposta === 'nao');
         await updateDoc(ref, { ...updatesBase, checklist });
 
@@ -279,24 +285,23 @@ const ChamadoDetalhe = ({ user }) => {
           for (const item of itensComFalha) {
             await addDoc(collection(db, 'chamados'), {
               maquina: chamado.maquina,
-              descricao: `Item do checklist preventivo "NÃO": "${item.item}"`,
+              descricao: t('chamadoDetalhe.autoCorrective', { item: item.item }),
               status: 'Aberto',
               tipo: 'corretiva',
-              operadorNome: `Sistema (Gerado pela Preventiva de ${user?.nome || user?.displayName || '—'})`,
+              operadorNome: t('chamadoDetalhe.autoBy', { name: user?.nome || user?.displayName || '—' }),
               dataAbertura: serverTimestamp()
             });
           }
-          toast.success(`${itensComFalha.length} chamado(s) corretivo(s) aberto(s) automaticamente.`);
+          toast.success(t('chamadoDetalhe.toasts.autoOpened', { count: itensComFalha.length }));
         }
       } else {
-        // não-preventiva: exige causa + solução
         if (!causa) {
-          toast.error('Selecione a causa da falha antes de concluir.');
+          toast.error(t('chamadoDetalhe.toasts.selectCause'));
           setIsUpdating(false);
           return;
         }
         if (!solucao.trim()) {
-          toast.error('Descreva o serviço realizado.');
+          toast.error(t('chamadoDetalhe.toasts.describeService'));
           setIsUpdating(false);
           return;
         }
@@ -310,7 +315,7 @@ const ChamadoDetalhe = ({ user }) => {
         let original = null;
         if (agSnap.exists()) {
           const raw = agSnap.data().originalStart;
-          original = typeof raw?.toDate === 'function' ? raw.toDate() : raw ? new Date(raw) : null;
+          original = asDate(raw);
         }
         const now = new Date();
         let atrasado = false;
@@ -319,11 +324,7 @@ const ChamadoDetalhe = ({ user }) => {
           const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
           atrasado = today > origDay;
         }
-        await updateDoc(agRef, {
-          status: 'concluido',
-          concluidoEm: serverTimestamp(),
-          atrasado
-        });
+        await updateDoc(agRef, { status: 'concluido', concluidoEm: serverTimestamp(), atrasado });
       }
 
       // atualizar plano (preventivo/preditivo) se houver
@@ -337,122 +338,120 @@ const ChamadoDetalhe = ({ user }) => {
           if (plano?.frequencia) {
             novaProximaData.setDate(novaProximaData.getDate() + Number(plano.frequencia || 0));
           }
-          await updateDoc(planoRef, {
-            proximaData: novaProximaData,
-            dataUltimaManutencao: serverTimestamp()
-          });
+          await updateDoc(planoRef, { proximaData: novaProximaData, dataUltimaManutencao: serverTimestamp() });
         }
       }
 
-      toast.success('Chamado concluído com sucesso!');
+      toast.success(t('chamadoDetalhe.toasts.finished'));
       navigate('/');
     } catch (e) {
       console.error('Erro ao concluir:', e);
-      toast.error('Ocorreu um erro ao concluir.');
+      toast.error(t('chamadoDetalhe.toasts.finishError'));
     } finally {
       setIsUpdating(false);
     }
   }
 
   async function handleExcluirChamado() {
-  if (!isGestor) {
-    toast.error('Apenas gestores podem excluir chamado.');
-    return;
-  }
-  if (!window.confirm('Tem certeza que deseja excluir este chamado? Esta ação é irreversível.')) {
-    return;
-  }
-  setIsDeleting(true);
-  try {
-    // Se veio do checklist e tinha lock, libera antes de excluir
-    if (chamado?.origin === 'checklist' && chamado?.refLockId) {
-      try {
-        const lockRef = doc(db, 'checklistLocks', chamado.refLockId);
-        await updateDoc(lockRef, {
-          status: 'Concluído',
-          unlockedAt: serverTimestamp(),
-        });
-      } catch (e) {
-        console.warn('Não foi possível atualizar lock antes de excluir:', e);
-      }
+    if (!isGestor) {
+      toast.error(t('chamadoDetalhe.toasts.onlyManagerDelete'));
+      return;
     }
+    if (!window.confirm(t('chamadoDetalhe.delete.confirm'))) return;
 
-    // Exclui o documento do chamado
-    await deleteDoc(doc(db, 'chamados', id));
+    setIsDeleting(true);
+    try {
+      if (chamado?.origin === 'checklist' && chamado?.refLockId) {
+        try {
+          const lockRef = doc(db, 'checklistLocks', chamado.refLockId);
+          await updateDoc(lockRef, { status: 'Concluído', unlockedAt: serverTimestamp() });
+        } catch (e) {
+          console.warn('Não foi possível atualizar lock antes de excluir:', e);
+        }
+      }
 
-    toast.success('Chamado excluído com sucesso.');
-    navigate(-1); // volta para a tela anterior; se preferir: navigate('/meus-chamados')
-  } catch (e) {
-    console.error('Erro ao excluir chamado:', e);
-    toast.error('Erro ao excluir chamado.');
-  } finally {
-    setIsDeleting(false);
+      await deleteDoc(doc(db, 'chamados', id));
+
+      toast.success(t('chamadoDetalhe.toasts.deleted'));
+      navigate(-1);
+    } catch (e) {
+      console.error('Erro ao excluir chamado:', e);
+      toast.error(t('chamadoDetalhe.toasts.deleteError'));
+    } finally {
+      setIsDeleting(false);
+    }
   }
-}
 
   // --------- render ---------
-  if (loading) return <p style={{ padding: 20 }}>Carregando...</p>;
-  if (!chamado) return <p style={{ padding: 20 }}>Chamado não encontrado.</p>;
+  if (loading) return <p style={{ padding: 20 }}>{t('common.loading')}</p>;
+  if (!chamado) return <p style={{ padding: 20 }}>{t('chamadoDetalhe.notFound')}</p>;
 
-  const openedAt = chamado?.dataAbertura ? formatTS(chamado.dataAbertura) : '—';
+  const openedAt = chamado?.dataAbertura ? fmtDateTime.format(asDate(chamado.dataAbertura)) : '—';
 
   return (
     <div className={styles.container}>
       <header className={styles.header}>
-        <h1>Máquina: {chamado.maquina}</h1>
-        <small>Aberto por {chamado.operadorNome} em {openedAt}</small>
+        <h1>{t('chamadoDetalhe.header.machine', { name: chamado.maquina })}</h1>
+        <small>
+          {t('chamadoDetalhe.header.openedBy', {
+            name: chamado.operadorNome,
+            date: openedAt
+          })}
+        </small>
       </header>
 
       <div className={styles.card}>
         <div className={styles.detailsGrid}>
           <div className={styles.detailItem}>
-            <strong>Status</strong>
+            <strong>{t('chamadoDetalhe.fields.status')}</strong>
             <p>
               <span className={`${styles.statusBadge} ${styles[chamado.status?.toLowerCase()?.replace(' ', '')]}`}>
-                {chamado.status}
+                {t(`status.${statusKey(chamado.status)}`)}
               </span>
             </p>
           </div>
 
           {chamado.manutentorNome && (
             <div className={styles.detailItem}>
-              <strong>Atendido por</strong>
+              <strong>{t('chamadoDetalhe.fields.takenBy')}</strong>
               <p>{chamado.manutentorNome}</p>
             </div>
           )}
 
           {chamado.assignedToNome && (
             <div className={styles.detailItem}>
-              <strong>Atribuído a</strong>
+              <strong>{t('chamadoDetalhe.fields.assignedTo')}</strong>
               <p>{chamado.assignedToNome}</p>
             </div>
           )}
 
           <div className={styles.detailItem}>
-            <strong>Problema Reportado</strong>
+            <strong>{t('chamadoDetalhe.fields.reportedProblem')}</strong>
             <p style={{ wordBreak: 'break-word' }}>{chamado.descricao}</p>
           </div>
 
-          {/* Se já concluído, mostra resumo da conclusão */}
           {chamado.status === 'Concluído' && (
             chamado.tipo === 'preventiva' ? (
               <div className={styles.detailItem}>
-                <strong>Checklist Concluído</strong>
-                <p>{(chamado.checklist || []).filter(i => i.resposta === 'sim').length} de {(chamado.checklist || []).length} itens checados.</p>
+                <strong>{t('chamadoDetalhe.fields.checklistDone')}</strong>
+                <p>
+                  {((chamado.checklist || []).filter(i => i.resposta === 'sim').length)} {t('chamadoDetalhe.of')} {(chamado.checklist || []).length}
+                </p>
               </div>
             ) : (
               <div className={styles.detailItem}>
-                <strong>Serviço Realizado</strong>
+                <strong>{t('chamadoDetalhe.fields.performedService')}</strong>
                 <p style={{ wordBreak: 'break-word' }}>{chamado.solucao}</p>
-                <small>Concluído em: {formatTS(chamado.dataConclusao)}</small>
+                <small>{t('chamadoDetalhe.fields.finishedAt', {
+                  date: chamado.dataConclusao ? fmtDateTime.format(asDate(chamado.dataConclusao)) : '—'
+                })}</small>
               </div>
             )
           )}
 
-          {/* Causa (não preventiva) durante execução */}
           {chamado.tipo !== 'preventiva' && ['Em Andamento', 'Concluído'].includes(chamado.status) && (
             <div className={styles.detailItem}>
-              <strong>Causa da Falha</strong>
+              <strong>{t('chamadoDetalhe.fields.cause')}</strong>
               {chamado.status === 'Em Andamento' ? (
                 <select
                   id="causa"
@@ -461,7 +460,7 @@ const ChamadoDetalhe = ({ user }) => {
                   className={styles.select}
                   required
                 >
-                  <option value="" disabled>Selecione a causa...</option>
+                  <option value="" disabled>{t('chamadoDetalhe.selects.causePlaceholder')}</option>
                   {causas.map((nome) => (
                     <option key={nome} value={nome}>
                       {nome.charAt(0).toUpperCase() + nome.slice(1)}
@@ -476,31 +475,27 @@ const ChamadoDetalhe = ({ user }) => {
         </div>
       </div>
 
-      {/* Card de Atribuição (somente gestor, enquanto não concluído) */}
+      {/* Atribuição (gestor) */}
       {isGestor && chamado.status !== 'Concluído' && (
         <div className={styles.card}>
-          <h2 className={styles.cardTitle}>Atribuir manutentor</h2>
+          <h2 className={styles.cardTitle}>{t('chamadoDetalhe.assign.title')}</h2>
           <div className={styles.formGroup}>
-            <label htmlFor="manutentor">Selecionar manutentor</label>
+            <label htmlFor="manutentor">{t('chamadoDetalhe.assign.label')}</label>
             <select
               id="manutentor"
               className={styles.select}
               value={selectedManutentor}
               onChange={(e) => setSelectedManutentor(e.target.value)}
             >
-              <option value="">— Selecione —</option>
+              <option value="">{t('chamadoDetalhe.assign.placeholder')}</option>
               {manutentores.map((m) => (
                 <option key={m.uid} value={m.uid}>{m.nome}</option>
               ))}
             </select>
           </div>
           <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
-            <button
-              onClick={handleAtribuir}
-              className={styles.button}
-              disabled={assigning || !selectedManutentor}
-            >
-              {assigning ? 'Processando...' : (chamado.assignedTo ? 'Reatribuir' : 'Atribuir')}
+            <button onClick={handleAtribuir} className={styles.button} disabled={assigning || !selectedManutentor}>
+              {assigning ? t('common.processing') : (chamado.assignedTo ? t('chamadoDetalhe.assign.reassign') : t('chamadoDetalhe.assign.assign'))}
             </button>
             {chamado.assignedTo && (
               <button
@@ -509,20 +504,20 @@ const ChamadoDetalhe = ({ user }) => {
                 disabled={assigning}
                 style={{ backgroundColor: '#6c757d' }}
               >
-                {assigning ? 'Processando...' : 'Remover atribuição'}
+                {assigning ? t('common.processing') : t('chamadoDetalhe.assign.remove')}
               </button>
             )}
           </div>
         </div>
       )}
 
-      {/* Observações e histórico */}
+      {/* Observações */}
       <div className={`${styles.card} ${styles.historySection}`}>
-        <h2 className={styles.cardTitle}>Histórico de Observações</h2>
+        <h2 className={styles.cardTitle}>{t('chamadoDetalhe.history.title')}</h2>
 
         {podeConcluir && (
           <div className={styles.formGroup}>
-            <label htmlFor="observacao">Adicionar Nova Observação</label>
+            <label htmlFor="observacao">{t('chamadoDetalhe.history.add')}</label>
             <textarea
               id="observacao"
               className={styles.textarea}
@@ -536,7 +531,7 @@ const ChamadoDetalhe = ({ user }) => {
               disabled={isUpdating}
               style={{ marginTop: 10 }}
             >
-              {isUpdating ? 'Salvando...' : 'Salvar Observação'}
+              {isUpdating ? t('common.saving') : t('chamadoDetalhe.history.saveNote')}
             </button>
           </div>
         )}
@@ -546,12 +541,12 @@ const ChamadoDetalhe = ({ user }) => {
             <li key={i} className={styles.historyItem}>
               <div className={styles.historyHeader}>
                 <strong>{obs.autor || '—'}</strong>
-                <span>{formatTS(obs.data)}</span>
+                <span>{obs.data ? fmtDateTime.format(asDate(obs.data)) : '—'}</span>
               </div>
               <p className={styles.historyContent}>{obs.texto}</p>
             </li>
           ))}
-          {(!chamado.observacoes || chamado.observacoes.length === 0) && <p>Nenhuma observação registrada.</p>}
+          {(!chamado.observacoes || chamado.observacoes.length === 0) && <p>{t('chamadoDetalhe.history.empty')}</p>}
         </ul>
       </div>
 
@@ -559,7 +554,7 @@ const ChamadoDetalhe = ({ user }) => {
       {podeAtender && (
         <div className={styles.card}>
           <button onClick={handleAtenderChamado} className={styles.button} disabled={isUpdating}>
-            {isUpdating ? 'Processando...' : 'Atender Chamado'}
+            {isUpdating ? t('common.processing') : t('chamadoDetalhe.actions.take')}
           </button>
         </div>
       )}
@@ -567,7 +562,7 @@ const ChamadoDetalhe = ({ user }) => {
       {podeConcluir && (
         chamado.tipo === 'preventiva' ? (
           <div className={styles.card}>
-            <h2 className={styles.cardTitle}>Checklist de Manutenção</h2>
+            <h2 className={styles.cardTitle}>{t('chamadoDetalhe.preventive.title')}</h2>
             <form onSubmit={handleConcluirChamado} className={styles.checklistContainer}>
               {checklist.map((item, idx) => (
                 <div key={idx} className={styles.checklistItem}>
@@ -580,7 +575,7 @@ const ChamadoDetalhe = ({ user }) => {
                       checked={item.resposta === 'sim'}
                       onChange={() => handleChecklistItemToggle(idx, 'sim')}
                     />
-                    <label htmlFor={`sim-${idx}`}>Sim</label>
+                    <label htmlFor={`sim-${idx}`}>{t('common.yes')}</label>
 
                     <input
                       type="radio"
@@ -589,21 +584,21 @@ const ChamadoDetalhe = ({ user }) => {
                       checked={item.resposta === 'nao'}
                       onChange={() => handleChecklistItemToggle(idx, 'nao')}
                     />
-                    <label htmlFor={`nao-${idx}`}>Não</label>
+                    <label htmlFor={`nao-${idx}`}>{t('common.no')}</label>
                   </div>
                 </div>
               ))}
               <button type="submit" className={styles.button} disabled={isUpdating}>
-                {isUpdating ? 'Concluindo...' : 'Concluir Chamado'}
+                {isUpdating ? t('chamadoDetalhe.actions.finishing') : t('chamadoDetalhe.actions.finish')}
               </button>
             </form>
           </div>
         ) : (
           <div className={styles.card}>
-            <h2 className={styles.cardTitle}>Registrar Solução e Concluir</h2>
+            <h2 className={styles.cardTitle}>{t('chamadoDetalhe.corrective.title')}</h2>
             <form onSubmit={handleConcluirChamado}>
               <div className={styles.formGroup}>
-                <label htmlFor="solucao">Serviço Realizado / Solução Aplicada</label>
+                <label htmlFor="solucao">{t('chamadoDetalhe.corrective.solutionLabel')}</label>
                 <textarea
                   id="solucao"
                   className={styles.textarea}
@@ -614,7 +609,7 @@ const ChamadoDetalhe = ({ user }) => {
                 />
               </div>
               <button type="submit" className={styles.button} disabled={isUpdating || !causa}>
-                {isUpdating ? 'Salvando...' : 'Concluir Chamado'}
+                {isUpdating ? t('common.saving') : t('chamadoDetalhe.actions.finish')}
               </button>
             </form>
           </div>
@@ -627,9 +622,9 @@ const ChamadoDetalhe = ({ user }) => {
             onClick={handleExcluirChamado}
             className={`${styles.button} ${styles.buttonDanger}`}
             disabled={isDeleting}
-            title="Excluir definitivamente este chamado"
+            title={t('chamadoDetalhe.delete.title')}
           >
-            {isDeleting ? 'Excluindo...' : 'Excluir Chamado'}
+            {isDeleting ? t('common.deleting') : t('chamadoDetalhe.delete.button')}
           </button>
         </div>
       )}

@@ -1,11 +1,12 @@
-// src/pages/InicioTurnoPage.jsx
-
 import React, { useState, useEffect } from 'react';
 import { db } from '../firebase';
 import { collection, query, onSnapshot, orderBy } from 'firebase/firestore';
 import styles from './InicioTurnoPage.module.css';
+import { useTranslation } from 'react-i18next';
 
 const InicioTurnoPage = ({ user, onTurnoConfirmado }) => {
+  const { t } = useTranslation();
+
   const [todasMaquinas, setTodasMaquinas] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -24,22 +25,16 @@ const InicioTurnoPage = ({ user, onTurnoConfirmado }) => {
   }, []);
 
   const handleSelecaoMaquina = (maquinaId) => {
-    // Lógica para adicionar ou remover uma máquina da lista de selecionadas
-    setMaquinasSelecionadas(prev => {
-      if (prev.includes(maquinaId)) {
-        return prev.filter(id => id !== maquinaId);
-      } else {
-        return [...prev, maquinaId];
-      }
-    });
+    setMaquinasSelecionadas(prev =>
+      prev.includes(maquinaId) ? prev.filter(id => id !== maquinaId) : [...prev, maquinaId]
+    );
   };
 
   const handleConfirmarTurno = () => {
     if (maquinasSelecionadas.length === 0) {
-      alert("Por favor, selecione pelo menos uma máquina.");
+      alert(t('inicioTurno.alert.selectOne'));
       return;
     }
-    // Envia os dados da seleção para o componente App
     onTurnoConfirmado({
       turno: turnoSelecionado,
       maquinas: maquinasSelecionadas,
@@ -50,32 +45,34 @@ const InicioTurnoPage = ({ user, onTurnoConfirmado }) => {
     <div className={styles.pageContainer}>
       <div className={styles.card}>
         <div className={styles.header}>
-          <h1>Início de Turno</h1>
-          <p>Olá, {user.nome}. Por favor, informe seu turno e as máquinas em que irá trabalhar hoje.</p>
+          <h1>{t('inicioTurno.title')}</h1>
+          <p>{t('inicioTurno.greeting', { name: user?.nome || '' })}</p>
         </div>
 
-        {loading ? <p>Carregando...</p> : (
+        {loading ? (
+          <p>{t('inicioTurno.loading')}</p>
+        ) : (
           <div>
             <div className={styles.formGroup}>
-              <label htmlFor="turno">Seu Turno</label>
-              <select 
-                id="turno" 
+              <label htmlFor="turno">{t('inicioTurno.fields.shift')}</label>
+              <select
+                id="turno"
                 className={styles.select}
                 value={turnoSelecionado}
                 onChange={(e) => setTurnoSelecionado(e.target.value)}
               >
-                <option value="turno1">1º Turno (05:30 - 15:18)</option>
-                <option value="turno2">2º Turno (15:18 - 00:48)</option>
+                <option value="turno1">{t('inicioTurno.shifts.shift1')}</option>
+                <option value="turno2">{t('inicioTurno.shifts.shift2')}</option>
               </select>
             </div>
 
             <div className={styles.formGroup}>
-              <label>Máquinas sob sua responsabilidade hoje (selecione uma ou mais)</label>
+              <label>{t('inicioTurno.fields.machinesLabel')}</label>
               <div className={styles.machineList}>
                 {todasMaquinas.map(maquina => (
                   <div key={maquina.id} className={styles.machineCheckbox}>
-                    <input 
-                      type="checkbox" 
+                    <input
+                      type="checkbox"
                       id={maquina.id}
                       checked={maquinasSelecionadas.includes(maquina.id)}
                       onChange={() => handleSelecaoMaquina(maquina.id)}
@@ -85,9 +82,9 @@ const InicioTurnoPage = ({ user, onTurnoConfirmado }) => {
                 ))}
               </div>
             </div>
-            
+
             <button onClick={handleConfirmarTurno} className={styles.button}>
-              Confirmar e Iniciar Checklists
+              {t('inicioTurno.confirmBtn')}
             </button>
           </div>
         )}
