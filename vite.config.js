@@ -7,13 +7,14 @@ export default defineConfig({
   plugins: [
     react(),
     VitePWA({
+      strategies: 'generateSW', 
       registerType: 'autoUpdate',
       includeAssets: [
         'favicon.svg',
         'robots.txt',
         'apple-touch-icon.png'
       ],
-      devOptions: { enabled: true },
+      //devOptions: { enabled: true },
       manifest: {
         name: 'TPM – Manutenção',
         short_name: 'TPM',
@@ -31,6 +32,7 @@ export default defineConfig({
         ]
       },
       workbox: {
+        navigationPreload: true,
         globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2,webp}'],
         navigateFallback: '/index.html', // SPA fallback
         cleanupOutdatedCaches: true,
