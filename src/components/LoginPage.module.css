@@ -164,3 +164,18 @@
   font-size: 18px; /* emojis de bandeira grandes e nítidos */
   line-height: 1;
 }
+
+.pageWrapper { position: relative; }
+
+/* posiciona o seletor no canto superior direito da tela de login */
+.loginLangMenu {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  z-index: 1000;
+}
+
+/* (opcional) ajuste em telas muito pequenas */
+@media (max-width: 480px) {
+  .loginLangMenu { top: 12px; right: 12px; }
+}

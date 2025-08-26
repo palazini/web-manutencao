@@ -8,18 +8,15 @@ import toast from 'react-hot-toast';
 import styles from './LoginPage.module.css';
 import logo from '../assets/logo.png';
 
+// ⬇️ novo: seletor de idioma com popover
+import LanguageMenu from './LanguageMenu.jsx';
+
 const LoginPage = () => {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const [userInput, setUserInput] = useState('');
   const [senha, setSenha] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-
-  const changeLang = (lng) => {
-    i18n.changeLanguage(lng);
-    // opcional: refletir no <html lang="...">
-    document.documentElement.lang = lng;
-  };
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -40,34 +37,10 @@ const LoginPage = () => {
     }
   };
 
-  const lang = i18n.resolvedLanguage || 'pt';
-
   return (
     <div className={styles.pageWrapper}>
-      {/* === Seletor de idioma (bandeiras) === */}
-      <div className={styles.langSwitcher} aria-label="Selecionar idioma">
-        <button
-          type="button"
-          className={`${styles.flagBtn} ${lang === 'pt' ? styles.isActive : ''}`}
-          onClick={() => changeLang('pt')}
-          aria-pressed={lang === 'pt'}
-          title="Português (Brasil)"
-        >
-          <span className={styles.flag} role="img" aria-label="Português">🇧🇷</span>
-          <span>PT-BR</span>
-        </button>
-
-        <button
-          type="button"
-          className={`${styles.flagBtn} ${lang === 'es' ? styles.isActive : ''}`}
-          onClick={() => changeLang('es')}
-          aria-pressed={lang === 'es'}
-          title="Español"
-        >
-          <span className={styles.flag} role="img" aria-label="Español">🇪🇸</span>
-          <span>ES</span>
-        </button>
-      </div>
+      {/* Seletor de idioma (popover) */}
+      <LanguageMenu className={styles.loginLangMenu} />
 
       <div className={styles.loginContainer}>
         <div className={styles.logoContainer}>
