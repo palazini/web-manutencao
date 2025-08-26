@@ -7,42 +7,9 @@ export default defineConfig({
   plugins: [
     react(),
     VitePWA({
-      registerType: 'prompt',      // mostra aviso de atualização
+      registerType: 'autoUpdate', // atualiza sozinho
       includeAssets: ['favicon.svg', 'robots.txt'],
-      devOptions: { enabled: true }, // permite testar no dev
-      workbox: {
-        globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
-        // Evita cachear streams/long-poll do Firestore e endpoints do Firebase
-        runtimeCaching: [
-          {
-            urlPattern: ({ url }) =>
-              url.host.includes('googleapis.com') ||
-              url.host.includes('gstatic.com') ||
-              url.pathname.includes('/google.firestore.v1.Firestore/'),
-            handler: 'NetworkOnly',
-            method: 'GET',
-          },
-          {
-            // navegação (HTML) => NetworkFirst (funciona offline com fallback)
-            urlPattern: ({ request }) => request.mode === 'navigate',
-            handler: 'NetworkFirst',
-            options: { cacheName: 'html-pages' }
-          },
-          {
-            // assets estáticos => SWR
-            urlPattern: ({ request, sameOrigin }) =>
-              sameOrigin && ['style', 'script', 'worker'].includes(request.destination),
-            handler: 'StaleWhileRevalidate',
-            options: { cacheName: 'static-assets' }
-          },
-          {
-            // imagens
-            urlPattern: ({ request }) => request.destination === 'image',
-            handler: 'StaleWhileRevalidate',
-            options: { cacheName: 'images' }
-          }
-        ],
-      },
+      devOptions: { enabled: true },
       manifest: {
         name: 'TPM – Manutenção',
         short_name: 'TPM',
@@ -60,8 +27,41 @@ export default defineConfig({
         ]
       },
       workbox: {
+        cleanupOutdatedCaches: true,
+        clientsClaim: true,
+        skipWaiting: true,
         maximumFileSizeToCacheInBytes: 5 * 1024 * 1024, // 5 MiB
         globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
+        runtimeCaching: [
+          {
+            // não cacheia firestore / google apis
+            urlPattern: ({ url }) =>
+              url.host.includes('googleapis.com') ||
+              url.host.includes('gstatic.com') ||
+              url.pathname.includes('/google.firestore.v1.Firestore/'),
+            handler: 'NetworkOnly',
+            method: 'GET',
+          },
+          {
+            // páginas HTML
+            urlPattern: ({ request }) => request.mode === 'navigate',
+            handler: 'NetworkFirst',
+            options: { cacheName: 'html-pages' }
+          },
+          {
+            // js/css/workers locais
+            urlPattern: ({ request, sameOrigin }) =>
+              sameOrigin && ['style', 'script', 'worker'].includes(request.destination),
+            handler: 'StaleWhileRevalidate',
+            options: { cacheName: 'static-assets' }
+          },
+          {
+            // imagens
+            urlPattern: ({ request }) => request.destination === 'image',
+            handler: 'StaleWhileRevalidate',
+            options: { cacheName: 'images' }
+          }
+        ]
       }
     })
   ]

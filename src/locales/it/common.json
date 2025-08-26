@@ -644,5 +644,12 @@
       "machine": "Macchina: {{name}}",
       "openedAt": "Aperto il: {{date}}"
     }
+  },
+
+  "pwa": {
+    "offlineReady": "App disponibile offline.",
+    "newVersion": "Nuova versione disponibile.",
+    "update": "Aggiorna",
+    "dismiss": "Non ora"
   }
 }
