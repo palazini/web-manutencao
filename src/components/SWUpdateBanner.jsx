@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+// src/components/SWUpdateBanner.jsx
+import React, { useRef, useState, useEffect } from 'react';
 import { useRegisterSW } from 'virtual:pwa-register/react';
 import { useTranslation } from 'react-i18next';
 import styles from './SWUpdateBanner.module.css';
@@ -7,16 +8,31 @@ const isStandalone = () =>
   window.matchMedia?.('(display-mode: standalone)')?.matches ||
   window.navigator?.standalone === true; // iOS
 
-export default function SWUpdateBanner({ onlyStandalone = true }) {
-  const { needRefresh, offlineReady, updateServiceWorker } = useRegisterSW();
-  const [dismissed, setDismissed] = useState(false);
+export default function SWUpdateBanner({ showOnlyInApp = true, autoUpdateOnWeb = false }) {
+  const { t } = useTranslation();
 
+  // 👉 registra o SW aqui, apenas uma vez, já na primeira carga
+  const { needRefresh, offlineReady, updateServiceWorker } = useRegisterSW({
+    immediate: true
+  });
+
+  const [dismissed, setDismissed] = useState(false);
   const standalone = isStandalone();
 
-  // se pediu para exibir só quando instalado e não está instalado: não renderiza
-  if (onlyStandalone && !standalone) return null;
+  // (opcional) Se quiser auto-atualizar no web sem mostrar banner, chame apenas UMA vez
+  const updatedOnce = useRef(false);
+  useEffect(() => {
+    if (!standalone && autoUpdateOnWeb && needRefresh && !updatedOnce.current) {
+      updatedOnce.current = true;
+      updateServiceWorker(true);
+    }
+  }, [standalone, autoUpdateOnWeb, needRefresh, updateServiceWorker]);
+
+  // Mostrar só quando instalado (recomendado)
+  if (showOnlyInApp && !standalone) return null;
+
   if ((!(needRefresh || offlineReady)) || dismissed) return null;
-  
+
   return (
     <div className={styles.banner} role="region" aria-live="polite">
       <div className={styles.content}>
@@ -26,7 +42,7 @@ export default function SWUpdateBanner({ onlyStandalone = true }) {
             <span className={styles.text}>{t('pwa.newVersion')}</span>
             <button
               className={styles.primary}
-              onClick={() => updateServiceWorker(true)} // skipWaiting + clientsClaim
+              onClick={() => updateServiceWorker(true)}
             >
               {t('pwa.update')}
             </button>
