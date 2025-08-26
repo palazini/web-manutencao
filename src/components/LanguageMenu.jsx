@@ -31,7 +31,6 @@ const DEFAULT_LANGS = [
   { code: 'zh-Hans', label: '简体中文' }, // Simplificado (rótulo nativo)
   { code: 'zh-Hant', label: '繁體中文' },  // Tradicional (rótulo nativo)
   { code: 'ja', label: '日本語' },
-  { code: 'ko', label: '한국어' }
 ];
 
 // mantém o script para zh (Hans/Hant) ao resolver o idioma atual
