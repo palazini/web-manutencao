@@ -1,4 +1,4 @@
-// vite.config.js
+// vite.config.ts
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
@@ -7,8 +7,12 @@ export default defineConfig({
   plugins: [
     react(),
     VitePWA({
-      registerType: 'autoUpdate', // atualiza sozinho
-      includeAssets: ['favicon.svg', 'robots.txt'],
+      registerType: 'autoUpdate',
+      includeAssets: [
+        'favicon.svg',
+        'robots.txt',
+        'apple-touch-icon.png'
+      ],
       devOptions: { enabled: true },
       manifest: {
         name: 'TPM – Manutenção',
@@ -17,8 +21,8 @@ export default defineConfig({
         start_url: '/',
         scope: '/',
         display: 'standalone',
-        theme_color: '#111827',
         background_color: '#ffffff',
+        theme_color: '#111827',
         icons: [
           { src: '/icons/icon-192.png', sizes: '192x192', type: 'image/png' },
           { src: '/icons/icon-512.png', sizes: '512x512', type: 'image/png' },
@@ -27,36 +31,53 @@ export default defineConfig({
         ]
       },
       workbox: {
+        globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2,webp}'],
+        navigateFallback: '/index.html', // SPA fallback
         cleanupOutdatedCaches: true,
         clientsClaim: true,
         skipWaiting: true,
-        maximumFileSizeToCacheInBytes: 5 * 1024 * 1024, // 5 MiB
-        globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
+        maximumFileSizeToCacheInBytes: 6 * 1024 * 1024, // até 6 MiB
         runtimeCaching: [
+          // Firestore API
           {
-            // não cacheia firestore / google apis
+            urlPattern: /^https:\/\/firestore\.googleapis\.com\//,
+            handler: 'NetworkFirst',
+            options: {
+              cacheName: 'api-firestore',
+              networkTimeoutSeconds: 8
+            }
+          },
+          // Firebase Storage
+          {
+            urlPattern: /^https:\/\/firebasestorage\.googleapis\.com\//,
+            handler: 'NetworkFirst',
+            options: {
+              cacheName: 'api-storage',
+              networkTimeoutSeconds: 8
+            }
+          },
+          // bloqueia googleapis/gstatic gerais (ex: auth, sdk)
+          {
             urlPattern: ({ url }) =>
               url.host.includes('googleapis.com') ||
-              url.host.includes('gstatic.com') ||
-              url.pathname.includes('/google.firestore.v1.Firestore/'),
-            handler: 'NetworkOnly',
-            method: 'GET',
+              url.host.includes('gstatic.com'),
+            handler: 'NetworkOnly'
           },
+          // páginas HTML navegadas
           {
-            // páginas HTML
             urlPattern: ({ request }) => request.mode === 'navigate',
             handler: 'NetworkFirst',
             options: { cacheName: 'html-pages' }
           },
+          // js/css/workers locais
           {
-            // js/css/workers locais
             urlPattern: ({ request, sameOrigin }) =>
               sameOrigin && ['style', 'script', 'worker'].includes(request.destination),
             handler: 'StaleWhileRevalidate',
             options: { cacheName: 'static-assets' }
           },
+          // imagens
           {
-            // imagens
             urlPattern: ({ request }) => request.destination === 'image',
             handler: 'StaleWhileRevalidate',
             options: { cacheName: 'images' }
