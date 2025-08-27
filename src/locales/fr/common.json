@@ -12,7 +12,8 @@
     "failures": "Analyse des pannes",
     "rootCauses": "Causes racines",
     "manageUsers": "Gérer les utilisateurs",
-    "activeCalls": "ordre(s) actif(s)"
+    "activeCalls": "ordre(s) actif(s)",
+    "openCorrective": "Ouvrir un ticket"
   },
 
   "status": {
@@ -651,5 +652,34 @@
     "newVersion": "Nouvelle version disponible.",
     "update": "Mettre à jour",
     "dismiss": "Pas maintenant"
+  },
+
+  "techOpen": {
+    "header": { "title": "Ouvrir un ticket" },
+    "noAccess": "Vous n'avez pas l'autorisation d'ouvrir des tickets avec cet utilisateur.",
+    "fields": {
+      "machine": "Machine",
+      "description": "Description",
+      "takeNow": "Prendre le ticket maintenant"
+    },
+    "placeholders": {
+      "chooseMachine": "Choisissez une machine…",
+      "description": "Décrivez le problème, les symptômes et les remarques…"
+    },
+    "helper": {
+      "takeNow": "Coché : crée en 'En cours' et vous l’assigne. Décoché : crée en 'Ouvert'."
+    },
+    "cta": {
+      "disabled": "Renseignez la machine et une description (min. 5 caractères).",
+      "sending": "Envoi…",
+      "create": "Créer un ticket"
+    },
+    "errors": {
+      "loadMachines": "Impossible de charger les machines.",
+      "create": "Erreur lors de la création du ticket."
+    },
+    "success": {
+      "created": "Ticket créé avec succès !"
+    }
   }
 }

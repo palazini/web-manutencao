@@ -12,7 +12,8 @@
     "failures": "Failure Analysis",
     "rootCauses": "Root Causes",
     "manageUsers": "Manage Users",
-    "activeCalls": "active work order(s)"
+    "activeCalls": "active work order(s)",
+    "openCorrective": "Open ticket"
   },
 
   "status": {
@@ -651,5 +652,34 @@
     "newVersion": "New version available.",
     "update": "Update",
     "dismiss": "Not now"
+  },
+
+  "techOpen": {
+    "header": { "title": "Open ticket" },
+    "noAccess": "You don't have permission to open tickets with this user.",
+    "fields": {
+      "machine": "Machine",
+      "description": "Description",
+      "takeNow": "Take ticket now"
+    },
+    "placeholders": {
+      "chooseMachine": "Choose a machine…",
+      "description": "Describe the issue, symptoms, and notes…"
+    },
+    "helper": {
+      "Checked": "creates as 'In progress' and assigns to you. Unchecked: creates as 'Open'."
+    },
+    "cta": {
+      "disabled": "Fill in machine and a description (min. 5 characters).",
+      "sending": "Sending…",
+      "create": "Create ticket"
+    },
+    "errors": {
+      "loadMachines": "Couldn't load machines.",
+      "create": "Error creating ticket."
+    },
+    "success": {
+      "created": "Ticket created successfully!"
+    }
   }
 }

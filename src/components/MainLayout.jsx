@@ -6,7 +6,7 @@ import { collection, query, where, onSnapshot } from 'firebase/firestore';
 import { signOut } from 'firebase/auth';
 import {
   FiHome, FiLogOut, FiCheckSquare, FiUser, FiCalendar, FiUsers,
-  FiServer, FiMenu, FiX, FiBarChart2, FiPackage, FiClipboard, FiPieChart
+  FiServer, FiMenu, FiX, FiBarChart2, FiPackage, FiClipboard, FiPieChart, FiPlusCircle
 } from 'react-icons/fi';
 import styles from './MainLayout.module.css';
 
@@ -25,6 +25,7 @@ import CalendarioGeralPage from '../pages/CalendarioGeralPage.jsx';
 import CausasRaizPage from '../pages/CausasRaizPage.jsx';
 import EstoquePage from '../pages/EstoquePage.jsx';
 import MeusChamados from '../pages/MeusChamados';
+import AbrirChamadoManutentor from '../pages/AbrirChamadoManutentor.jsx';
 import LanguageMenu from '../components/LanguageMenu.jsx';
 
 
@@ -163,6 +164,19 @@ const MainLayout = ({ user }) => {
         </NavLink>
       )}
 
+      {user.role === 'manutentor' && (
+        <NavLink
+          to="/abrir-chamado"
+          className={({ isActive }) => {
+            const base = styles.navLink;
+            return isActive ? `${base} ${styles.activeLink}` : base;
+          }}
+        >
+          <FiPlusCircle className={styles.navIcon} />
+          <span>{t('nav.openCorrective')}</span>
+        </NavLink>
+      )}
+
       {(user.role === 'manutentor' || user.role === 'gestor') && (
         <NavLink
           to="/calendario-geral"
@@ -296,6 +310,8 @@ const MainLayout = ({ user }) => {
             <Route index element={<HistoricoPage />} />
             <Route path="chamado/:id" element={<ChamadoDetalhe user={user} />} />
           </Route>
+
+          <Route path="/abrir-chamado" element={<AbrirChamadoManutentor user={user} />} />
 
           <Route path="/analise-falhas" element={<AnaliseFalhasPage />} />
           <Route path="/causas-raiz" element={<CausasRaizPage />} />

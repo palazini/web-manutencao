@@ -12,7 +12,8 @@
     "failures": "Análise de Falhas",
     "rootCauses": "Causas Raiz",
     "manageUsers": "Gerenciar Usuários",
-    "activeCalls": "chamado(s) ativo(s)"
+    "activeCalls": "chamado(s) ativo(s)",
+    "openCorrective": "Abrir Chamado"
   },
 
   "status": {
@@ -651,5 +652,36 @@
     "newVersion": "Nova versão disponível.",
     "update": "Atualizar",
     "dismiss": "Agora não"
+  },
+
+  "techOpen": {
+    "header": {
+      "title": "Abrir Chamado"
+    },
+    "noAccess": "Você não possui permissão para abrir chamados com este usuário.",
+    "fields": {
+      "machine": "Máquina",
+      "description": "Descrição",
+      "takeNow": "Assumir chamado agora"
+    },
+    "placeholders": {
+      "chooseMachine": "Escolha uma máquina...",
+      "description": "Descreva o problema, sintomas e observações…"
+    },
+    "helper": {
+      "takeNow": "Marcado: cria como 'Em Andamento' e te atribui. Desmarcado: cria como 'Aberto'."
+    },
+    "cta": {
+      "disabled": "Preencha máquina e uma descrição (mín. 5 caracteres).",
+      "sending": "Enviando…",
+      "create": "Criar chamado"
+    },
+    "errors": {
+      "loadMachines": "Não foi possível carregar as máquinas.",
+      "create": "Erro ao criar chamado."
+    },
+    "success": {
+      "created": "Chamado criado com sucesso!"
+    }
   }
 }

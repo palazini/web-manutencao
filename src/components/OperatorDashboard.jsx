@@ -5,7 +5,7 @@ import toast from 'react-hot-toast';
 import styles from './OperatorDashboard.module.css';
 import { FiPlusCircle, FiTool } from 'react-icons/fi';
 import {
-  collection, addDoc, serverTimestamp, query, where, onSnapshot, orderBy
+  collection, addDoc, serverTimestamp, query, where, onSnapshot, orderBy, getDocs
 } from 'firebase/firestore';
 import { db } from '../firebase';
 import { useTranslation } from 'react-i18next';
@@ -26,9 +26,7 @@ const OperatorDashboard = ({ user }) => {
   const [chamados, setChamados] = useState([]);
   const [listLoading, setListLoading] = useState(true);
 
-  const maquinasDisponiveis = [
-    'TCN-12', 'TCN-17', 'TCN-18', 'TCN-19', 'TCN-20', 'CT-01', 'Compressor', 'Lapidadora'
-  ];
+  const [maquinasDisponiveis, setMaquinasDisponiveis] = useState([]);
 
   const dtFmt = useMemo(
     () => new Intl.DateTimeFormat(i18n.language, { dateStyle: 'short', timeStyle: 'short' }),
@@ -60,6 +58,48 @@ const OperatorDashboard = ({ user }) => {
     });
     return () => unsubscribe();
   }, [user?.uid]);
+
+  useEffect(() => {
+    let alive = true;
+    (async () => {
+      try {
+        const nomes = new Set();
+
+        const load = async (col) => {
+          try {
+            let snap;
+            try {
+              snap = await getDocs(query(collection(db, col), orderBy('nome', 'asc')));
+            } catch {
+              snap = await getDocs(collection(db, col));
+            }
+            snap.forEach((d) => {
+              const data = d.data() || {};
+              const n =
+                data.nome ??
+                data.nomeMaquina ??
+                data.tag ??
+                data.codigo ??
+                d.id;
+              if (n && String(n).trim().length) nomes.add(String(n).trim());
+            });
+          } catch (e) {
+            // Se a coleção não existir ou a regra bloquear, só ignoramos essa fonte.
+            console.warn(`Falha ao ler coleção ${col}:`, e);
+          }
+        };
+
+        await Promise.all([load('maquinas'), load('machines')]);
+
+        if (!alive) return;
+        setMaquinasDisponiveis([...nomes].sort((a, b) => a.localeCompare(b, 'pt')));
+      } catch (e) {
+        console.error('Falha ao carregar máquinas:', e);
+      }
+    })();
+    return () => { alive = false; };
+  }, []);
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();

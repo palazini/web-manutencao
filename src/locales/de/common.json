@@ -12,7 +12,8 @@
     "failures": "Fehleranalyse",
     "rootCauses": "Hauptursachen",
     "manageUsers": "Benutzer verwalten",
-    "activeCalls": "aktive Arbeitsaufträge"
+    "activeCalls": "aktive Arbeitsaufträge",
+    "openCorrective": "Ticket eröffnen"
   },
 
   "status": {
@@ -651,5 +652,34 @@
     "newVersion": "Neue Version verfügbar.",
     "update": "Aktualisieren",
     "dismiss": "Jetzt nicht"
+  },
+
+  "techOpen": {
+    "header": { "title": "Ticket eröffnen" },
+    "noAccess": "Du hast keine Berechtigung, mit diesem Benutzer Tickets zu eröffnen.",
+    "fields": {
+      "machine": "Maschine",
+      "description": "Beschreibung",
+      "takeNow": "Ticket jetzt übernehmen"
+    },
+    "placeholders": {
+      "chooseMachine": "Wähle eine Maschine…",
+      "description": "Beschreibe Problem, Symptome und Hinweise…"
+    },
+    "helper": {
+      "takeNow": "Ausgewählt: wird als 'In Bearbeitung' erstellt und dir zugewiesen. Nicht ausgewählt: wird als 'Offen' erstellt."
+    },
+    "cta": {
+      "disabled": "Maschine und Beschreibung ausfüllen (mind. 5 Zeichen).",
+      "sending": "Senden…",
+      "create": "Ticket erstellen"
+    },
+    "errors": {
+      "loadMachines": "Maschinen konnten nicht geladen werden.",
+      "create": "Fehler beim Erstellen des Tickets."
+    },
+    "success": {
+      "created": "Ticket erfolgreich erstellt!"
+    }
   }
 }

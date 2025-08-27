@@ -12,7 +12,8 @@
     "failures": "故障分析",
     "rootCauses": "根本原因",
     "manageUsers": "使用者管理",
-    "activeCalls": "進行中的工單"
+    "activeCalls": "進行中的工單",
+    "openCorrective": "建立工單"
   },
 
   "status": {
@@ -651,5 +652,34 @@
     "newVersion": "有新版本可用。",
     "update": "更新",
     "dismiss": "暫時不要"
+  },
+
+  "techOpen": {
+    "header": { "title": "建立工單" },
+    "noAccess": "你沒有權限以此使用者建立工單。",
+    "fields": {
+      "machine": "設備",
+      "description": "描述",
+      "takeNow": "立即接手工單"
+    },
+    "placeholders": {
+      "chooseMachine": "選擇設備…",
+      "description": "請描述問題、症狀與備註…"
+    },
+    "helper": {
+      "takeNow": "勾選：以「Em Andamento」建立並指派給你。未勾選：以「Aberto」建立。"
+    },
+    "cta": {
+      "disabled": "請填寫設備與描述（至少 5 個字）。",
+      "sending": "正在傳送…",
+      "create": "建立工單"
+    },
+    "errors": {
+      "loadMachines": "無法載入設備。",
+      "create": "建立工單時發生錯誤。"
+    },
+    "success": {
+      "created": "工單建立成功！"
+    }
   }
 }

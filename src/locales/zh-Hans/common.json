@@ -12,7 +12,8 @@
     "failures": "故障分析",
     "rootCauses": "根本原因",
     "manageUsers": "用户管理",
-    "activeCalls": "进行中的工单"
+    "activeCalls": "进行中的工单",
+    "openCorrective": "创建工单"
   },
 
   "status": {
@@ -651,5 +652,34 @@
     "newVersion": "有新版本可用。",
     "update": "更新",
     "dismiss": "暂不"
+  },
+
+  "techOpen": {
+    "header": { "title": "创建工单" },
+    "noAccess": "你没有权限使用此用户创建工单。",
+    "fields": {
+      "machine": "设备",
+      "description": "描述",
+      "takeNow": "立即接手工单"
+    },
+    "placeholders": {
+      "chooseMachine": "选择设备…",
+      "description": "请描述问题、症状和备注…"
+    },
+    "helper": {
+      "takeNow": "选中：以“进行中”创建并指派给你。未选中：以“打开”创建。"
+    },
+    "cta": {
+      "disabled": "请填写设备和描述（至少 5 个字符）。",
+      "sending": "正在发送…",
+      "create": "创建工单"
+    },
+    "errors": {
+      "loadMachines": "无法加载设备。",
+      "create": "创建工单时出错。"
+    },
+    "success": {
+      "created": "工单创建成功！"
+    }
   }
 }

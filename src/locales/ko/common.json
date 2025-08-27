@@ -12,7 +12,8 @@
     "failures": "고장 분석",
     "rootCauses": "근본 원인",
     "manageUsers": "사용자 관리",
-    "activeCalls": "진행 중 요청"
+    "activeCalls": "진행 중 요청",
+    "openCorrective": "티켓 생성"
   },
 
   "status": {
@@ -651,5 +652,34 @@
     "newVersion": "새 버전이 있습니다.",
     "update": "업데이트",
     "dismiss": "나중에"
+  },
+
+  "techOpen": {
+    "header": { "title": "티켓 생성" },
+    "noAccess": "이 사용자로는 티켓을 생성할 권한이 없습니다.",
+    "fields": {
+      "machine": "기계",
+      "description": "설명",
+      "takeNow": "지금 티켓 맡기"
+    },
+    "placeholders": {
+      "chooseMachine": "기계를 선택하세요…",
+      "description": "문제, 증상, 비고를 작성하세요…"
+    },
+    "helper": {
+      "takeNow": "선택 시: '진행 중'으로 생성되어 본인에게 배정됩니다. 선택 해제 시: '열림'으로 생성됩니다."
+    },
+    "cta": {
+      "disabled": "기계와 설명을 입력하세요(최소 5자).",
+      "sending": "전송 중…",
+      "create": "티켓 생성"
+    },
+    "errors": {
+      "loadMachines": "기계를 불러올 수 없습니다.",
+      "create": "티켓 생성 중 오류가 발생했습니다."
+    },
+    "success": {
+      "created": "티켓이 성공적으로 생성되었습니다!"
+    }
   }
 }

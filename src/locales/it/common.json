@@ -12,7 +12,8 @@
     "failures": "Analisi dei guasti",
     "rootCauses": "Cause radice",
     "manageUsers": "Gestisci utenti",
-    "activeCalls": "ordine/i attivo/i"
+    "activeCalls": "ordine/i attivo/i",
+    "openCorrective": "Apri ticket"
   },
 
   "status": {
@@ -651,5 +652,34 @@
     "newVersion": "Nuova versione disponibile.",
     "update": "Aggiorna",
     "dismiss": "Non ora"
+  },
+
+  "techOpen": {
+    "header": { "title": "Apri ticket" },
+    "noAccess": "Non hai l'autorizzazione per aprire ticket con questo utente.",
+    "fields": {
+      "machine": "Macchina",
+      "description": "Descrizione",
+      "takeNow": "Prendere in carico ora"
+    },
+    "placeholders": {
+      "chooseMachine": "Scegli una macchina…",
+      "description": "Descrivi il problema, i sintomi e le note…"
+    },
+    "helper": {
+      "takeNow": "Selezionato: crea come 'In corso' e ti assegna. Deselezionato: crea come 'Aperto'."
+    },
+    "cta": {
+      "disabled": "Compila macchina e descrizione (min. 5 caratteri).",
+      "sending": "Invio…",
+      "create": "Crea ticket"
+    },
+    "errors": {
+      "loadMachines": "Impossibile caricare le macchine.",
+      "create": "Errore durante la creazione del ticket."
+    },
+    "success": {
+      "created": "Ticket creato con successo!"
+    }
   }
 }
