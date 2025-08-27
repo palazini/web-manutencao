@@ -46,6 +46,10 @@
         "title": "My Work Orders",
         "desc": "View and manage the work orders assigned to you."
       },
+      "openTicket": {
+        "title": "Open Ticket",
+        "desc": "Quickly create a corrective ticket."
+      },
       "calendar": {
         "title": "General Calendar",
         "desc": "See the complete overview of all maintenance schedules."
@@ -667,7 +671,7 @@
       "description": "Describe the issue, symptoms, and notes…"
     },
     "helper": {
-      "Checked": "creates as 'In progress' and assigns to you. Unchecked: creates as 'Open'."
+      "takeNow": "Checked: creates it as 'In Progress' and assigns it to you. Unchecked: creates it as 'Open'."
     },
     "cta": {
       "disabled": "Fill in machine and a description (min. 5 characters).",

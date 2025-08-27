@@ -46,6 +46,10 @@
         "title": "Meus Chamados",
         "desc": "Veja e gerencie os chamados atribuídos a você."
       },
+      "openTicket": {
+        "title": "Abrir Chamado",
+        "desc": "Crie rapidamente um chamado corretivo."
+      },
       "calendar": {
         "title": "Calendário Geral",
         "desc": "Veja o panorama completo de todas as manutenções."

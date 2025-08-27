@@ -46,6 +46,10 @@
         "title": "Mis Órdenes",
         "desc": "Ve y gestiona las órdenes asignadas a ti."
       },
+      "openTicket": {
+        "title": "Abrir ticket",
+        "desc": "Cree rápidamente un ticket correctivo."
+      },
       "calendar": {
         "title": "Calendario General",
         "desc": "Consulta la panorámica completa de todos los mantenimientos."

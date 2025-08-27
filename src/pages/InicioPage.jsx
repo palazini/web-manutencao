@@ -11,7 +11,8 @@ import {
   FiUsers,
   FiUser,
   FiPackage,
-  FiClipboard
+  FiClipboard,
+  FiPlusCircle
 } from 'react-icons/fi';
 
 const InicioPage = ({ user }) => {
@@ -49,6 +50,16 @@ const InicioPage = ({ user }) => {
               <h3 className={styles.cardTitle}>{t('inicio.cards.myCalls.title')}</h3>
               <p className={styles.cardDescription}>
                 {t('inicio.cards.myCalls.desc')}
+              </p>
+            </Link>
+          )}
+
+          {user.role === 'manutentor' && (
+            <Link to="/abrir-chamado" className={styles.actionCard}>
+              <FiPlusCircle className={styles.cardIcon} />
+              <h3 className={styles.cardTitle}>{t('inicio.cards.openTicket.title')}</h3>
+              <p className={styles.cardDescription}>
+                {t('inicio.cards.openTicket.desc')}
               </p>
             </Link>
           )}

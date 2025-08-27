@@ -46,6 +46,10 @@
         "title": "Meine Arbeitsaufträge",
         "desc": "Ihre zugewiesenen Arbeitsaufträge ansehen und verwalten."
       },
+      "openTicket": {
+        "title": "Ticket erstellen",
+        "desc": "Erstellen Sie schnell ein Korrektur-Ticket."
+      },
       "calendar": {
         "title": "Allgemeiner Kalender",
         "desc": "Vollständige Übersicht aller Wartungen."
