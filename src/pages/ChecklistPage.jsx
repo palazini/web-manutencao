@@ -126,6 +126,8 @@ const ChecklistPage = ({ user }) => {
               responsavelAtualId: null,
               dataAbertura: serverTimestamp(),
             });
+
+            console.debug('[DEBUG] payload chamados', payload);
             gerados++;
           }
         }
