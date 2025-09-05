@@ -115,8 +115,15 @@ const ChecklistPage = ({ user }) => {
               descricao: t('checklist.generatedDescription', { item: pergunta }),
               status: 'Aberto',
               tipo: 'preditiva',
+              origin: 'checklist',
+              criadoPorId: user.uid,
+              criadoPorNome: user.nome,
+              criadoPorRole: 'operador', // se o doc /usuarios/{uid} bate com 'operador'
               operadorId: user.uid,
               operadorNome: user.nome,
+              manutentorId: null,
+              manutentorNome: null,
+              responsavelAtualId: null,
               dataAbertura: serverTimestamp(),
             });
             gerados++;
