@@ -168,14 +168,21 @@
         "turn2": "第二班次"
       },
       "pending": "待处理",
-      "confirmRemove": "确定要删除“{{item}}”吗？"
+      "confirmRemove": "确定要删除“{{item}}”吗？",
+      "detailNoEmail": "无法找到该操作员在此日期的电子邮箱。",
+      "detailEmpty": "此日期/班次未找到提交记录。",
+      "submittedAt": "提交时间",
+      "item": "项目",
+      "answer": "回答",
+      "viewSubmission": "查看提交"
     },
     "toasts": {
       "itemEmpty": "检查项目不能为空。",
       "itemAdded": "已将项目添加到检查表！",
       "itemAddError": "添加项目时发生错误。",
       "itemRemoved": "已从检查表移除项目！",
-      "itemRemoveError": "移除项目时发生错误。"
+      "itemRemoveError": "移除项目时发生错误。",
+      "loadError": "加载机器数据时发生错误。"
     },
     "agendar": {
       "title": "计划维护",
@@ -238,7 +245,9 @@
     "no": "否",
     "manager": "经理",
     "maintainer": "维护员",
-    "logout": "退出登录"
+    "logout": "退出登录",
+    "error": "发生错误。",
+    "machine": "机器"
   },
 
   "chamadoDetalhe": {
@@ -316,10 +325,15 @@
       "finishError": "完成工单时发生错误。",
       "onlyManagerDelete": "仅经理可删除此工单。",
       "deleted": "工单已成功删除。",
-      "deleteError": "删除工单时发生错误。"
+      "deleteError": "删除工单时发生错误。",
+      "checklistSaveError": "保存检查表失败。"
     },
     "preventive": {
       "title": "维护检查表"
+    },
+    "corrective": {
+      "title": "登记解决方案并完成",
+      "solutionLabel": "已执行的服务 / 采用的解决方案"
     }
   },
 
@@ -406,7 +420,9 @@
       },
       "machineOptions": {
         "all": "全部"
-      }
+      },
+      "search": "搜索",
+      "searchPlaceholder": "按描述、机器或原因搜索..."
     },
     "item": {
       "machine": "机器：{{name}}",
@@ -486,7 +502,8 @@
       "add": "添加"
     },
     "list": {
-      "delete": "删除"
+      "delete": "删除",
+      "empty": "暂无已登记的原因。"
     },
     "confirm": {
       "delete": "删除该原因？"
@@ -496,7 +513,8 @@
       "seriesAccumPct": "累计百分比",
       "xLabel": "原因",
       "yLeft": "工单",
-      "yRight": "累计百分比"
+      "yRight": "累计百分比",
+      "empty": "暂无可显示的数据。"
     }
   },
 

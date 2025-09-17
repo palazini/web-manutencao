@@ -168,14 +168,21 @@
         "turn2": "2. Schicht"
       },
       "pending": "Ausstehend",
-      "confirmRemove": "Möchten Sie den Eintrag „{{item}}“ wirklich entfernen?"
+      "confirmRemove": "Möchten Sie den Eintrag „{{item}}“ wirklich entfernen?",
+      "detailNoEmail": "Die E-Mail dieses Bedieners für diesen Tag konnte nicht gefunden werden.",
+      "detailEmpty": "Keine Übermittlungen für diesen Tag/Schicht gefunden.",
+      "submittedAt": "Gesendet am",
+      "item": "Eintrag",
+      "answer": "Antwort",
+      "viewSubmission": "Übermittlung anzeigen"
     },
     "toasts": {
       "itemEmpty": "Der Checklistenpunkt darf nicht leer sein.",
       "itemAdded": "Punkt zur Checkliste hinzugefügt!",
       "itemAddError": "Fehler beim Hinzufügen des Punktes.",
       "itemRemoved": "Punkt aus der Checkliste entfernt!",
-      "itemRemoveError": "Fehler beim Entfernen des Punktes."
+      "itemRemoveError": "Fehler beim Entfernen des Punktes.",
+      "loadError": "Fehler beim Laden der Maschinendaten."
     },
     "agendar": {
       "title": "Wartung planen",
@@ -238,7 +245,9 @@
     "no": "Nein",
     "manager": "Manager",
     "maintainer": "Instandhalter",
-    "logout": "Abmelden"
+    "logout": "Abmelden",
+    "error": "Es ist ein Fehler aufgetreten.",
+    "machine": "Maschine"
   },
 
   "chamadoDetalhe": {
@@ -316,12 +325,18 @@
       "finishError": "Fehler beim Abschluss.",
       "onlyManagerDelete": "Nur Manager können den Arbeitsauftrag löschen.",
       "deleted": "Arbeitsauftrag erfolgreich gelöscht.",
-      "deleteError": "Fehler beim Löschen."
+      "deleteError": "Fehler beim Löschen.",
+      "checklistSaveError": "Fehler beim Speichern der Checkliste."
     },
     "preventive": {
       "title": "Wartungs-Checkliste"
+    },
+    "corrective": {
+      "title": "Lösung erfassen und abschließen",
+      "solutionLabel": "Durchgeführte Leistung / Angewandte Lösung"
     }
   },
+
 
   "calendarioGeral": {
     "title": "Allgemeiner Wartungskalender",
@@ -406,7 +421,9 @@
       },
       "machineOptions": {
         "all": "Alle"
-      }
+      },
+      "search": "Suche",
+      "searchPlaceholder": "Suche nach Beschreibung, Maschine oder Ursache..."
     },
     "item": {
       "machine": "Maschine: {{name}}",
@@ -486,7 +503,8 @@
       "add": "Hinzufügen"
     },
     "list": {
-      "delete": "Löschen"
+      "delete": "Löschen",
+      "empty": "Keine Ursachen registriert."
     },
     "confirm": {
       "delete": "Diese Ursache löschen?"
@@ -496,9 +514,11 @@
       "seriesAccumPct": "% kumuliert",
       "xLabel": "Ursache",
       "yLeft": "Arbeitsaufträge",
-      "yRight": "% kumuliert"
+      "yRight": "% kumuliert",
+      "empty": "Keine Daten zum Anzeigen."
     }
   },
+
 
   "users": {
     "title": "Benutzerverwaltung",

@@ -168,14 +168,21 @@
         "turn2": "2nd Shift"
       },
       "pending": "Pending",
-      "confirmRemove": "Are you sure you want to remove the item \"{{item}}\"?"
+      "confirmRemove": "Are you sure you want to remove the item \"{{item}}\"?",
+      "detailNoEmail": "Could not find this operator's email for that day.",
+      "detailEmpty": "No submissions found for that day/shift.",
+      "submittedAt": "Submitted on",
+      "item": "Item",
+      "answer": "Answer",
+      "viewSubmission": "View submission"
     },
     "toasts": {
       "itemEmpty": "The checklist item cannot be empty.",
       "itemAdded": "Item added to checklist!",
       "itemAddError": "Error adding the item.",
       "itemRemoved": "Item removed from checklist!",
-      "itemRemoveError": "Error removing the item."
+      "itemRemoveError": "Error removing the item.",
+      "loadError": "Error loading machine data."
     },
     "agendar": {
       "title": "Schedule Maintenance",
@@ -238,7 +245,9 @@
     "no": "No",
     "manager": "Manager",
     "maintainer": "Maintainer",
-    "logout": "Logout"
+    "logout": "Logout",
+    "error": "An error occurred.",
+    "machine": "Machine"
   },
 
   "chamadoDetalhe": {
@@ -316,10 +325,15 @@
       "finishError": "An error occurred while closing.",
       "onlyManagerDelete": "Only managers can delete the work order.",
       "deleted": "Work order successfully deleted.",
-      "deleteError": "Error deleting the work order."
+      "deleteError": "Error deleting the work order.",
+      "checklistSaveError": "Failed to save checklist."
     },
     "preventive": {
       "title": "Maintenance Checklist"
+    },
+    "corrective": {
+      "title": "Register Solution and Close",
+      "solutionLabel": "Service Performed / Solution Applied"
     }
   },
 
@@ -406,7 +420,9 @@
       },
       "machineOptions": {
         "all": "All"
-      }
+      },
+      "search": "Search",
+      "searchPlaceholder": "Search by description, machine or cause..."
     },
     "item": {
       "machine": "Machine: {{name}}",
@@ -486,7 +502,8 @@
       "add": "Add"
     },
     "list": {
-      "delete": "Delete"
+      "delete": "Delete",
+      "empty": "No causes registered."
     },
     "confirm": {
       "delete": "Delete this cause?"
@@ -496,9 +513,11 @@
       "seriesAccumPct": "% Accumulated",
       "xLabel": "Cause",
       "yLeft": "Work Orders",
-      "yRight": "% Accumulated"
+      "yRight": "% Accumulated",
+      "empty": "No data to display."
     }
   },
+
 
   "users": {
     "title": "User Management",

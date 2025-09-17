@@ -168,14 +168,21 @@
         "turn2": "2º turno"
       },
       "pending": "In attesa",
-      "confirmRemove": "Vuoi davvero rimuovere l’elemento «{{item}}»?"
+      "confirmRemove": "Vuoi davvero rimuovere l’elemento «{{item}}»?",
+      "detailNoEmail": "Impossibile trovare l’e-mail di questo operatore per quel giorno.",
+      "detailEmpty": "Nessun invio trovato per quel giorno/turno.",
+      "submittedAt": "Inviato il",
+      "item": "Elemento",
+      "answer": "Risposta",
+      "viewSubmission": "Vedi invio"
     },
     "toasts": {
       "itemEmpty": "L’elemento della checklist non può essere vuoto.",
       "itemAdded": "Elemento aggiunto alla checklist!",
       "itemAddError": "Errore durante l’aggiunta dell’elemento.",
       "itemRemoved": "Elemento rimosso dalla checklist!",
-      "itemRemoveError": "Errore durante la rimozione dell’elemento."
+      "itemRemoveError": "Errore durante la rimozione dell’elemento.",
+      "loadError": "Errore nel caricamento dei dati della macchina."
     },
     "agendar": {
       "title": "Pianifica manutenzione",
@@ -238,7 +245,9 @@
     "no": "No",
     "manager": "Responsabile",
     "maintainer": "Manutentore",
-    "logout": "Disconnetti"
+    "logout": "Disconnetti",
+    "error": "Si è verificato un errore.",
+    "machine": "Macchina"
   },
 
   "chamadoDetalhe": {
@@ -316,10 +325,15 @@
       "finishError": "Errore durante la chiusura.",
       "onlyManagerDelete": "Solo i responsabili possono eliminare l’ordine.",
       "deleted": "Ordine eliminato con successo.",
-      "deleteError": "Errore durante l’eliminazione dell’ordine."
+      "deleteError": "Errore durante l’eliminazione dell’ordine.",
+      "checklistSaveError": "Errore durante il salvataggio della checklist."
     },
     "preventive": {
       "title": "Checklist di manutenzione"
+    },
+    "corrective": {
+      "title": "Registra soluzione e chiudi",
+      "solutionLabel": "Servizio eseguito / Soluzione applicata"
     }
   },
 
@@ -406,7 +420,9 @@
       },
       "machineOptions": {
         "all": "Tutte"
-      }
+      },
+      "search": "Cerca",
+      "searchPlaceholder": "Cerca per descrizione, macchina o causa..."
     },
     "item": {
       "machine": "Macchina: {{name}}",
@@ -486,7 +502,8 @@
       "add": "Aggiungi"
     },
     "list": {
-      "delete": "Elimina"
+      "delete": "Elimina",
+      "empty": "Nessuna causa registrata."
     },
     "confirm": {
       "delete": "Eliminare questa causa?"
@@ -496,7 +513,8 @@
       "seriesAccumPct": "% cumulato",
       "xLabel": "Causa",
       "yLeft": "Ordini",
-      "yRight": "% cumulato"
+      "yRight": "% cumulato",
+      "empty": "Nessun dato da visualizzare."
     }
   },
 

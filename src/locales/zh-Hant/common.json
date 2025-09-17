@@ -168,14 +168,21 @@
         "turn2": "第二班"
       },
       "pending": "待處理",
-      "confirmRemove": "確定要移除「{{item}}」嗎？"
+      "confirmRemove": "確定要移除「{{item}}」嗎？",
+      "detailNoEmail": "無法找到該操作員在此日期的電子郵件。",
+      "detailEmpty": "此日期/班次未找到提交紀錄。",
+      "submittedAt": "提交時間",
+      "item": "項目",
+      "answer": "回答",
+      "viewSubmission": "檢視提交"
     },
     "toasts": {
       "itemEmpty": "檢查項目不能為空。",
       "itemAdded": "已新增檢查項目！",
       "itemAddError": "新增檢查項目時發生錯誤。",
       "itemRemoved": "已移除檢查項目！",
-      "itemRemoveError": "移除檢查項目時發生錯誤。"
+      "itemRemoveError": "移除檢查項目時發生錯誤。",
+      "loadError": "載入機器資料時發生錯誤。"
     },
     "agendar": {
       "title": "排程維護",
@@ -238,7 +245,9 @@
     "no": "否",
     "manager": "經理",
     "maintainer": "維護員",
-    "logout": "登出"
+    "logout": "登出",
+    "error": "發生錯誤。",
+    "machine": "機器"
   },
 
   "chamadoDetalhe": {
@@ -316,10 +325,15 @@
       "finishError": "完成工單時發生錯誤。",
       "onlyManagerDelete": "只有經理可以刪除此工單。",
       "deleted": "工單刪除成功。",
-      "deleteError": "刪除工單時發生錯誤。"
+      "deleteError": "刪除工單時發生錯誤。",
+      "checklistSaveError": "儲存檢查表時發生錯誤。"
     },
     "preventive": {
       "title": "維護檢查表"
+    },
+    "corrective": {
+      "title": "登錄解決方案並完成",
+      "solutionLabel": "執行的作業／採用的解決方案"
     }
   },
 
@@ -406,7 +420,9 @@
       },
       "machineOptions": {
         "all": "全部"
-      }
+      },
+      "search": "搜尋",
+      "searchPlaceholder": "依描述、機器或原因搜尋..."
     },
     "item": {
       "machine": "機器：{{name}}",
@@ -486,7 +502,8 @@
       "add": "新增"
     },
     "list": {
-      "delete": "刪除"
+      "delete": "刪除",
+      "empty": "暫無已登記的原因。"
     },
     "confirm": {
       "delete": "要刪除此原因嗎？"
@@ -496,7 +513,8 @@
       "seriesAccumPct": "累計百分比",
       "xLabel": "原因",
       "yLeft": "工單",
-      "yRight": "累計百分比"
+      "yRight": "累計百分比",
+      "empty": "暫無可顯示的資料。"
     }
   },
 

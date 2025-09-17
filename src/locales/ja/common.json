@@ -168,14 +168,21 @@
         "turn2": "第2シフト"
       },
       "pending": "未処理",
-      "confirmRemove": "「{{item}}」を削除しますか？"
+      "confirmRemove": "「{{item}}」を削除しますか？",
+      "detailNoEmail": "この日のこの作業者のメールアドレスを見つけられませんでした。",
+      "detailEmpty": "この日／シフトの提出は見つかりませんでした。",
+      "submittedAt": "送信日時",
+      "item": "項目",
+      "answer": "回答",
+      "viewSubmission": "提出を見る"
     },
     "toasts": {
       "itemEmpty": "チェック項目は必須です。",
       "itemAdded": "チェック項目を追加しました！",
       "itemAddError": "チェック項目の追加に失敗しました。",
       "itemRemoved": "チェック項目を削除しました！",
-      "itemRemoveError": "チェック項目の削除に失敗しました。"
+      "itemRemoveError": "チェック項目の削除に失敗しました。",
+      "loadError": "機械データの読み込みに失敗しました。"
     },
     "agendar": {
       "title": "保守をスケジュール",
@@ -238,7 +245,9 @@
     "no": "いいえ",
     "manager": "マネージャー",
     "maintainer": "保守員",
-    "logout": "ログアウト"
+    "logout": "ログアウト",
+    "error": "エラーが発生しました。",
+    "machine": "機械"
   },
 
   "chamadoDetalhe": {
@@ -316,10 +325,15 @@
       "finishError": "完了処理に失敗しました。",
       "onlyManagerDelete": "管理者のみ削除できます。",
       "deleted": "依頼を削除しました。",
-      "deleteError": "削除に失敗しました。"
+      "deleteError": "削除に失敗しました。",
+      "checklistSaveError": "チェックリストの保存に失敗しました。"
     },
     "preventive": {
       "title": "保守チェックリスト"
+    },
+    "corrective": {
+      "title": "解決内容を登録して完了",
+      "solutionLabel": "実施作業／適用した解決策"
     }
   },
 
@@ -406,7 +420,9 @@
       },
       "machineOptions": {
         "all": "すべて"
-      }
+      },
+      "search": "検索",
+      "searchPlaceholder": "説明・機械または原因で検索..."
     },
     "item": {
       "machine": "機械：{{name}}",
@@ -486,7 +502,8 @@
       "add": "追加"
     },
     "list": {
-      "delete": "削除"
+      "delete": "削除",
+      "empty": "登録された原因はありません。"
     },
     "confirm": {
       "delete": "この原因を削除しますか？"
@@ -496,7 +513,8 @@
       "seriesAccumPct": "累積％",
       "xLabel": "原因",
       "yLeft": "依頼",
-      "yRight": "累積％"
+      "yRight": "累積％",
+      "empty": "表示するデータがありません。"
     }
   },
 

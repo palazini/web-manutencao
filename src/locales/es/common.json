@@ -168,14 +168,21 @@
         "turn2": "2.º Turno"
       },
       "pending": "Pendiente",
-      "confirmRemove": "¿Seguro que deseas eliminar el ítem \"{{item}}\"?"
+      "confirmRemove": "¿Seguro que deseas eliminar el ítem \"{{item}}\"?",
+      "detailNoEmail": "No se pudo encontrar el correo electrónico de este operador para ese día.",
+      "detailEmpty": "No se encontraron envíos para ese día/turno.",
+      "submittedAt": "Enviado el",
+      "item": "Ítem",
+      "answer": "Respuesta",
+      "viewSubmission": "Ver envío"
     },
     "toasts": {
       "itemEmpty": "El ítem del checklist no puede estar vacío.",
       "itemAdded": "¡Ítem agregado al checklist!",
       "itemAddError": "Error al agregar el ítem.",
       "itemRemoved": "Ítem eliminado del checklist.",
-      "itemRemoveError": "Error al eliminar el ítem."
+      "itemRemoveError": "Error al eliminar el ítem.",
+      "loadError": "Error al cargar los datos de la máquina."
     },
     "agendar": {
       "title": "Programar mantenimiento",
@@ -238,7 +245,9 @@
     "no": "No",
     "manager": "Gestor",
     "maintainer": "Mantenedor",
-    "logout": "Salir"
+    "logout": "Salir",
+    "error": "Ocurrió un error.",
+    "machine": "Máquina"
   },
 
   "chamadoDetalhe": {
@@ -316,10 +325,15 @@
       "finishError": "Ocurrió un error al concluir.",
       "onlyManagerDelete": "Solo gestores pueden eliminar la orden.",
       "deleted": "Orden eliminada con éxito.",
-      "deleteError": "Error al eliminar la orden."
+      "deleteError": "Error al eliminar la orden.",
+      "checklistSaveError": "Error al guardar el checklist."
     },
     "preventive": {
       "title": "Checklist de mantenimiento"
+    },
+    "corrective": {
+      "title": "Registrar solución y concluir",
+      "solutionLabel": "Servicio realizado / Solución aplicada"
     }
   },
 
@@ -406,7 +420,9 @@
       },
       "machineOptions": {
         "all": "Todas"
-      }
+      },
+      "search": "Buscar",
+      "searchPlaceholder": "Buscar por descripción, máquina o causa..."
     },
     "item": {
       "machine": "Máquina: {{name}}",
@@ -486,7 +502,8 @@
       "add": "Agregar"
     },
     "list": {
-      "delete": "Eliminar"
+      "delete": "Eliminar",
+      "empty": "Ninguna causa registrada."
     },
     "confirm": {
       "delete": "¿Eliminar esta causa?"
@@ -496,7 +513,8 @@
       "seriesAccumPct": "% Acumulado",
       "xLabel": "Causa",
       "yLeft": "Órdenes",
-      "yRight": "% Acumulado"
+      "yRight": "% Acumulado",
+      "empty": "Sin datos para mostrar."
     }
   },
 

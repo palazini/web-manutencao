@@ -1,6 +1,5 @@
 {
   "appTitle": "Painel de Manutenção",
-
   "nav": {
     "home": "Início",
     "profile": "Meu Perfil",
@@ -15,14 +14,12 @@
     "activeCalls": "chamado(s) ativo(s)",
     "openCorrective": "Abrir Chamado"
   },
-
   "status": {
     "open": "Aberto",
     "in_progress": "Em andamento",
     "closed": "Concluído",
     "cancelled": "Cancelado"
   },
-
   "login": {
     "title": "Fazer login",
     "subtitle": "Use sua conta",
@@ -32,7 +29,6 @@
     "next": "Avançar",
     "loading": "Entrando..."
   },
-
   "inicio": {
     "title": "Página Inicial",
     "welcome": "Bem-vindo de volta, <1>{{name}}</1>!",
@@ -80,7 +76,6 @@
       }
     }
   },
-
   "perfil": {
     "title": "Meu Perfil",
     "info": {
@@ -107,7 +102,6 @@
       "success": "Senha alterada com sucesso!"
     }
   },
-
   "maquinas": {
     "title": "Painel de Máquinas",
     "loading": "Carregando máquinas...",
@@ -128,7 +122,6 @@
       "createError": "Erro ao criar a máquina."
     }
   },
-
   "maquinaDetalhe": {
     "loading": "Carregando dados da máquina...",
     "notFound": "Máquina não encontrada.",
@@ -168,14 +161,21 @@
         "turn2": "2º Turno"
       },
       "pending": "Pendente",
-      "confirmRemove": "Tem certeza que deseja remover o item \"{{item}}\"?"
+      "confirmRemove": "Tem certeza que deseja remover o item \"{{item}}\"?",
+      "detailNoEmail": "Não foi possível localizar o e-mail deste operador para esse dia.",
+      "detailEmpty": "Não há submissões encontradas para esse dia/turno.",
+      "submittedAt": "Enviado em",
+      "item": "Item",
+      "answer": "Resposta",
+      "viewSubmission": "Ver submissão"
     },
     "toasts": {
       "itemEmpty": "O item do checklist não pode ser vazio.",
       "itemAdded": "Item adicionado ao checklist!",
       "itemAddError": "Erro ao adicionar item.",
       "itemRemoved": "Item removido do checklist!",
-      "itemRemoveError": "Erro ao remover item."
+      "itemRemoveError": "Erro ao remover item.",
+      "loadError": "Erro ao carregar dados da máquina."
     },
     "agendar": {
       "title": "Agendar Manutenção",
@@ -215,7 +215,6 @@
       "subtitle": "Visualize os agendamentos já criados."
     }
   },
-
   "calendar": {
     "previous": "Anterior",
     "today": "Hoje",
@@ -228,7 +227,6 @@
     "time": "Hora",
     "showMore": "+{{total}} mais"
   },
-
   "common": {
     "loading": "Carregando...",
     "processing": "Processando...",
@@ -238,9 +236,10 @@
     "no": "Não",
     "manager": "Gestor",
     "maintainer": "Manutentor",
-    "logout": "Sair"
+    "logout": "Sair",
+    "error": "Ocorreu um erro.",
+    "machine": "Máquina"
   },
-
   "chamadoDetalhe": {
     "notFound": "Chamado não encontrado.",
     "header": {
@@ -316,13 +315,17 @@
       "finishError": "Ocorreu um erro ao concluir.",
       "onlyManagerDelete": "Apenas gestores podem excluir chamado.",
       "deleted": "Chamado excluído com sucesso.",
-      "deleteError": "Erro ao excluir chamado."
+      "deleteError": "Erro ao excluir chamado.",
+      "checklistSaveError": "Falha ao salvar checklist."
     },
     "preventive": {
       "title": "Checklist de Manutenção"
+    },
+    "corrective": {
+      "title": "Registrar Solução e Concluir",
+      "solutionLabel": "Serviço Realizado / Solução Aplicada"
     }
   },
-
   "calendarioGeral": {
     "title": "Calendário Geral de Manutenções",
     "loading": "Carregando agendamentos...",
@@ -375,7 +378,6 @@
       "save": "Salvar Agendamento"
     }
   },
-
   "historico": {
     "title": "Histórico de Manutenções",
     "loading": "Carregando histórico...",
@@ -406,7 +408,9 @@
       },
       "machineOptions": {
         "all": "Todos"
-      }
+      },
+      "search": "Busca",
+      "searchPlaceholder": "Buscar por descrição, máquina ou causa..."
     },
     "item": {
       "machine": "Máquina: {{name}}",
@@ -417,7 +421,6 @@
       "notSpecified": "Não especificado"
     }
   },
-
   "estoque": {
     "title": "Controle de Estoque de Manutenção",
     "loading": "Carregando peças...",
@@ -461,7 +464,6 @@
       }
     }
   },
-
   "analiseFalhas": {
     "title": "Análise de Falhas Corretivas",
     "loading": "Analisando dados...",
@@ -477,7 +479,6 @@
       "yLabel": "Quantidade"
     }
   },
-
   "causas": {
     "titleCrud": "Gerenciar Causas Raiz",
     "titlePareto": "Pareto de Falhas",
@@ -486,7 +487,8 @@
       "add": "Adicionar"
     },
     "list": {
-      "delete": "Excluir"
+      "delete": "Excluir",
+      "empty": "Nenhuma causa cadastrada."
     },
     "confirm": {
       "delete": "Excluir esta causa?"
@@ -496,10 +498,10 @@
       "seriesAccumPct": "% Acumulado",
       "xLabel": "Causa",
       "yLeft": "Chamados",
-      "yRight": "% Acumulado"
+      "yRight": "% Acumulado",
+      "empty": "Sem dados para exibir."
     }
   },
-
   "users": {
     "title": "Gestão de Usuários",
     "loading": "Carregando usuários...",
@@ -547,7 +549,6 @@
       "authClaimNotUpdated": "Permissão Auth não foi atualizada."
     }
   },
-
   "layout": {
     "sections": {
       "manageMaintenance": "Gerenciar Manutenção",
@@ -555,13 +556,11 @@
       "managePeople": "Gerenciar Colaboradores"
     }
   },
-
   "dashboard": {
     "operator": "Painel do Operador",
     "maintainer": "Painel de Manutenção",
     "manager": "Painel do Gestor"
   },
-
   "meusChamados": {
     "title": "Meus Chamados",
     "loginFirst": "Faça login para ver seus chamados.",
@@ -585,7 +584,6 @@
       "open": "Abrir"
     }
   },
-
   "inicioTurno": {
     "title": "Início de Turno",
     "greeting": "Olá, {{name}}. Por favor, informe seu turno e as máquinas em que irá trabalhar hoje.",
@@ -603,7 +601,6 @@
       "selectOne": "Por favor, selecione pelo menos uma máquina."
     }
   },
-
   "tarefasDiarias": {
     "title": "Tarefas Diárias",
     "greeting": "Olá, {{name}}. Aqui estão os checklists pendentes para o seu turno.",
@@ -611,7 +608,6 @@
     "allDone": "Você completou todos os seus checklists para este turno. Bom trabalho!",
     "fillChecklist": "Preencher Checklist"
   },
-
   "checklist": {
     "notFound": "Máquina não encontrada.",
     "loading": "Carregando checklist...",
@@ -628,7 +624,6 @@
     "toastSent": "Checklist enviado! {{count}} chamado(s) gerado(s).",
     "toastFail": "Não foi possível enviar o checklist."
   },
-
   "operatorDashboard": {
     "form": {
       "title": "Abrir Novo Chamado",
@@ -650,14 +645,12 @@
       "openedAt": "Aberto em: {{date}}"
     }
   },
-
   "pwa": {
     "offlineReady": "Aplicativo disponível offline.",
     "newVersion": "Nova versão disponível.",
     "update": "Atualizar",
     "dismiss": "Agora não"
   },
-
   "techOpen": {
     "header": {
       "title": "Abrir Chamado"
