@@ -1,6 +1,5 @@
 {
   "appTitle": "保守パネル",
-
   "nav": {
     "home": "ホーム",
     "profile": "マイプロフィール",
@@ -15,14 +14,12 @@
     "activeCalls": "進行中の依頼",
     "openCorrective": "チケットを作成"
   },
-
   "status": {
     "open": "未対応",
     "in_progress": "進行中",
     "closed": "完了",
     "cancelled": "キャンセル"
   },
-
   "login": {
     "title": "ログイン",
     "subtitle": "アカウントをご利用ください",
@@ -32,7 +29,6 @@
     "next": "次へ",
     "loading": "ログイン中..."
   },
-
   "inicio": {
     "title": "ホーム",
     "welcome": "お帰りなさい、<1>{{name}}</1>！",
@@ -80,7 +76,6 @@
       }
     }
   },
-
   "perfil": {
     "title": "マイプロフィール",
     "info": {
@@ -107,7 +102,6 @@
       "success": "パスワードを変更しました！"
     }
   },
-
   "maquinas": {
     "title": "機械パネル",
     "loading": "機械を読み込み中...",
@@ -128,7 +122,6 @@
       "createError": "機械の作成に失敗しました。"
     }
   },
-
   "maquinaDetalhe": {
     "loading": "機械データを読み込み中...",
     "notFound": "機械が見つかりません。",
@@ -222,7 +215,6 @@
       "subtitle": "作成済みのスケジュールを表示します。"
     }
   },
-
   "calendar": {
     "previous": "前へ",
     "today": "今日",
@@ -235,7 +227,6 @@
     "time": "時間",
     "showMore": "+{{total}} 件を表示"
   },
-
   "common": {
     "loading": "読み込み中...",
     "processing": "処理中...",
@@ -249,7 +240,6 @@
     "error": "エラーが発生しました。",
     "machine": "機械"
   },
-
   "chamadoDetalhe": {
     "notFound": "依頼が見つかりません。",
     "header": {
@@ -336,7 +326,6 @@
       "solutionLabel": "実施作業／適用した解決策"
     }
   },
-
   "calendarioGeral": {
     "title": "全体保守カレンダー",
     "loading": "スケジュールを読み込み中...",
@@ -389,7 +378,6 @@
       "save": "スケジュールを保存"
     }
   },
-
   "historico": {
     "title": "保守履歴",
     "loading": "履歴を読み込み中...",
@@ -433,7 +421,6 @@
       "notSpecified": "未指定"
     }
   },
-
   "estoque": {
     "title": "保守在庫管理",
     "loading": "部品を読み込み中...",
@@ -477,7 +464,6 @@
       }
     }
   },
-
   "analiseFalhas": {
     "title": "是正故障の分析",
     "loading": "データ分析中...",
@@ -493,7 +479,6 @@
       "yLabel": "件数"
     }
   },
-
   "causas": {
     "titleCrud": "根本原因の管理",
     "titlePareto": "故障パレート",
@@ -517,7 +502,6 @@
       "empty": "表示するデータがありません。"
     }
   },
-
   "users": {
     "title": "ユーザー管理",
     "loading": "ユーザーを読み込み中...",
@@ -545,6 +529,7 @@
       "createUser": "ユーザーを作成"
     },
     "roles": {
+      "all": "すべて",
       "operator": "オペレーター",
       "maintainer": "保守員",
       "manager": "マネージャー"
@@ -565,7 +550,6 @@
       "authClaimNotUpdated": "認可クレームの更新に失敗しました。"
     }
   },
-
   "layout": {
     "sections": {
       "manageMaintenance": "保守を管理",
@@ -573,13 +557,11 @@
       "managePeople": "チーム管理"
     }
   },
-
   "dashboard": {
     "operator": "オペレーターダッシュボード",
     "maintainer": "保守ダッシュボード",
     "manager": "マネージャーダッシュボード"
   },
-
   "meusChamados": {
     "title": "マイ作業依頼",
     "loginFirst": "依頼を見るにはログインしてください。",
@@ -603,7 +585,6 @@
       "open": "開く"
     }
   },
-
   "inicioTurno": {
     "title": "シフト開始",
     "greeting": "こんにちは、{{name}}。本日のシフトと担当機械を選択してください。",
@@ -621,7 +602,6 @@
       "selectOne": "少なくとも1台の機械を選択してください。"
     }
   },
-
   "tarefasDiarias": {
     "title": "日次タスク",
     "greeting": "こんにちは、{{name}}。あなたのシフトで未了のチェックリストは以下です。",
@@ -629,7 +609,6 @@
     "allDone": "このシフトのチェックリストはすべて完了しました。お疲れさま！",
     "fillChecklist": "チェックリストを記入"
   },
-
   "checklist": {
     "notFound": "機械が見つかりません。",
     "loading": "チェックリストを読み込み中...",
@@ -646,7 +625,6 @@
     "toastSent": "チェックリストを送信しました！{{count}} 件の依頼を生成しました。",
     "toastFail": "チェックリストを送信できませんでした。"
   },
-
   "operatorDashboard": {
     "form": {
       "title": "新しい依頼を開く",
@@ -668,16 +646,16 @@
       "openedAt": "開始日：{{date}}"
     }
   },
-
   "pwa": {
     "offlineReady": "アプリはオフラインで利用可能です。",
     "newVersion": "新しいバージョンが利用可能です。",
     "update": "更新",
     "dismiss": "後で"
   },
-
   "techOpen": {
-    "header": { "title": "チケットを作成" },
+    "header": {
+      "title": "チケットを作成"
+    },
     "noAccess": "このユーザーではチケットを作成する権限がありません。",
     "fields": {
       "machine": "機械",

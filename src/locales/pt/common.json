@@ -529,6 +529,7 @@
       "createUser": "Criar Usuário"
     },
     "roles": {
+      "all": "Todos",
       "operator": "Operador",
       "maintainer": "Manutentor",
       "manager": "Gestor"

@@ -1,6 +1,5 @@
 {
   "appTitle": "維護面板",
-
   "nav": {
     "home": "主頁",
     "profile": "我的資料",
@@ -15,14 +14,12 @@
     "activeCalls": "進行中的工單",
     "openCorrective": "建立工單"
   },
-
   "status": {
     "open": "開啟",
     "in_progress": "進行中",
     "closed": "已關閉",
     "cancelled": "已取消"
   },
-
   "login": {
     "title": "登入",
     "subtitle": "使用您的帳號",
@@ -32,7 +29,6 @@
     "next": "下一步",
     "loading": "正在登入..."
   },
-
   "inicio": {
     "title": "首頁",
     "welcome": "歡迎回來，<1>{{name}}</1>！",
@@ -80,7 +76,6 @@
       }
     }
   },
-
   "perfil": {
     "title": "我的資料",
     "info": {
@@ -107,7 +102,6 @@
       "success": "密碼變更成功！"
     }
   },
-
   "maquinas": {
     "title": "機器面板",
     "loading": "正在載入機器...",
@@ -128,7 +122,6 @@
       "createError": "建立機器時發生錯誤。"
     }
   },
-
   "maquinaDetalhe": {
     "loading": "正在載入機器資料...",
     "notFound": "找不到機器。",
@@ -222,7 +215,6 @@
       "subtitle": "檢視已建立的排程。"
     }
   },
-
   "calendar": {
     "previous": "上一頁",
     "today": "今天",
@@ -235,7 +227,6 @@
     "time": "時間",
     "showMore": "+{{total}} 更多"
   },
-
   "common": {
     "loading": "載入中...",
     "processing": "處理中...",
@@ -249,7 +240,6 @@
     "error": "發生錯誤。",
     "machine": "機器"
   },
-
   "chamadoDetalhe": {
     "notFound": "找不到工單。",
     "header": {
@@ -336,7 +326,6 @@
       "solutionLabel": "執行的作業／採用的解決方案"
     }
   },
-
   "calendarioGeral": {
     "title": "維護總日曆",
     "loading": "正在載入排程...",
@@ -389,7 +378,6 @@
       "save": "儲存排程"
     }
   },
-
   "historico": {
     "title": "維護歷史",
     "loading": "正在載入歷史...",
@@ -433,7 +421,6 @@
       "notSpecified": "未指定"
     }
   },
-
   "estoque": {
     "title": "維護庫存管理",
     "loading": "正在載入零件...",
@@ -477,7 +464,6 @@
       }
     }
   },
-
   "analiseFalhas": {
     "title": "矯正性故障分析",
     "loading": "資料分析中...",
@@ -493,7 +479,6 @@
       "yLabel": "數量"
     }
   },
-
   "causas": {
     "titleCrud": "管理根本原因",
     "titlePareto": "故障帕累托圖",
@@ -517,7 +502,6 @@
       "empty": "暫無可顯示的資料。"
     }
   },
-
   "users": {
     "title": "使用者管理",
     "loading": "正在載入使用者...",
@@ -545,6 +529,7 @@
       "createUser": "建立使用者"
     },
     "roles": {
+      "all": "全部",
       "operator": "操作員",
       "maintainer": "維護員",
       "manager": "經理"
@@ -565,7 +550,6 @@
       "authClaimNotUpdated": "Auth 權限未更新。"
     }
   },
-
   "layout": {
     "sections": {
       "manageMaintenance": "管理維護",
@@ -573,13 +557,11 @@
       "managePeople": "管理團隊"
     }
   },
-
   "dashboard": {
     "operator": "操作員面板",
     "maintainer": "維護面板",
     "manager": "經理面板"
   },
-
   "meusChamados": {
     "title": "我的工單",
     "loginFirst": "請先登入以查看您的工單。",
@@ -603,7 +585,6 @@
       "open": "開啟"
     }
   },
-
   "inicioTurno": {
     "title": "班次開始",
     "greeting": "您好，{{name}}。請填寫您的班次與今日負責的機器。",
@@ -621,7 +602,6 @@
       "selectOne": "請至少選擇一台機器。"
     }
   },
-
   "tarefasDiarias": {
     "title": "每日任務",
     "greeting": "您好，{{name}}。以下為您此班次待辦的檢查表。",
@@ -629,7 +609,6 @@
     "allDone": "您已完成此班次的所有檢查表，做得好！",
     "fillChecklist": "填寫檢查表"
   },
-
   "checklist": {
     "notFound": "找不到機器。",
     "loading": "正在載入檢查表...",
@@ -646,7 +625,6 @@
     "toastSent": "檢查表已送出！已產生 {{count}} 張工單。",
     "toastFail": "無法送出檢查表。"
   },
-
   "operatorDashboard": {
     "form": {
       "title": "開啟新工單",
@@ -668,16 +646,16 @@
       "openedAt": "開啟於：{{date}}"
     }
   },
-
   "pwa": {
     "offlineReady": "應用程式可離線使用。",
     "newVersion": "有新版本可用。",
     "update": "更新",
     "dismiss": "暫時不要"
   },
-
   "techOpen": {
-    "header": { "title": "建立工單" },
+    "header": {
+      "title": "建立工單"
+    },
     "noAccess": "你沒有權限以此使用者建立工單。",
     "fields": {
       "machine": "設備",

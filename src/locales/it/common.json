@@ -1,6 +1,5 @@
 {
   "appTitle": "Pannello di Manutenzione",
-
   "nav": {
     "home": "Home",
     "profile": "Il mio profilo",
@@ -15,14 +14,12 @@
     "activeCalls": "ordine/i attivo/i",
     "openCorrective": "Apri ticket"
   },
-
   "status": {
     "open": "Aperto",
     "in_progress": "In corso",
     "closed": "Chiuso",
     "cancelled": "Annullato"
   },
-
   "login": {
     "title": "Accesso",
     "subtitle": "Usa il tuo account",
@@ -32,7 +29,6 @@
     "next": "Avanti",
     "loading": "Accesso in corso..."
   },
-
   "inicio": {
     "title": "Pagina iniziale",
     "welcome": "Bentornato, <1>{{name}}</1>!",
@@ -80,7 +76,6 @@
       }
     }
   },
-
   "perfil": {
     "title": "Il mio profilo",
     "info": {
@@ -107,7 +102,6 @@
       "success": "Password cambiata con successo!"
     }
   },
-
   "maquinas": {
     "title": "Pannello macchine",
     "loading": "Caricamento macchine...",
@@ -128,7 +122,6 @@
       "createError": "Errore durante la creazione della macchina."
     }
   },
-
   "maquinaDetalhe": {
     "loading": "Caricamento dati macchina...",
     "notFound": "Macchina non trovata.",
@@ -222,7 +215,6 @@
       "subtitle": "Visualizza le pianificazioni già create."
     }
   },
-
   "calendar": {
     "previous": "Precedente",
     "today": "Oggi",
@@ -235,7 +227,6 @@
     "time": "Ora",
     "showMore": "+{{total}} altro/i"
   },
-
   "common": {
     "loading": "Caricamento...",
     "processing": "Elaborazione...",
@@ -249,7 +240,6 @@
     "error": "Si è verificato un errore.",
     "machine": "Macchina"
   },
-
   "chamadoDetalhe": {
     "notFound": "Ordine non trovato.",
     "header": {
@@ -336,7 +326,6 @@
       "solutionLabel": "Servizio eseguito / Soluzione applicata"
     }
   },
-
   "calendarioGeral": {
     "title": "Calendario generale delle manutenzioni",
     "loading": "Caricamento pianificazioni...",
@@ -389,7 +378,6 @@
       "save": "Salva pianificazione"
     }
   },
-
   "historico": {
     "title": "Storico manutenzioni",
     "loading": "Caricamento storico...",
@@ -433,7 +421,6 @@
       "notSpecified": "Non specificato"
     }
   },
-
   "estoque": {
     "title": "Inventario manutenzione",
     "loading": "Caricamento pezzi...",
@@ -477,7 +464,6 @@
       }
     }
   },
-
   "analiseFalhas": {
     "title": "Analisi guasti correttivi",
     "loading": "Analisi dei dati...",
@@ -493,7 +479,6 @@
       "yLabel": "Quantità"
     }
   },
-
   "causas": {
     "titleCrud": "Gestisci cause radice",
     "titlePareto": "Pareto dei guasti",
@@ -517,7 +502,6 @@
       "empty": "Nessun dato da visualizzare."
     }
   },
-
   "users": {
     "title": "Gestione utenti",
     "loading": "Caricamento utenti...",
@@ -545,6 +529,7 @@
       "createUser": "Crea utente"
     },
     "roles": {
+      "all": "Tutti",
       "operator": "Operatore",
       "maintainer": "Manutentore",
       "manager": "Responsabile"
@@ -565,7 +550,6 @@
       "authClaimNotUpdated": "Autorizzazione Auth non aggiornata."
     }
   },
-
   "layout": {
     "sections": {
       "manageMaintenance": "Gestisci manutenzione",
@@ -573,13 +557,11 @@
       "managePeople": "Gestisci team"
     }
   },
-
   "dashboard": {
     "operator": "Pannello operatore",
     "maintainer": "Pannello manutenzione",
     "manager": "Pannello del responsabile"
   },
-
   "meusChamados": {
     "title": "I miei ordini",
     "loginFirst": "Accedi per vedere i tuoi ordini.",
@@ -603,7 +585,6 @@
       "open": "Apri"
     }
   },
-
   "inicioTurno": {
     "title": "Inizio turno",
     "greeting": "Ciao, {{name}}. Indica il tuo turno e le macchine su cui lavorerai oggi.",
@@ -621,7 +602,6 @@
       "selectOne": "Seleziona almeno una macchina."
     }
   },
-
   "tarefasDiarias": {
     "title": "Attività giornaliere",
     "greeting": "Ciao, {{name}}. Ecco le checklist in sospeso per il tuo turno.",
@@ -629,7 +609,6 @@
     "allDone": "Hai completato tutte le checklist per questo turno. Ottimo lavoro!",
     "fillChecklist": "Compila checklist"
   },
-
   "checklist": {
     "notFound": "Macchina non trovata.",
     "loading": "Caricamento checklist...",
@@ -646,7 +625,6 @@
     "toastSent": "Checklist inviata! {{count}} ordine/i generato/i.",
     "toastFail": "Impossibile inviare la checklist."
   },
-
   "operatorDashboard": {
     "form": {
       "title": "Apri nuovo ordine",
@@ -668,16 +646,16 @@
       "openedAt": "Aperto il: {{date}}"
     }
   },
-
   "pwa": {
     "offlineReady": "App disponibile offline.",
     "newVersion": "Nuova versione disponibile.",
     "update": "Aggiorna",
     "dismiss": "Non ora"
   },
-
   "techOpen": {
-    "header": { "title": "Apri ticket" },
+    "header": {
+      "title": "Apri ticket"
+    },
     "noAccess": "Non hai l'autorizzazione per aprire ticket con questo utente.",
     "fields": {
       "machine": "Macchina",

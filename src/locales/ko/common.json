@@ -1,6 +1,5 @@
 {
   "appTitle": "유지보수 패널",
-
   "nav": {
     "home": "홈",
     "profile": "내 프로필",
@@ -15,14 +14,12 @@
     "activeCalls": "진행 중 요청",
     "openCorrective": "티켓 생성"
   },
-
   "status": {
     "open": "열림",
     "in_progress": "진행 중",
     "closed": "완료",
     "cancelled": "취소됨"
   },
-
   "login": {
     "title": "로그인",
     "subtitle": "계정을 사용하세요",
@@ -32,7 +29,6 @@
     "next": "다음",
     "loading": "로그인 중..."
   },
-
   "inicio": {
     "title": "홈",
     "welcome": "다시 오신 것을 환영합니다, <1>{{name}}</1>!",
@@ -80,7 +76,6 @@
       }
     }
   },
-
   "perfil": {
     "title": "내 프로필",
     "info": {
@@ -107,7 +102,6 @@
       "success": "비밀번호가 성공적으로 변경되었습니다!"
     }
   },
-
   "maquinas": {
     "title": "기계 패널",
     "loading": "기계를 불러오는 중...",
@@ -128,7 +122,6 @@
       "createError": "기계 생성 중 오류가 발생했습니다."
     }
   },
-
   "maquinaDetalhe": {
     "loading": "기계 데이터를 불러오는 중...",
     "notFound": "기계를 찾을 수 없습니다.",
@@ -222,7 +215,6 @@
       "subtitle": "이미 생성된 일정을 확인합니다."
     }
   },
-
   "calendar": {
     "previous": "이전",
     "today": "오늘",
@@ -235,7 +227,6 @@
     "time": "시간",
     "showMore": "+{{total}} 더보기"
   },
-
   "common": {
     "loading": "불러오는 중...",
     "processing": "처리 중...",
@@ -249,7 +240,6 @@
     "error": "오류가 발생했습니다.",
     "machine": "기계"
   },
-
   "chamadoDetalhe": {
     "notFound": "요청을 찾을 수 없습니다.",
     "header": {
@@ -336,7 +326,6 @@
       "solutionLabel": "수행 작업 / 적용된 해결책"
     }
   },
-
   "calendarioGeral": {
     "title": "유지보수 종합 캘린더",
     "loading": "일정을 불러오는 중...",
@@ -389,7 +378,6 @@
       "save": "일정 저장"
     }
   },
-
   "historico": {
     "title": "유지보수 이력",
     "loading": "이력을 불러오는 중...",
@@ -433,7 +421,6 @@
       "notSpecified": "미지정"
     }
   },
-
   "estoque": {
     "title": "유지보수 재고 관리",
     "loading": "부품을 불러오는 중...",
@@ -477,7 +464,6 @@
       }
     }
   },
-
   "analiseFalhas": {
     "title": "수정 보전 고장 분석",
     "loading": "데이터 분석 중...",
@@ -493,7 +479,6 @@
       "yLabel": "수량"
     }
   },
-
   "causas": {
     "titleCrud": "근본 원인 관리",
     "titlePareto": "고장 파레토",
@@ -517,7 +502,6 @@
       "empty": "표시할 데이터가 없습니다."
     }
   },
-
   "users": {
     "title": "사용자 관리",
     "loading": "사용자를 불러오는 중...",
@@ -545,6 +529,7 @@
       "createUser": "사용자 생성"
     },
     "roles": {
+      "all": "전체",
       "operator": "작업자",
       "maintainer": "유지보수원",
       "manager": "관리자"
@@ -565,7 +550,6 @@
       "authClaimNotUpdated": "Auth 권한이 업데이트되지 않았습니다."
     }
   },
-
   "layout": {
     "sections": {
       "manageMaintenance": "유지보수 관리",
@@ -573,13 +557,11 @@
       "managePeople": "팀 관리"
     }
   },
-
   "dashboard": {
     "operator": "작업자 대시보드",
     "maintainer": "유지보수 대시보드",
     "manager": "관리자 대시보드"
   },
-
   "meusChamados": {
     "title": "내 작업 요청",
     "loginFirst": "작업 요청을 보려면 로그인하세요.",
@@ -603,7 +585,6 @@
       "open": "열기"
     }
   },
-
   "inicioTurno": {
     "title": "교대 시작",
     "greeting": "안녕하세요, {{name}}님. 오늘의 교대와 담당 기계를 선택하세요.",
@@ -621,7 +602,6 @@
       "selectOne": "최소 한 대의 기계를 선택하세요."
     }
   },
-
   "tarefasDiarias": {
     "title": "일일 작업",
     "greeting": "안녕하세요, {{name}}님. 이번 교대에서 미완료 체크리스트는 다음과 같습니다.",
@@ -629,7 +609,6 @@
     "allDone": "이 교대의 모든 체크리스트를 완료했습니다. 훌륭해요!",
     "fillChecklist": "체크리스트 작성"
   },
-
   "checklist": {
     "notFound": "기계를 찾을 수 없습니다.",
     "loading": "체크리스트 불러오는 중...",
@@ -646,7 +625,6 @@
     "toastSent": "체크리스트가 제출되었습니다! {{count}}개의 요청이 생성되었습니다.",
     "toastFail": "체크리스트를 제출할 수 없습니다."
   },
-
   "operatorDashboard": {
     "form": {
       "title": "새 요청 열기",
@@ -668,16 +646,16 @@
       "openedAt": "시작일: {{date}}"
     }
   },
-
   "pwa": {
     "offlineReady": "앱을 오프라인에서 사용할 수 있습니다.",
     "newVersion": "새 버전이 있습니다.",
     "update": "업데이트",
     "dismiss": "나중에"
   },
-
   "techOpen": {
-    "header": { "title": "티켓 생성" },
+    "header": {
+      "title": "티켓 생성"
+    },
     "noAccess": "이 사용자로는 티켓을 생성할 권한이 없습니다.",
     "fields": {
       "machine": "기계",
