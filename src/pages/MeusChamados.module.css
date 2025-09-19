@@ -7,12 +7,6 @@
 .header { display: grid; gap: 6px; }
 .subtitle { color: #667085; font-size: 0.95rem; }
 
-.actionsRow {
-  display: flex;
-  gap: 12px;
-  align-items: center;
-  flex-wrap: wrap;
-}
 
 .select, .search {
   border: 1px solid #d0d5dd;
@@ -72,4 +66,3 @@
   padding: 16px;
   margin: 16px;
 }
-

@@ -1,9 +1,9 @@
+// src/pages/PerfilPage.jsx
 import React, { useState } from 'react';
 import styles from './PerfilPage.module.css';
 import toast from 'react-hot-toast';
-import { auth } from '../firebase';
-import { EmailAuthProvider, reauthenticateWithCredential, updatePassword } from 'firebase/auth';
 import { useTranslation } from 'react-i18next';
+import { changePassword } from '../services/apiClient';
 
 const PerfilPage = ({ user }) => {
   const { t, i18n } = useTranslation();
@@ -38,12 +38,12 @@ const PerfilPage = ({ user }) => {
       return;
     }
 
-    const currentUser = auth.currentUser;
-    const credencial = EmailAuthProvider.credential(currentUser.email, senhaAtual);
-
     try {
-      await reauthenticateWithCredential(currentUser, credencial);
-      await updatePassword(currentUser, novaSenha);
+      await changePassword({
+        email: user?.email,
+        senhaAtual,
+        novaSenha
+      });
 
       toast.success(t('perfil.toasts.success'));
       setSenhaAtual('');
@@ -51,11 +51,9 @@ const PerfilPage = ({ user }) => {
       setConfirmarSenha('');
     } catch (error) {
       console.error(error);
-      if (error.code === 'auth/wrong-password') {
-        toast.error(t('perfil.toasts.wrongPassword'));
-      } else {
-        toast.error(t('perfil.toasts.generic'));
-      }
+      const msg = String(error?.message || '').toLowerCase();
+      if (msg.includes('atual inválida')) toast.error(t('perfil.toasts.wrongPassword'));
+      else toast.error(t('perfil.toasts.generic'));
     } finally {
       setLoading(false);
     }

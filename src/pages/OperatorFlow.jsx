@@ -1,59 +1,166 @@
 // src/pages/OperatorFlow.jsx
-
-import React, { useState, useEffect } from 'react';
-import { db } from '../firebase';
-import { collection, query, where, onSnapshot } from 'firebase/firestore';
-import { getTurnoAtual } from '../utils/dateUtils';
+import React, { useEffect, useMemo, useState } from 'react';
 import TarefasDiariasPage from './TarefasDiariasPage';
-import MainLayout from '../components/MainLayout'; // O operador agora usará o layout principal
+import MainLayout from '../components/MainLayout';
+import { listarSubmissoesDiarias } from '../services/apiClient';
 
-const OperatorFlow = ({ user, dadosTurno }) => {
-  const [checklistsPendentes, setChecklistsPendentes] = useState(true);
+function hojeISO() {
+  return new Date().toISOString().slice(0, 10);
+}
+
+function uniq(arr) {
+  return Array.from(new Set(arr.filter(Boolean)));
+}
+
+export default function OperatorFlow({ user, dadosTurno }) {
   const [loading, setLoading] = useState(true);
+  const [temPendentes, setTemPendentes] = useState(true);
+  const [maquinasPendentes, setMaquinasPendentes] = useState([]);
 
-  useEffect(() => {
-    if (!dadosTurno) {
-        setChecklistsPendentes(false);
-        setLoading(false);
-        return;
+  // API base para SSE (opcional)
+  const API_BASE = useMemo(() => {
+    const b = import.meta.env?.VITE_API_BASE_URL || '';
+    return b.replace(/\/+$/, '');
+  }, []);
+
+  // resolve lista de máquinas do “estado do dia”
+  const maquinasSelecionadas = useMemo(() => {
+    // 1) props (novo fluxo do InicioTurnoPage)
+    const a = Array.isArray(dadosTurno?.maquinas) ? dadosTurno.maquinas : [];
+    // 2) fallback: localStorage (caso tenha reaberto o app depois)
+    let b = [];
+    try {
+      const raw = localStorage.getItem('dadosTurno');
+      if (raw) {
+        const st = JSON.parse(raw);
+        if (
+          st?.dataISO === hojeISO() &&
+          String(st?.operadorEmail || '').toLowerCase() === String(user?.email || '').toLowerCase()
+        ) {
+          b = Array.isArray(st.maquinasSelecionadas) ? st.maquinasSelecionadas : [];
+        }
+      }
+    } catch {}
+    return uniq([...a, ...b]);
+  }, [dadosTurno?.maquinas, user?.email]);
+
+  // função que verifica pendências consultando o backend
+  async function verificarPendencias() {
+    if (!user?.email) {
+      setTemPendentes(false);
+      setMaquinasPendentes([]);
+      setLoading(false);
+      return;
+    }
+    if (!maquinasSelecionadas.length) {
+      setTemPendentes(false);
+      setMaquinasPendentes([]);
+      setLoading(false);
+      return;
     }
 
-    const verificarChecklists = () => {
-      // Ouve em tempo real as submissões de hoje para verificar o que já foi feito
-      const hoje = new Date();
-      const inicioDoDia = new Date(hoje.getFullYear(), hoje.getMonth(), hoje.getDate());
-      
-      const qSubmissoes = query(
-        collection(db, 'checklistSubmissions'),
-        where('operadorId', '==', user.uid),
-        where('dataSubmissao', '>=', inicioDoDia)
-      );
-
-      const unsubscribe = onSnapshot(qSubmissoes, (submissoesSnapshot) => {
-        const maquinasJaFeitas = new Set(submissoesSnapshot.docs.map(doc => doc.data().maquinaId));
-        
-        // Se o número de checklists feitos for igual ou maior que o de máquinas selecionadas, não há mais pendências
-        if (maquinasJaFeitas.size >= dadosTurno.maquinas.length) {
-          setChecklistsPendentes(false);
-        } else {
-          setChecklistsPendentes(true);
-        }
-        setLoading(false);
+    try {
+      setLoading(true);
+      const date = hojeISO();
+      const submissoes = await listarSubmissoesDiarias({
+        operadorEmail: user.email,
+        date
       });
 
-      return () => unsubscribe();
-    };
+      // normaliza “máquina da submissão” (aceita maquina_id | maquinaId | maquina)
+      const feitosSet = new Set(
+        (submissoes || []).map((s) => {
+          return (
+            s.maquina_id ||
+            s.maquinaId ||
+            s.maquina || // se vier nome/tag (não ideal), não casa com id — mas mantemos por compat
+            null
+          );
+        })
+      );
 
-    verificarChecklists();
-  }, [user.uid, dadosTurno]);
+      // se “maquina” da submissão vier como NOME e você só tem IDs, ajuste o backend para devolver o ID.
+      const pend = maquinasSelecionadas.filter((id) => !feitosSet.has(id));
 
-  if (loading) {
-    return <p style={{ padding: '20px' }}>Verificando tarefas diárias...</p>;
+      setMaquinasPendentes(pend);
+      setTemPendentes(pend.length > 0);
+
+      // Atualiza localStorage. Mantém última máquina se ainda pendente; zera se acabou tudo.
+      try {
+        const raw = localStorage.getItem('dadosTurno');
+        if (raw) {
+          const st = JSON.parse(raw);
+          if (st?.dataISO === date) {
+            const ultimaAindaExiste = pend.includes(st?.ultimaMaquina);
+            const novo = {
+              ...st,
+              maquinasSelecionadas,
+              ultimaMaquina: ultimaAindaExiste ? st.ultimaMaquina : null
+            };
+            localStorage.setItem('dadosTurno', JSON.stringify(novo));
+          }
+        }
+      } catch {}
+    } catch (e) {
+      console.error('Falha ao verificar pendências:', e);
+      // Em caso de erro, não travar usuário: assume que ainda há pendentes.
+      setTemPendentes(true);
+      setMaquinasPendentes(maquinasSelecionadas);
+    } finally {
+      setLoading(false);
+    }
   }
 
-  // Se o checklist está pendente, mostra a página de tarefas.
-  // Senão, mostra o layout principal com o painel do operador.
-  return checklistsPendentes ? <TarefasDiariasPage user={user} dadosTurno={dadosTurno} /> : <MainLayout user={user} />;
-};
+  // 1) checa pendências ao montar / mudar operador ou lista de máquinas
+  useEffect(() => {
+    verificarPendencias();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.email, maquinasSelecionadas.join('|')]);
 
-export default OperatorFlow;
+  // 2) SSE (opcional): se backend enviar eventos, recarrega pendências em tempo real
+  useEffect(() => {
+    if (!API_BASE) return; // se não tiver BASE configurada, ignore SSE
+    let es;
+    try {
+      es = new EventSource(`${API_BASE}/events`);
+      es.onmessage = (ev) => {
+        try {
+          const msg = JSON.parse(ev.data);
+          // exemplos de tópicos que podemos usar no back:
+          // 'checklist_daily_submitted', 'checklist', 'checklist_diario'
+          if (
+            msg?.topic &&
+            String(msg.topic).toLowerCase().includes('checklist') &&
+            msg?.email?.toLowerCase() === String(user?.email || '').toLowerCase() &&
+            msg?.date === hojeISO()
+          ) {
+            verificarPendencias();
+          }
+        } catch {}
+      };
+    } catch {
+      // sem SSE, vida que segue (o fluxo funciona com a checagem inicial)
+    }
+    return () => {
+      try { es && es.close(); } catch {}
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [API_BASE, user?.email]);
+
+  if (loading) {
+    return <p style={{ padding: 20 }}>Verificando tarefas diárias...</p>;
+  }
+
+  // Se ainda há máquinas pendentes → TarefasDiariasPage
+  if (temPendentes) {
+    // Passa apenas as pendentes para a página de tarefas
+    const dadosParaTarefas = {
+      ...dadosTurno,
+      maquinas: maquinasPendentes
+    };
+    return <TarefasDiariasPage user={user} dadosTurno={dadosParaTarefas} />;
+  }
+
+  // Caso contrário, vai para o layout principal (painel do operador)
+  return <MainLayout user={user} />;
+}

@@ -1,9 +1,8 @@
 // src/components/LoginPage.jsx
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { signInWithEmailAndPassword } from 'firebase/auth';
 import { useTranslation } from 'react-i18next';
-import { auth } from '../firebase';
+import { login } from '../services/apiClient';
 import toast from 'react-hot-toast';
 import styles from './LoginPage.module.css';
 import logo from '../assets/logo.png';
@@ -21,14 +20,20 @@ const LoginPage = () => {
   const handleLogin = async (e) => {
     e.preventDefault();
     setLoading(true);
-    let emailParaLogin = userInput;
+    let identifier = (userInput || '').trim();
 
     try {
-      if (!userInput.includes('@')) {
-        emailParaLogin = `${userInput}@m.continua.tpm`;
+      // se usuário sem @ foi digitado, assume o domínio da empresa
+      if (identifier && !identifier.includes('@')) {
+        identifier = `${identifier}@m.continua.tpm`;
       }
-      await signInWithEmailAndPassword(auth, emailParaLogin, senha);
-      navigate('/');
+      // chama sua API
+      const user = await login({ userOrEmail: identifier, senha });
+      // persiste sessão simples (o seu App pode ler isso ao iniciar)
+      try { localStorage.setItem('authUser', JSON.stringify(user)); } catch {}
+      navigate('/', { replace: true });
+      // opcional: forçar re-load se seu App ainda lê usuário do localStorage no mount
+      // window.location.reload();
     } catch (error) {
       toast.error(t('login.invalid'));
       console.error('Erro no login: ', error);

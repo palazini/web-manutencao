@@ -209,7 +209,6 @@
 }
 .langBtn:hover { box-shadow: 0 2px 8px rgba(0,0,0,.08); }
 .langBtn:active { transform: translateY(1px); }
-.langBtn .langFlag svg { width: 20px; height: 14px; display: block; }
 .langBtn .langCode { font-weight: 600; font-size: 12px; color: #334155; }
 
 /* Popover com as opções */
@@ -239,7 +238,6 @@
   color: #0f172a;
   text-align: left;
 }
-.langItem .langFlag svg { width: 20px; height: 14px; display: block; }
 .langItem .langLabel { font-size: 14px; }
 .langItem .langCodeSmall { font-size: 12px; color: #64748b; }
 .langItem:hover { background: #f8fafc; }
@@ -248,4 +246,3 @@
   cursor: default;
 }
 .langMenu { margin-left: auto; }
-

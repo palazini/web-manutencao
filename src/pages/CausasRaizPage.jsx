@@ -1,14 +1,5 @@
+// src/pages/CausasRaizPage.jsx
 import React, { useState, useEffect } from 'react';
-import {
-  collection,
-  query,
-  onSnapshot,
-  addDoc,
-  deleteDoc,
-  doc,
-  where
-} from 'firebase/firestore';
-import { db } from '../firebase.js';
 import {
   ComposedChart,
   Bar,
@@ -22,31 +13,96 @@ import {
 } from 'recharts';
 import styles from './CausasRaizPage.module.css';
 import { useTranslation } from 'react-i18next';
+import {
+  listarCausas,
+  criarCausa,
+  excluirCausa,
+  listarParetoCausas,
+} from '../services/apiClient';
 
-function CausasCrud() {
+/* =========================
+   CRUD de Causas Raiz
+   ========================= */
+function CausasCrud({ user }) {
   const { t } = useTranslation();
   const [causas, setCausas] = useState([]);
   const [novoNome, setNovoNome] = useState('');
+  const [loading, setLoading] = useState(true);
 
+  // carrega causas
   useEffect(() => {
-    const q = query(collection(db, 'causasRaiz'));
-    const unsub = onSnapshot(q, snap => {
-      setCausas(snap.docs.map(d => ({ id: d.id, nome: d.data().nome })));
-    });
-    return () => unsub();
+    let alive = true;
+    (async () => {
+      try {
+        setLoading(true);
+        const resp = await listarCausas();
+        const lista = Array.isArray(resp) ? resp : (resp?.items ?? []);
+        if (!alive) return;
+
+        // garante sem duplicatas
+        const seen = new Set();
+        const unique = [];
+        for (const it of lista) {
+          const key = it.id ?? `nome:${it.nome}`;
+          if (!seen.has(key)) {
+            seen.add(key);
+            unique.push({ id: it.id, nome: it.nome });
+          }
+        }
+        unique.sort((a, b) => a.nome.localeCompare(b.nome, 'pt'));
+        setCausas(unique);
+      } catch (e) {
+        console.error(e);
+      } finally {
+        if (alive) setLoading(false);
+      }
+    })();
+    return () => { alive = false; };
   }, []);
 
-  const handleAdd = async e => {
+  const handleAdd = async (e) => {
     e.preventDefault();
-    const nome = novoNome.trim();
+    const nome = (novoNome || '').trim();
     if (!nome) return;
-    await addDoc(collection(db, 'causasRaiz'), { nome });
-    setNovoNome('');
+    try {
+      const saved = await criarCausa({ nome }, { role: user?.role, email: user?.email });
+      setCausas(prev => {
+        const semDup = prev.filter(x => (saved.id ? x.id !== saved.id : x.nome !== saved.nome));
+        return [...semDup, saved].sort((a, b) => a.nome.localeCompare(b.nome, 'pt'));
+      });
+      setNovoNome('');
+    } catch (err) {
+      console.error(err);
+      alert(err?.message || t('common.error', 'Falha ao criar causa'));
+    }
   };
 
-  const handleDelete = async id => {
+  const handleDelete = async (item) => {
     if (!window.confirm(t('causas.confirm.delete'))) return;
-    await deleteDoc(doc(db, 'causasRaiz', id));
+
+    try {
+      let id = item?.id;
+
+      // fallback: procurar o id por nome
+      if (!id) {
+        const fresh = await listarCausas();
+        const found = fresh.find(
+          x => (x.nome || '').trim().toLowerCase() === (item?.nome || '').trim().toLowerCase()
+        );
+        id = found?.id;
+      }
+
+      if (!id) {
+        alert('Registro sem id');
+        return;
+      }
+
+      await excluirCausa(id, { role: user?.role, email: user?.email });
+      setCausas(prev => prev.filter(c => c.id !== id));
+    } catch (err) {
+      console.error(err);
+      alert(err?.message || 'Falha ao excluir causa');
+    }
   };
 
   return (
@@ -64,13 +120,21 @@ function CausasCrud() {
           {t('causas.form.add')}
         </button>
       </form>
+
+      {loading && <p className={styles.muted}>{t('common.loading', 'Carregando...')}</p>}
+
+      {!loading && causas.length === 0 && (
+        <p className={styles.muted}>{t('causas.list.empty', 'Nenhuma causa cadastrada')}</p>
+      )}
+
       <ul className={styles.list}>
-        {causas.map(c => (
-          <li key={c.id} className={styles.listItem}>
+        {causas.map((c, i) => (
+          <li key={c.id ?? `${c.nome}__${i}`} className={styles.listItem}>
             {c.nome}
             <button
               className={styles.deleteButton}
-              onClick={() => handleDelete(c.id)}
+              onClick={() => handleDelete(c)}
+              title={t('causas.list.delete')}
             >
               {t('causas.list.delete')}
             </button>
@@ -81,47 +145,45 @@ function CausasCrud() {
   );
 }
 
+/* =========================
+   Pareto (usa o endpoint /analytics/pareto-causas)
+   ========================= */
 function ParetoChart() {
   const { t } = useTranslation();
   const [dados, setDados] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const q = query(
-      collection(db, 'chamados'),
-      where('status', '==', 'Concluído')
-    );
-    const unsub = onSnapshot(q, snap => {
-      // 1) extrai todas as causas
-      const raw = snap.docs
-        .map(d => d.data().causa)
-        .filter(c => !!c);
-
-      // 2) conta frequências
-      const freq = raw.reduce((acc, causa) => {
-        acc[causa] = (acc[causa] || 0) + 1;
-        return acc;
-      }, {});
-
-      // 3) monta array e ordena desc
-      let arr = Object.entries(freq).map(([causa, count]) => ({ causa, count }));
-      arr.sort((a, b) => b.count - a.count);
-
-      // 4) total, % e % acumulado
-      const total = arr.reduce((sum, x) => sum + x.count, 0);
-      let acumulado = 0;
-      arr = arr.map(item => {
-        acumulado += item.count;
-        return {
-          ...item,
-          percent: Number(((item.count / total) * 100).toFixed(1)),
-          acumPercent: Number(((acumulado / total) * 100).toFixed(1))
-        };
-      });
-
-      setDados(arr);
-    });
-    return () => unsub();
+    let alive = true;
+    (async () => {
+      try {
+        setLoading(true);
+        // Sem filtros -> considera todos os chamados concluídos
+        const resp = await listarParetoCausas();
+        const items = Array.isArray(resp?.items) ? resp.items : (Array.isArray(resp) ? resp : []);
+        const data = items.map(it => ({
+          causa: it.causa,
+          count: Number(it.chamados ?? it.count ?? 0),
+          acumPercent: Number(it.pctAcum ?? it.acumPercent ?? 0),
+        }));
+        if (!alive) return;
+        setDados(data);
+      } catch (e) {
+        console.error(e);
+      } finally {
+        if (alive) setLoading(false);
+      }
+    })();
+    return () => { alive = false; };
   }, []);
+
+  if (loading) {
+    return <p className={styles.muted}>{t('common.loading', 'Carregando...')}</p>;
+  }
+
+  if (!dados.length) {
+    return <p className={styles.muted}>{t('causas.chart.empty', 'Sem dados para exibir')}</p>;
+  }
 
   return (
     <ResponsiveContainer width="100%" height={400}>
@@ -161,13 +223,16 @@ function ParetoChart() {
   );
 }
 
-export default function CausasRaizPage() {
+/* =========================
+   Página
+   ========================= */
+export default function CausasRaizPage({ user }) {
   const { t } = useTranslation();
   return (
     <div className={styles.pageContainer}>
       <section className={styles.crudSection}>
         <h2>{t('causas.titleCrud')}</h2>
-        <CausasCrud />
+        <CausasCrud user={user} />
       </section>
       <section className={styles.chartSection}>
         <h2>{t('causas.titlePareto')}</h2>

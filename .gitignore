@@ -33,5 +33,3 @@ Thumbs.db
 
 /node_modules
 
-/scripts/serviceAccountKey.json
-/scripts/setAdminClaim.cjs

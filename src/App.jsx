@@ -1,11 +1,8 @@
 // src/App.jsx
 
 import React, { useState, useEffect } from 'react';
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, useLocation } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
-import { auth, db } from './firebase.js';
-import { onAuthStateChanged } from 'firebase/auth';
-import { doc, getDoc } from 'firebase/firestore';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 
@@ -20,27 +17,52 @@ function App() {
   const [loading, setLoading] = useState(true);
   const [turnoConfirmado, setTurnoConfirmado] = useState(false);
   const [dadosTurno, setDadosTurno] = useState(null);
+  const location = useLocation();
 
+  const readAuthUser = () => {
+    try { return JSON.parse(localStorage.getItem('authUser') || 'null'); }
+    catch { return null; }
+  };
+  const readDadosTurno = () => {
+    try { return JSON.parse(localStorage.getItem('dadosTurno') || 'null'); }
+    catch { return null; }
+  };
+
+  // Mount: carrega usuário e dados do turno
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
-      if (firebaseUser) {
-        const userDocRef = doc(db, 'usuarios', firebaseUser.uid);
-        const userDoc = await getDoc(userDocRef);
-        if (userDoc.exists()) {
-          setUser({ uid: firebaseUser.uid, ...userDoc.data() });
-        } else {
-          setUser(null);
-        }
-      } else {
-        setUser(null);
-        setTurnoConfirmado(false);
-        setDadosTurno(null);
-      }
-      setLoading(false);
-    });
-    return () => unsubscribe();
+    const u = readAuthUser();
+    setUser(u);
+    const dt = readDadosTurno();
+    setDadosTurno(dt);
+    setTurnoConfirmado(!!dt && Array.isArray(dt.maquinas) && dt.maquinas.length > 0);
+    setLoading(false);
   }, []);
-  
+
+  // A cada mudança de rota, re-hidrata (útil após login navegado ou sair do fluxo)
+  useEffect(() => {
+    const u = readAuthUser();
+    setUser(u);
+    const dt = readDadosTurno();
+    setDadosTurno(dt);
+    setTurnoConfirmado(!!dt && Array.isArray(dt.maquinas) && dt.maquinas.length > 0);
+  }, [location.key]);
+
+  // Sincroniza se limpar sessão em outra aba (evento storage)
+  useEffect(() => {
+    const onStorage = (e) => {
+      if (e.key === 'authUser' || e.key === 'dadosTurno') {
+        const u = readAuthUser();
+        setUser(u);
+        const dt = readDadosTurno();
+        setDadosTurno(dt);
+        setTurnoConfirmado(!!dt && Array.isArray(dt.maquinas) && dt.maquinas.length > 0);
+      }
+    };
+    window.addEventListener('storage', onStorage);
+    return () => window.removeEventListener('storage', onStorage);
+  }, []);
+
+  // (Opcional) mantém compatibilidade com páginas existentes
   const handleTurnoConfirmado = (selecao) => {
     setDadosTurno(selecao);
     setTurnoConfirmado(true);
@@ -49,7 +71,7 @@ function App() {
   if (loading) {
     return <div style={{ padding: '20px' }}>Carregando...</div>;
   }
-  
+
   return (
     <DndProvider backend={HTML5Backend}>
       <Toaster position="top-right" />
@@ -57,15 +79,15 @@ function App() {
         {user ? (
           user.role === 'operador' ? (
             <>
-              <Route 
-                path="/*" 
+              <Route
+                path="/*"
                 element={
                   turnoConfirmado ? (
                     <OperatorFlow user={user} dadosTurno={dadosTurno} />
                   ) : (
                     <InicioTurnoPage user={user} onTurnoConfirmado={handleTurnoConfirmado} />
                   )
-                } 
+                }
               />
               <Route path="/checklist/:maquinaId" element={<ChecklistPage user={user} />} />
             </>

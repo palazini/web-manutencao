@@ -1,13 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { db } from '../firebase';
-import {
-  collection,
-  query,
-  onSnapshot,
-  orderBy,
-  deleteDoc,
-  doc
-} from 'firebase/firestore';
+import { listarPecas, excluirPeca } from '../services/apiClient';
+
 import styles from './EstoquePage.module.css';
 import MovimentacaoModal from './MovimentacaoModal.jsx';
 import PecaModal from './PecaModal.jsx';
@@ -28,12 +21,31 @@ export default function EstoquePage({ user }) {
   const [editingPeca, setEditingPeca]   = useState(undefined);
 
   useEffect(() => {
-    const q = query(collection(db, 'pecas'), orderBy('codigo'));
-    return onSnapshot(q, snap => {
-      setPecas(snap.docs.map(d => ({ id: d.id, ...d.data() })));
-      setLoading(false);
-    }, console.error);
+    let alive = true;
+    (async () => {
+      try {
+        setLoading(true);
+        const itens = await listarPecas(); // [{id,codigo,nome,categoria,estoqueAtual,estoqueMinimo,localizacao}]
+        if (!alive) return;
+        setPecas(itens);
+      } catch (e) {
+        console.error(e);
+      } finally {
+        if (alive) setLoading(false);
+      }
+    })();
+    return () => { alive = false; };
   }, []);
+
+  // (Opcional) atualizações em tempo real via SSE
+  // useEffect(() => {
+  //   const unsub = subscribeSSE((msg) => {
+  //     if (msg?.topic === 'pecas' || msg?.topic === 'movimentacoes') {
+  //       listarPecas().then(setPecas).catch(console.error);
+  //     }
+  //   });
+  //   return () => unsub();
+  // }, []);
 
   const openModalMov = (peca, tipo) => {
     setSelectedPeca(peca);
@@ -43,7 +55,9 @@ export default function EstoquePage({ user }) {
   const handleDeletePeca = async id => {
     if (!window.confirm(t('estoque.confirm.delete'))) return;
     try {
-      await deleteDoc(doc(db, 'pecas', id));
+      await excluirPeca(id, { role: user?.role, email: user?.email });
+      // Atualiza a lista local sem precisar reler tudo
+      setPecas(prev => prev.filter(p => p.id !== id));
       toast.success(t('estoque.toasts.deleted'));
     } catch (err) {
       console.error(err);
@@ -167,18 +181,37 @@ export default function EstoquePage({ user }) {
 
         {/* Modais */}
         {selectedPeca && (
-          <MovimentacaoModal
-            peca={selectedPeca}
-            tipo={modalTipo}
-            user={user}
-            onClose={() => setSelectedPeca(null)}
-          />
+          <>
+            {/* Se o seu MovimentacaoModal aceitar callback de sucesso,
+                você pode recarregar a lista assim:
+                onSaved={() => listarPecas().then(setPecas).catch(console.error)} */}
+            <MovimentacaoModal
+              peca={selectedPeca}
+              tipo={modalTipo}
+              user={user}
+              onClose={() => setSelectedPeca(null)}
+            />
+          </>
         )}
+
         {editingPeca !== undefined && (
-          <PecaModal
-            peca={editingPeca}
-            onClose={() => setEditingPeca(undefined)}
-          />
+          <>
+            {/* null = criar, objeto = editar */}
+            <PecaModal
+              peca={editingPeca}
+              user={user}
+              onClose={() => setEditingPeca(undefined)}
+              onSaved={(saved) => {
+                setPecas((prev) => {
+                  if (!saved || !saved.id) return prev;
+                  const sem = prev.filter((p) => p.id !== saved.id);
+                  return [...sem, saved].sort((a, b) =>
+                    String(a.codigo).localeCompare(String(b.codigo), 'pt')
+                  );
+                });
+              }}
+            />
+          </>
         )}
       </div>
     </>

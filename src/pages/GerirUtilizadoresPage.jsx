@@ -1,51 +1,24 @@
 import React, { useState, useEffect } from 'react';
-import { db, secondaryAuth } from '../firebase';
-import {
-  collection,
-  query,
-  onSnapshot,
-  orderBy,
-  doc,
-  setDoc
-} from 'firebase/firestore';
-import {
-  createUserWithEmailAndPassword,
-  getAuth
-} from 'firebase/auth';
 import styles from './GerirUtilizadoresPage.module.css';
 import Modal from '../components/Modal.jsx';
 import { FiPlus, FiEdit, FiTrash2 } from 'react-icons/fi';
 import toast from 'react-hot-toast';
 import { useTranslation } from 'react-i18next';
+import { listarUsuarios, criarUsuario, atualizarUsuario, excluirUsuario } from '../services/apiClient';
 
-// Helper para atribuir/remover a claim de gestor via função serverless
-async function setAdminClaim(uid, makeAdmin) {
-  const auth = getAuth();
-  const token = await auth.currentUser.getIdToken(true);
-  const res = await fetch('/api/setAdminClaim', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`
-    },
-    body: JSON.stringify({ uid, makeAdmin })
-  });
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({}));
-    throw new Error(err.error || 'Falha ao atualizar permissão');
-  }
-}
-
-const GerirUtilizadoresPage = () => {
+const GerirUtilizadoresPage = ({ user }) => {
   const { t } = useTranslation();
 
   const [utilizadores, setUtilizadores] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
+  // Filtro
+  const [roleFiltro, setRoleFiltro] = useState('all');
+
   // Formulário
   const [nome, setNome] = useState('');
-  const [senha, setSenha] = useState('');
+  const [senha, setSenha] = useState(''); // Dica: sem efeito agora; deixado opcional
   const [role, setRole] = useState('operador');
   const [isSaving, setIsSaving] = useState(false);
 
@@ -54,13 +27,21 @@ const GerirUtilizadoresPage = () => {
   const [usuarioEditandoId, setUsuarioEditandoId] = useState(null);
 
   useEffect(() => {
-    const q = query(collection(db, 'usuarios'), orderBy('nome'));
-    const unsubscribe = onSnapshot(q, snapshot => {
-      setUtilizadores(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
-      setLoading(false);
-    });
-    return () => unsubscribe();
-  }, []);
+    let alive = true;
+    (async () => {
+      setLoading(true);
+      try {
+        const itens = await listarUsuarios({ role: roleFiltro });
+        if (!alive) return;
+        setUtilizadores(itens);
+      } catch (e) {
+        console.error(e);
+      } finally {
+        if (alive) setLoading(false);
+      }
+    })();
+    return () => { alive = false; };
+  }, [roleFiltro]);
 
   const handleSalvarUtilizador = async (e) => {
     e.preventDefault();
@@ -74,12 +55,11 @@ const GerirUtilizadoresPage = () => {
       return;
     }
 
-    // Lógica para gerar username único
+    // Geração de username/email
     const primeiroNome = partes[0].toLowerCase();
     const stopWords = ['da', 'de', 'do', 'dos', 'das', 'e'];
     const sobrenomes = partes.slice(1).filter(p => !stopWords.includes(p.toLowerCase()));
 
-    // Define sobrenome base
     let ultimoSobrenome = sobrenomes.length > 0
       ? sobrenomes[sobrenomes.length - 1].toLowerCase()
       : partes[partes.length - 1].toLowerCase();
@@ -109,7 +89,7 @@ const GerirUtilizadoresPage = () => {
 
     const emailGerado = `${nomeUsuario}@m.continua.tpm`;
 
-    // Define função (mantém como no original para não quebrar relatórios existentes)
+    // Mantém mapeamento de função usado nos relatórios
     let funcao = '';
     switch (role) {
       case 'manutentor': funcao = 'Técnico Eletromecânico'; break;
@@ -119,38 +99,35 @@ const GerirUtilizadoresPage = () => {
 
     try {
       if (modoEdicao) {
-        // Atualiza usuário existente
-        await setDoc(
-          doc(db, 'usuarios', usuarioEditandoId),
+        const saved = await atualizarUsuario(
+          usuarioEditandoId,
           { nome: nomeCompleto, usuario: nomeUsuario, email: emailGerado, role, funcao },
-          { merge: true }
+          { role: user?.role, email: user?.email }
         );
-        try {
-          await setAdminClaim(usuarioEditandoId, role === 'gestor');
-        } catch (err) {
-          console.warn('Erro na claim:', err);
-          toast.error(t('users.toasts.authClaimNotUpdated'));
-        }
+        setUtilizadores(prev =>
+          prev
+            .map(u => (u.id === saved.id ? saved : u))
+            .filter(u => roleFiltro === 'all' || u.role === roleFiltro)
+            .sort((a, b) => a.nome.localeCompare(b.nome, 'pt'))
+        );
         toast.success(t('users.toasts.updated'));
       } else {
-        // Cria novo usuário Auth e Firestore
-        const cred = await createUserWithEmailAndPassword(
-          secondaryAuth, emailGerado, senha
-        );
-        const uid = cred.user.uid;
-        await setDoc(doc(db, 'usuarios', uid), {
+        const payload = {
           nome: nomeCompleto,
           usuario: nomeUsuario,
           email: emailGerado,
           role,
-          funcao
+          funcao,
+          ...(senha?.trim()?.length >= 6 ? { senha: senha.trim() } : {})
+        };
+        const saved = await criarUsuario(
+          payload,
+          { role: user?.role, email: user?.email }
+        );
+        setUtilizadores(prev => {
+          const next = roleFiltro === 'all' || saved.role === roleFiltro ? [...prev, saved] : prev;
+          return next.sort((a, b) => a.nome.localeCompare(b.nome, 'pt'));
         });
-        try {
-          await setAdminClaim(uid, role === 'gestor');
-        } catch (err) {
-          console.warn('Erro na claim:', err);
-          toast.error(t('users.toasts.authClaimNotSet'));
-        }
         toast.success(t('users.toasts.created', { name: nomeCompleto }));
       }
 
@@ -169,32 +146,20 @@ const GerirUtilizadoresPage = () => {
     }
   };
 
-  const abrirModalEdicao = (user) => {
-    setNome(user.nome);
-    setRole(user.role);
+  const abrirModalEdicao = (userRow) => {
+    setNome(userRow.nome);
+    setRole(userRow.role);
     setModoEdicao(true);
-    setUsuarioEditandoId(user.id);
+    setUsuarioEditandoId(userRow.id);
     setSenha('');
     setIsModalOpen(true);
   };
 
   const handleExcluirUtilizador = async (uid, nome) => {
-    if (!window.confirm(t('users.confirm.delete', { name }))) return;
+    // correção pequena: usa a variável "nome" no confirm
+    if (!window.confirm(t('users.confirm.delete', { name: nome }))) return;
     try {
-      const auth = getAuth();
-      const token = await auth.currentUser.getIdToken(true);
-      const res = await fetch('/api/deleteUser', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`
-        },
-        body: JSON.stringify({ uid })
-      });
-      if (!res.ok) {
-        const err = await res.json().catch(() => ({}));
-        throw new Error(err.error || t('users.toasts.deleteError'));
-      }
+      await excluirUsuario(uid, { role: user?.role, email: user?.email });
       setUtilizadores(prev => prev.filter(u => u.id !== uid));
       toast.success(t('users.toasts.deleted'));
     } catch (error) {
@@ -205,6 +170,7 @@ const GerirUtilizadoresPage = () => {
 
   return (
     <>
+      {/* Header sem o filtro */}
       <header
         className={styles.header}
         style={{
@@ -230,6 +196,26 @@ const GerirUtilizadoresPage = () => {
       </header>
 
       <div className={styles.userListContainer}>
+        {/* Toolbar de filtro deslocada para dentro da caixa dos usuários */}
+        <div className={styles.userListToolbar}>
+          <div className={styles.filterGroup}>
+            <label htmlFor="roleFiltro" className={styles.filterLabel}>
+              {t('users.form.role')}
+            </label>
+            <select
+              id="roleFiltro"
+              className={`${styles.select} ${styles.filterSelect}`}
+              value={roleFiltro}
+              onChange={(e) => setRoleFiltro(e.target.value)}
+            >
+              <option value="all">{t('users.roles.all')}</option>
+              <option value="gestor">{t('users.roles.manager')}</option>
+              <option value="manutentor">{t('users.roles.maintainer')}</option>
+              <option value="operador">{t('users.roles.operator')}</option>
+            </select>
+          </div>
+        </div>
+
         {loading ? (
           <p>{t('users.loading')}</p>
         ) : (
@@ -241,23 +227,23 @@ const GerirUtilizadoresPage = () => {
               <span style={{ textAlign: 'right' }}>{t('users.table.actions')}</span>
             </div>
             <ul className={styles.userList}>
-              {utilizadores.map(user => (
-                <li key={user.id} className={styles.userItem}>
-                  <strong>{user.nome}</strong>
-                  <span>{user.usuario}</span>
-                  <span>{user.funcao}</span>
+              {utilizadores.map(userRow => (
+                <li key={userRow.id} className={styles.userItem}>
+                  <strong>{userRow.nome}</strong>
+                  <span>{userRow.usuario}</span>
+                  <span>{userRow.funcao}</span>
                   <div className={styles.actions}>
                     <button
                       className={styles.actionButton}
                       title={t('users.actions.edit')}
-                      onClick={() => abrirModalEdicao(user)}
+                      onClick={() => abrirModalEdicao(userRow)}
                     >
                       <FiEdit />
                     </button>
                     <button
                       className={`${styles.actionButton} ${styles.deleteButton}`}
                       title={t('users.actions.delete')}
-                      onClick={() => handleExcluirUtilizador(user.id, user.nome)}
+                      onClick={() => handleExcluirUtilizador(userRow.id, userRow.nome)}
                     >
                       <FiTrash2 />
                     </button>
@@ -296,7 +282,6 @@ const GerirUtilizadoresPage = () => {
                 className={styles.input}
                 value={senha}
                 onChange={e => setSenha(e.target.value)}
-                required
                 minLength="6"
               />
             </div>

@@ -214,3 +214,89 @@
     margin-right: 8px;
   }
 }
+
+.userListToolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding-bottom: 12px;
+  margin-bottom: 16px;
+  border-bottom: 1px solid #eee;
+}
+
+.filterGroup {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.filterLabel {
+  font-size: 0.9rem;
+  color: #555;
+}
+
+/* A seletora já herda de .select; aqui só damos pequenos ajustes */
+.filterSelect {
+  min-width: 180px;
+}
+
+/* Foco consistente com sua paleta (#4B70E2) */
+.input:focus,
+.select:focus,
+.filterSelect:focus {
+  outline: none;
+  border-color: #4B70E2;
+  box-shadow: 0 0 0 3px rgba(75, 112, 226, 0.15);
+}
+
+/* === Responsivo da toolbar === */
+@media (max-width: 900px) {
+  .userListToolbar {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  .filterGroup {
+    width: 100%;
+  }
+  .filterSelect {
+    width: 100%;
+    min-width: 0;
+  }
+}
+
+@media (max-width: 600px) {
+  .filterLabel {
+    font-size: 0.85rem;
+  }
+}
+
+.userListToolbar .filterGroup {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: nowrap;         /* mantém na mesma linha */
+}
+
+/* O label ocupa o espaço natural dele e NÃO encolhe */
+.filterLabel {
+  white-space: nowrap;       /* não quebra */
+  flex: 0 0 auto;            /* não deixa encolher */
+  /* remova qualquer overflow/ellipsis que tinha antes */
+}
+
+/* O select se ajusta ao espaço restante */
+.filterSelect {
+  flex: 1 1 160px;           /* cresce/encolhe conforme espaço */
+  min-width: 120px;          /* limite para não ficar minúsculo */
+  width: auto;
+}
+
+/* Em telas ≤900px você já empilha; mantemos isso */
+@media (max-width: 900px) {
+  .userListToolbar { flex-direction: column; align-items: flex-start; gap: 10px; }
+  .userListToolbar .filterGroup { width: 100%; }
+  .filterSelect { width: 100%; min-width: 0; }
+}
+

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import { db } from '../firebase';
-import { collection, query, where, onSnapshot, orderBy } from 'firebase/firestore';
+import { listarChamados } from '../services/apiClient';
+import { subscribeSSE } from '../services/sseClient';
 import { exportToExcel } from '../utils/exportExcel';
 import { exportToPdf }   from '../utils/exportPdf';
 import styles from './HistoricoPage.module.css';
@@ -10,70 +10,118 @@ import { useTranslation } from 'react-i18next';
 const HistoricoPage = () => {
   const { t, i18n } = useTranslation();
 
+  // estados principais...
   const [chamadosConcluidos, setChamadosConcluidos] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [reloadTick, setReloadTick] = useState(0);
 
-  // Estados de filtro
-  const [filtroTipoChamado, setFiltroTipoChamado] = useState('todos');
-  const [filtroTipoMaquina, setFiltroTipoMaquina] = useState('todos');
+  // ⬇️ DECLARE OS FILTROS AQUI, ANTES DE USAR
+  const [filtroTipoChamado, setFiltroTipoChamado] = useState('todos'); // 'todos' | 'corretiva' | 'preventiva' | 'preditiva'
+  const [filtroMaquina, setFiltroMaquina] = useState('');
+  const [busca, setBusca] = useState('');
 
+  // formatação de data etc...
   const dtFmt = useMemo(
     () => new Intl.DateTimeFormat(i18n.language, { dateStyle: 'short', timeStyle: 'short' }),
     [i18n.language]
   );
 
-  useEffect(() => {
-    const q = query(
-      collection(db, 'chamados'),
-      where('status', '==', 'Concluído'),
-      orderBy('dataConclusao', 'desc')
-    );
+  // Util para aceitar string da API e outros formatos
+  function tsToDate(ts) {
+    if (!ts) return null;
+    if (typeof ts === 'string') return new Date(ts.replace(' ', 'T')); // "YYYY-MM-DD HH:MM"
+    if (typeof ts.toDate === 'function') return ts.toDate();
+    const d = ts instanceof Date ? ts : new Date(ts);
+    return isNaN(d) ? null : d;
+  }
 
-    const unsubscribe = onSnapshot(q, (querySnapshot) => {
-      const chamadosData = [];
-      querySnapshot.forEach((doc) => {
-        chamadosData.push({ id: doc.id, ...doc.data() });
-      });
-      setChamadosConcluidos(chamadosData);
-      setLoading(false);
+  // ✅ só DEPOIS use os filtros em memos/calculados
+  const historicoFiltrado = useMemo(() => {
+    let arr = Array.isArray(chamadosConcluidos) ? chamadosConcluidos.slice() : [];
+
+    if (filtroTipoChamado && filtroTipoChamado !== 'todos') {
+      arr = arr.filter(c => (c.tipo || '').toLowerCase() === filtroTipoChamado.toLowerCase());
+    }
+    if (filtroMaquina.trim()) {
+      const q = filtroMaquina.trim().toLowerCase();
+      arr = arr.filter(c => (c.maquina || '').toLowerCase().includes(q));
+    }
+    if (busca.trim()) {
+      const q = busca.trim().toLowerCase();
+      arr = arr.filter(c =>
+        (c.descricao || '').toLowerCase().includes(q) ||
+        (c.manutentorNome || '').toLowerCase().includes(q)
+      );
+    }
+
+    // mantém ordenação por conclusão desc (fallback: abertura)
+    arr.sort((a, b) => {
+      const ad = tsToDate(a.dataConclusao) || tsToDate(a.dataAbertura) || 0;
+      const bd = tsToDate(b.dataConclusao) || tsToDate(b.dataAbertura) || 0;
+      return bd - ad;
     });
 
+    return arr;
+  }, [chamadosConcluidos, filtroTipoChamado, filtroMaquina, busca]);
+
+  // Buscar via API (substitui onSnapshot do Firestore)
+  useEffect(() => {
+    let alive = true;
+    setLoading(true);
+    (async () => {
+      try {
+        const data = await listarChamados({ status: 'Concluído', page: 1, pageSize: 500 });
+        const rows = data.items ?? data;
+
+        const mapped = rows.map(r => ({
+          id: r.id,
+          maquina: r.maquina,
+          tipo: r.tipo, // 'corretiva' | 'preventiva' | 'preditiva'
+          descricao: r.descricao,
+          manutentorNome: r.manutentor || '',
+          dataAbertura: r.criado_em || null,     // string "YYYY-MM-DD HH:MM"
+          dataConclusao: r.concluido_em || null, // string ou null
+          solucao: r.solucao || '',
+          causa: r.causa || '',
+          status: r.status
+        }));
+
+        if (!alive) return;
+        setChamadosConcluidos(mapped);
+      } catch (e) {
+        console.error(e);
+      } finally {
+        if (alive) setLoading(false);
+      }
+    })();
+    return () => { alive = false; };
+  }, [reloadTick]);
+
+  // Assinar SSE e disparar refetch
+  useEffect(() => {
+    const unsubscribe = subscribeSSE((msg) => {
+      if (msg?.topic === 'chamados') {
+        setReloadTick(n => n + 1);
+      }
+    });
     return () => unsubscribe();
   }, []);
 
-  // Derivação de histórico filtrado
-  const historicoFiltrado = chamadosConcluidos.filter(chamado => {
-    const matchTipo = filtroTipoChamado === 'todos' || chamado.tipo === filtroTipoChamado;
-    const matchMaquina = filtroTipoMaquina === 'todos' || chamado.maquina === filtroTipoMaquina;
-    return matchTipo && matchMaquina;
-  });
-
-  // Lista de máquinas únicas para o dropdown
-  const maquinasUnicas = Array.from(new Set(chamadosConcluidos.map(c => c.maquina)));
-
-  // Tradução para o tipo (apenas para mostrar/exports; mantém os valores internos)
-  const tipoLabel = (tipo) => {
-    if (tipo === 'corretiva') return t('historico.filters.typeOptions.corrective');
-    if (tipo === 'preventiva') return t('historico.filters.typeOptions.preventive');
-    if (tipo === 'preditiva') return t('historico.filters.typeOptions.predictive');
-    return tipo || '';
-  };
-
-  // Dados para Excel (as chaves do objeto viram os cabeçalhos)
+  // Dados para Excel
   const excelData = historicoFiltrado.map(c => ({
     [t('historico.export.columns.machine')]: c.maquina,
     [t('historico.export.columns.callType')]: tipoLabel(c.tipo),
     [t('historico.export.columns.openedAt')]:
-      c.dataAbertura ? dtFmt.format(c.dataAbertura.toDate()) : '',
+      c.dataAbertura ? dtFmt.format(tsToDate(c.dataAbertura)) : '',
     [t('historico.export.columns.attendedBy')]: c.manutentorNome || '',
     [t('historico.export.columns.performedService')]: c.solucao || '',
     [t('historico.export.columns.cause')]: c.causa || '',
     [t('historico.export.columns.concludedAt')]:
-      c.dataConclusao ? dtFmt.format(c.dataConclusao.toDate()) : '',
+      c.dataConclusao ? dtFmt.format(tsToDate(c.dataConclusao)) : '',
     [t('historico.export.columns.problem')]: c.descricao || ''
   }));
 
-  // Dados para PDF (mantém as keys originais; labels traduzidos no array de colunas)
+  // Colunas PDF
   const pdfColumns = [
     { key: 'maquina',        label: t('historico.export.columns.machine') },
     { key: 'tipo',           label: t('historico.export.columns.callType') },
@@ -85,12 +133,21 @@ const HistoricoPage = () => {
     { key: 'descricao',      label: t('historico.export.columns.problem') }
   ];
 
+  // Dados PDF
   const pdfData = historicoFiltrado.map(c => ({
     ...c,
-    dataAbertura: c.dataAbertura ? dtFmt.format(c.dataAbertura.toDate()) : '',
-    dataConclusao: c.dataConclusao ? dtFmt.format(c.dataConclusao.toDate()) : '',
+    dataAbertura: c.dataAbertura ? dtFmt.format(tsToDate(c.dataAbertura)) : '',
+    dataConclusao: c.dataConclusao ? dtFmt.format(tsToDate(c.dataConclusao)) : '',
     tipo: tipoLabel(c.tipo)
   }));
+
+  // Tradução para o tipo
+  function tipoLabel(tipo) {
+    if (tipo === 'corretiva') return t('historico.filters.typeOptions.corrective');
+    if (tipo === 'preventiva') return t('historico.filters.typeOptions.preventive');
+    if (tipo === 'preditiva') return t('historico.filters.typeOptions.predictive');
+    return tipo || '';
+  }
 
   return (
     <>
@@ -130,19 +187,27 @@ const HistoricoPage = () => {
                     <option value="preditiva">{t('historico.filters.typeOptions.predictive')}</option>
                   </select>
                 </div>
+
                 <div>
-                  <label htmlFor="filtroTipoMaquina">{t('historico.filters.byMachine')}</label>
-                  <select
-                    id="filtroTipoMaquina"
+                  <label htmlFor="filtroMaquina">{t('historico.filters.byMachine')}</label>
+                  <input
+                    id="filtroMaquina"
                     className={styles.select}
-                    value={filtroTipoMaquina}
-                    onChange={e => setFiltroTipoMaquina(e.target.value)}
-                  >
-                    <option value="todos">{t('historico.filters.machineOptions.all')}</option>
-                    {maquinasUnicas.map(maquina => (
-                      <option key={maquina} value={maquina}>{maquina}</option>
-                    ))}
-                  </select>
+                    value={filtroMaquina}
+                    onChange={e => setFiltroMaquina(e.target.value)}
+                    placeholder={t('historico.filters.machineOptions.all')}
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor="busca">{t('historico.filters.search') || 'Busca'}</label>
+                  <input
+                    id="busca"
+                    className={styles.select}
+                    value={busca}
+                    onChange={e => setBusca(e.target.value)}
+                    placeholder={t('historico.filters.searchPlaceholder') || t('historico.item.problem')}
+                  />
                 </div>
               </div>
 
@@ -160,7 +225,7 @@ const HistoricoPage = () => {
                           </small>
                           <small>
                             {t('historico.item.concludedAt', {
-                              date: chamado.dataConclusao ? dtFmt.format(chamado.dataConclusao.toDate()) : '...'
+                              date: chamado.dataConclusao ? dtFmt.format(tsToDate(chamado.dataConclusao)) : '...'
                             })}
                           </small>
                           <p className={styles.problemaPreview}>

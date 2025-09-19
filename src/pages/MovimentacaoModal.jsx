@@ -1,14 +1,6 @@
 // src/pages/MovimentacaoModal.jsx
 import React, { useState } from 'react';
-import {
-  doc,
-  addDoc,
-  collection,
-  updateDoc,
-  increment,
-  serverTimestamp
-} from 'firebase/firestore';
-import { db } from '../firebase';
+import { registrarMovimentacao } from '../services/apiClient';
 import styles from './MovimentacaoModal.module.css';
 import Modal from '../components/Modal.jsx';
 import toast from 'react-hot-toast';
@@ -22,23 +14,22 @@ export default function MovimentacaoModal({ peca, tipo, user, onClose }) {
     e.preventDefault();
     setIsSaving(true);
     try {
-      // 1) registra a movimentação
-      await addDoc(collection(db, 'movimentacoes'), {
-        pecaId:    peca.id,
-        tipo,      // 'entrada' ou 'saida'
-        quantidade,
-        descricao,
-        usuario:   user.nome,
-        data:      serverTimestamp()
-      });
+      // validação simples
+      const q = Number(quantidade);
+      if (!Number.isFinite(q) || q <= 0) {
+        throw new Error('Quantidade inválida');
+      }
 
-      // 2) atualiza o estoque da peça
-      const pecaRef = doc(db, 'pecas', peca.id);
-      const delta = tipo === 'entrada' ? quantidade : -quantidade;
-      await updateDoc(pecaRef, {
-        estoqueAtual: increment(delta),
-        atualizadoEm: serverTimestamp()
-      });
+      // chama a API (back já registra a movimentação e atualiza o estoque em transação)
+      await registrarMovimentacao(
+        peca.id,
+        {
+          tipo,                // 'entrada' | 'saida'
+          quantidade: q,
+          descricao: (descricao || '').trim(),
+        },
+        { role: user?.role, email: user?.email }
+      );
 
       toast.success(`Movimentação de ${tipo} realizada com sucesso!`);
       onClose();

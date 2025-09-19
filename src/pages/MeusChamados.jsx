@@ -1,19 +1,15 @@
 // src/pages/MeusChamados.jsx
 import React, { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import {
-  collection,
-  onSnapshot,
-  query,
-  where
-} from 'firebase/firestore';
-import { db } from '../firebase';
+import { listarChamadosPorCriador, listarChamados } from '../services/apiClient';
+import { subscribeSSE } from '../services/sseClient';
 import styles from './MeusChamados.module.css';
 import { useTranslation } from 'react-i18next';
 import { statusKey } from '../i18n/format';
 
 function tsToDate(ts) {
   if (!ts) return null;
+  if (typeof ts === 'string') return new Date(ts.replace(' ', 'T')); // "YYYY-MM-DD HH:MM" -> Date
   if (typeof ts.toDate === 'function') return ts.toDate();
   const d = ts instanceof Date ? ts : new Date(ts);
   return isNaN(d) ? null : d;
@@ -38,7 +34,10 @@ export default function MeusChamados({ user }) {
   const [statusFiltro, setStatusFiltro] = useState('ativos'); // 'ativos' | 'todos' | 'concluidos'
   const [busca, setBusca] = useState('');
 
-  const uid = user?.uid;
+  const [reloadTick, setReloadTick] = useState(0);
+
+  const email = user?.email;
+  const role  = user?.role; // "operador" | "manutentor" | "gestor"
 
   const dtFmt = useMemo(
     () => new Intl.DateTimeFormat(i18n.language, { dateStyle: 'short', timeStyle: 'short' }),
@@ -49,29 +48,63 @@ export default function MeusChamados({ user }) {
     return d ? dtFmt.format(d) : '—';
   };
 
-  // 1) ATRIBUÍDOS a mim
+  // 1) ATRIBUÍDOS a mim (manutentor/gestor)
   useEffect(() => {
-    if (!uid) return;
-    const q1 = query(collection(db, 'chamados'), where('assignedTo', '==', uid));
-    const unsub1 = onSnapshot(q1, (snap) => {
-      setDocsAssigned(snap.docs.map(d => ({ id: d.id, ...d.data() })));
-      setLoading(false);
-    }, (err) => {
-      console.error('Erro assignedTo==uid:', err);
-      setLoading(false);
-    });
-    return () => unsub1();
-  }, [uid]);
+    // Só faz sentido para manutentor/gestor
+    if (!email || !(role === 'manutentor' || role === 'gestor')) {
+      setDocsAssigned([]);
+      setLoading(false); // evita spinner infinito quando operador
+      return;
+    }
+    setLoading(true);
+    (async () => {
+      try {
+        const res = await listarChamados({ manutentorEmail: email, page: 1, pageSize: 100 });
+        const rows = res.items ?? res;
+        setDocsAssigned(rows.map(r => ({
+          id: r.id,
+          maquina: r.maquina,
+          descricao: r.descricao,
+          status: r.status,
+          // API ainda não fornece "assignedAt"
+          assignedAt: null,
+          dataAbertura: r.criado_em
+        })));
+      } catch (e) {
+        console.error('Erro manutentorEmail==user:', e);
+      } finally {
+        setLoading(false);
+      }
+    })();
+  }, [email, role]);
 
-  // 2) ATENDIDOS por mim
   useEffect(() => {
-    if (!uid) return;
-    const q2 = query(collection(db, 'chamados'), where('manutentorId', '==', uid));
-    const unsub2 = onSnapshot(q2, (snap) => {
-      setDocsAtendidos(snap.docs.map(d => ({ id: d.id, ...d.data() })));
-    }, (err) => console.error('Erro manutentorId==uid:', err));
-    return () => unsub2();
-  }, [uid]);
+    const unsubscribe = subscribeSSE((msg) => {
+      if (msg?.topic === 'chamados') setReloadTick(n => n + 1);
+    });
+    return () => unsubscribe();
+  }, []);
+
+  // 2) ABERTOS por mim (qualquer papel)
+  useEffect(() => {
+    if (!email) return;
+    (async () => {
+      try {
+        const res = await listarChamadosPorCriador(email, 1, 100);
+        const rows = res.items ?? res;
+        setDocsAtendidos(rows.map(r => ({
+          id: r.id,
+          maquina: r.maquina,
+          descricao: r.descricao,
+          status: r.status,
+          assignedAt: null,
+          dataAbertura: r.criado_em
+        })));
+      } catch (e) {
+        console.error('Erro criadoPorEmail==user:', e);
+      }
+    })();
+  }, [email, reloadTick]);
 
   // Mescla + filtros + ordenação
   const chamados = useMemo(() => {
@@ -97,7 +130,7 @@ export default function MeusChamados({ user }) {
     return arr;
   }, [docsAssigned, docsAtendidos, statusFiltro, busca]);
 
-  if (!uid) {
+  if (!email) {
     return (
       <div className={styles.container}>
         <p>{t('meusChamados.loginFirst')}</p>

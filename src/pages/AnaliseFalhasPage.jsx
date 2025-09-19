@@ -1,6 +1,5 @@
+// AnaliseFalhasPage.jsx
 import React, { useState, useEffect, useMemo } from 'react';
-import { db } from '../firebase';
-import { collection, query, onSnapshot, where, orderBy } from 'firebase/firestore';
 import styles from './AnaliseFalhasPage.module.css';
 
 import { Bar } from 'react-chartjs-2';
@@ -15,41 +14,62 @@ import {
 } from 'chart.js';
 
 import { useTranslation } from 'react-i18next';
+import { listarChamados } from '../services/apiClient';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
 const AnaliseFalhasPage = () => {
   const { t } = useTranslation();
 
-  const [startDate, setStartDate] = useState(null);
-  const [endDate, setEndDate]     = useState(null);
-  const [chamadosCorretivos, setChamadosCorretivos] = useState([]);
+  const [startDate, setStartDate] = useState(null); // Date | null
+  const [endDate, setEndDate]     = useState(null); // Date | null
+  const [chamadosCorretivos, setChamadosCorretivos] = useState([]); // sempre array
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const constraints = [where('tipo', '==', 'corretiva')];
-    if (startDate) constraints.push(where('dataConclusao', '>=', startDate));
-    if (endDate) {
-      const endOfDay = new Date(endDate);
-      endOfDay.setHours(23, 59, 59, 999);
-      constraints.push(where('dataConclusao', '<=', endOfDay));
-    }
-    constraints.push(orderBy('dataConclusao', 'desc'));
+    let alive = true;
+    (async () => {
+      try {
+        setLoading(true);
+        // janela padrão: últimos 90 dias
+        const now = new Date();
+        const from = startDate ? new Date(startDate) : new Date(now);
+        if (!startDate) from.setDate(now.getDate() - 90);
+        const to = endDate ? new Date(endDate) : new Date(now);
+        to.setHours(23, 59, 59, 999); // incluir o dia final
 
-    const q = query(collection(db, 'chamados'), ...constraints);
-    const unsubscribe = onSnapshot(q, snapshot => {
-      setChamadosCorretivos(snapshot.docs.map(doc => doc.data()));
-      setLoading(false);
-    });
+        const itens = await listarChamados({
+          tipo: 'corretiva',
+          status: 'Concluído',
+          from: from.toISOString(),
+          to:   to.toISOString()
+        });
 
-    return () => unsubscribe();
+        // 🔒 Normalização: aceita {items:[]} OU [].
+        const arr = Array.isArray(itens?.items)
+          ? itens.items
+          : (Array.isArray(itens) ? itens : []);
+
+        if (!alive) return;
+        setChamadosCorretivos(arr);
+      } catch (e) {
+        console.error(e);
+        if (!alive) return;
+        setChamadosCorretivos([]); // fallback seguro
+      } finally {
+        if (alive) setLoading(false);
+      }
+    })();
+    return () => { alive = false; };
   }, [startDate, endDate]);
 
   const chartData = useMemo(() => {
+    const list = Array.isArray(chamadosCorretivos) ? chamadosCorretivos : [];
     const falhasPorMaquina = {};
-    chamadosCorretivos.forEach(chamado => {
-      falhasPorMaquina[chamado.maquina] = (falhasPorMaquina[chamado.maquina] || 0) + 1;
-    });
+    for (const chamado of list) {
+      const nome = chamado?.maquina ?? '—';
+      falhasPorMaquina[nome] = (falhasPorMaquina[nome] || 0) + 1;
+    }
     const sorted = Object.entries(falhasPorMaquina).sort(([, a], [, b]) => b - a);
     return {
       labels: sorted.map(([nome]) => nome),
@@ -78,7 +98,6 @@ const AnaliseFalhasPage = () => {
 
   return (
     <>
-      {/* Cabeçalho no card, como no seu layout */}
       <div className={styles.card}>
         <header className={styles.header}>
           <h1>{t('analiseFalhas.title')}</h1>
@@ -86,7 +105,6 @@ const AnaliseFalhasPage = () => {
       </div>
 
       <main className={styles.main}>
-        {/* Filtros + gráfico dentro do card */}
         <div className={styles.card}>
           <div className={styles.filterContainer}>
             <div>
@@ -94,8 +112,8 @@ const AnaliseFalhasPage = () => {
               <input
                 type="date"
                 id="startDate"
-                value={startDate ? startDate.toISOString().split('T')[0] : ''}
-                onChange={e => setStartDate(e.target.value ? new Date(e.target.value) : null)}
+                value={startDate ? startDate.toISOString().slice(0,10) : ''}
+                onChange={e => setStartDate(e.target.value ? new Date(e.target.value + 'T00:00:00') : null)}
               />
             </div>
             <div>
@@ -103,8 +121,8 @@ const AnaliseFalhasPage = () => {
               <input
                 type="date"
                 id="endDate"
-                value={endDate ? endDate.toISOString().split('T')[0] : ''}
-                onChange={e => setEndDate(e.target.value ? new Date(e.target.value) : null)}
+                value={endDate ? endDate.toISOString().slice(0,10) : ''}
+                onChange={e => setEndDate(e.target.value ? new Date(e.target.value + 'T00:00:00') : null)}
               />
             </div>
             <button

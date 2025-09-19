@@ -83,28 +83,6 @@
 }
 
 /* --- Estilos para a aba de planos --- */
-.planSection {
-  background-color: #ffffff;
-  padding: 24px;
-  border-radius: 8px;
-  border: 1px solid #eef0f3;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-  /* A margem inferior foi removida, pois a aba já faz a separação */
-}
-.planSection h3 {
-  margin-top: 0;
-  margin-bottom: 15px;
-  font-size: 1.25rem;
-}
-.planItem strong {
-  font-weight: 500;
-  flex-grow: 1; 
-}
-.planItem span {
-  font-size: 0.9rem;
-  color: #666;
-  white-space: nowrap;
-}
 .actionButton:hover {
   opacity: 0.85;
 }
@@ -191,20 +169,6 @@
 .turnStatus.pending {
   color: #dc3545;
 }
-.clickable {
-  cursor: pointer;
-  border-radius: 4px;
-  padding: 4px 8px;
-  transition: background-color 0.2s;
-}
-.clickable:hover {
-  background-color: #f0f2f5;
-}
-.detailsList {
-  list-style: none;
-  padding: 0;
-  margin-top: 10px;
-}
 .detailItem {
   display: flex;
   justify-content: space-between;
@@ -216,16 +180,6 @@
 }
 
 /* --- Estilos para a aba de operadores --- */
-.assignmentContainer {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 30px;
-}
-.column h4 {
-  margin-top: 0;
-  border-bottom: 1px solid #eee;
-  padding-bottom: 10px;
-}
 .operatorList {
   list-style: none;
   padding: 0;
@@ -305,20 +259,7 @@
   }
 }
 
-@media (max-width: 768px) {
-  .planItem {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-  .planItem span {
-    margin-bottom: 8px;
-  }
-  .planActions {
-    width: 100%;
-    flex-wrap: wrap;
-    justify-content: flex-start;
-  }
-}
+
 
 @media (max-width: 768px) {
   .formGroup {
@@ -460,4 +401,3 @@
 .modalButton:hover {
   background-color: #004d00;      /* um pouco mais escuro no hover */
 }
-

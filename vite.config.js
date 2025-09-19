@@ -1,4 +1,4 @@
-// vite.config.ts
+﻿// vite.config.ts
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
@@ -7,7 +7,7 @@ export default defineConfig({
   plugins: [
     react(),
     VitePWA({
-      strategies: 'generateSW', 
+      strategies: 'generateSW',
       registerType: 'autoUpdate',
       includeAssets: [
         'favicon.svg',
@@ -16,9 +16,9 @@ export default defineConfig({
       ],
       //devOptions: { enabled: true },
       manifest: {
-        name: 'TPM – Manutenção',
+        name: 'TPM - Manutencao',
         short_name: 'TPM',
-        description: 'Painel de Manutenção (PWA)',
+        description: 'Painel de Manutencao (PWA)',
         start_url: '/',
         scope: '/',
         display: 'standalone',
@@ -38,26 +38,8 @@ export default defineConfig({
         cleanupOutdatedCaches: true,
         clientsClaim: true,
         skipWaiting: true,
-        maximumFileSizeToCacheInBytes: 6 * 1024 * 1024, // até 6 MiB
+        maximumFileSizeToCacheInBytes: 6 * 1024 * 1024, // ate 6 MiB
         runtimeCaching: [
-          // Firestore API
-          {
-            urlPattern: /^https:\/\/firestore\.googleapis\.com\//,
-            handler: 'NetworkFirst',
-            options: {
-              cacheName: 'api-firestore',
-              networkTimeoutSeconds: 8
-            }
-          },
-          // Firebase Storage
-          {
-            urlPattern: /^https:\/\/firebasestorage\.googleapis\.com\//,
-            handler: 'NetworkFirst',
-            options: {
-              cacheName: 'api-storage',
-              networkTimeoutSeconds: 8
-            }
-          },
           // bloqueia googleapis/gstatic gerais (ex: auth, sdk)
           {
             urlPattern: ({ url }) =>
@@ -65,7 +47,7 @@ export default defineConfig({
               url.host.includes('gstatic.com'),
             handler: 'NetworkOnly'
           },
-          // páginas HTML navegadas
+          // paginas HTML navegadas
           {
             urlPattern: ({ request }) => request.mode === 'navigate',
             handler: 'NetworkFirst',

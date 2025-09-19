@@ -1,23 +1,10 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import {
-  doc,
-  updateDoc,
-  addDoc,
-  collection,
-  query,
-  onSnapshot,
-  orderBy,
-  serverTimestamp,
-  deleteDoc,
-  limit
-} from 'firebase/firestore';
 import { Calendar, momentLocalizer } from 'react-big-calendar';
 import withDragAndDrop from 'react-big-calendar/lib/addons/dragAndDrop';
 import moment from 'moment';
 import 'moment/locale/pt-br';
 import 'moment/locale/es';
 import toast from 'react-hot-toast';
-import { db } from '../firebase';
 import Modal from '../components/Modal.jsx';
 import 'react-big-calendar/lib/addons/dragAndDrop/styles.css';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
@@ -25,8 +12,44 @@ import styles from './CalendarioGeralPage.module.css';
 import { useTranslation } from 'react-i18next';
 import { df } from '../i18n/format';
 
+import {
+  listarAgendamentos,
+  criarAgendamento,
+  atualizarAgendamento,
+  excluirAgendamento,
+  iniciarAgendamento
+} from '../services/apiClient';
+import { getMaquinas } from '../services/apiClient';
+import { subscribeSSE } from "../services/sseClient";
+
 const localizer = momentLocalizer(moment);
 const DnDCalendar = withDragAndDrop(Calendar);
+
+// ---- Helper para garantir que tudo que vai para o JSX é string legível
+function toPlainText(v) {
+  if (v == null) return '';
+  if (typeof v === 'string') return v;
+
+  if (Array.isArray(v)) {
+    return v
+      .map((x) => {
+        if (x == null) return '';
+        if (typeof x === 'string') return x;
+        if (typeof x === 'object') {
+          return x.texto ?? x.item ?? x.nome ?? x.label ?? x.key ?? '';
+        }
+        return String(x);
+      })
+      .filter(Boolean)
+      .join(' • ');
+  }
+
+  if (typeof v === 'object') {
+    return v.texto ?? v.item ?? v.nome ?? v.label ?? v.key ?? '';
+  }
+
+  try { return String(v); } catch { return ''; }
+}
 
 export default function CalendarioGeralPage({ user }) {
   const { t, i18n } = useTranslation();
@@ -35,6 +58,7 @@ export default function CalendarioGeralPage({ user }) {
   const [loading, setLoading]             = useState(true);
   const [currentDate, setCurrentDate]     = useState(new Date());
   const [view, setView]                   = useState('month');
+  const [reloadTick, setReloadTick]       = useState(0);
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [showNew, setShowNew]             = useState(false);
   const [slotInfo, setSlotInfo]           = useState(null);
@@ -56,60 +80,96 @@ export default function CalendarioGeralPage({ user }) {
   }, [i18n.language]);
 
   const fmtDate = useMemo(
-    () => df({ dateStyle: 'short' }), // Intl com idioma atual
+    () => df({ dateStyle: 'short' }),
     [i18n.language]
   );
 
-  // carrega agendamentos
+  // SSE para reagir a mudanças de agendamentos
   useEffect(() => {
-    const q = query(collection(db, 'agendamentosPreventivos'), orderBy('start'));
-    const unsub = onSnapshot(q, snap => {
-      const evs = snap.docs.map(d => {
-        const data = d.data();
-        return {
-          id:       d.id,
-          title:    `${data.maquinaNome}: ${data.descricao}`,
-          start:    data.start.toDate(),
-          end:      data.end.toDate(),
-          allDay:   true,
-          resource: data
-        };
-      });
-      setEvents(evs);
-      setLoading(false);
+    const unsubscribe = subscribeSSE((msg) => {
+      if (msg?.topic === 'agendamentos') {
+        setReloadTick((n) => n + 1);
+      }
     });
-    return () => unsub();
+    return () => unsubscribe();
   }, []);
+
+  // carrega agendamentos do mês visível
+  useEffect(() => {
+    let alive = true;
+    setLoading(true);
+    (async () => {
+      try {
+        const from = new Date(new Date(currentDate.getFullYear(), currentDate.getMonth(), 1));
+        const to   = new Date(new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0));
+        const lista = await listarAgendamentos({
+          from: from.toISOString(),
+          to:   to.toISOString()
+        });
+        if (!alive) return;
+
+        const evs = lista.map(a => {
+          // itens_checklist pode ser array de strings/objetos — manter array para o modal e normalizar na renderização
+          const itensArr = Array.isArray(a.itens_checklist) ? a.itens_checklist : [];
+          const titulo = `${toPlainText(a.maquina_nome)}: ${toPlainText(a.descricao)}`;
+
+          return {
+            id: a.id,
+            title: toPlainText(titulo),
+            start: new Date(a.start_ts),
+            end:   new Date(a.end_ts),
+            allDay: true,
+            resource: {
+              maquinaNome: toPlainText(a.maquina_nome),
+              descricao: toPlainText(a.descricao),
+              itensChecklist: itensArr, // será normalizado no render
+              originalStart: a.original_start ? new Date(a.original_start) : null,
+              originalEnd:   a.original_end   ? new Date(a.original_end)   : null,
+              status: a.status,
+              concluidoEm: a.concluido_em ? new Date(a.concluido_em) : null,
+              atrasado: !!a.atrasado
+            }
+          };
+        });
+
+        setEvents(evs);
+      } catch (e) {
+        console.error(e);
+      } finally {
+        if (alive) setLoading(false);
+      }
+    })();
+
+    return () => { alive = false; };
+  }, [currentDate.getFullYear(), currentDate.getMonth(), reloadTick]);
 
   // carrega máquinas para dropdown
   useEffect(() => {
-    const q = query(collection(db, 'maquinas'), orderBy('nome'));
-    const unsub = onSnapshot(q, snap => {
-      setMachines(snap.docs.map(d => ({ id: d.id, nome: d.data().nome })));
-    });
-    return () => unsub();
+    (async () => {
+      try {
+        const lista = await getMaquinas();
+        setMachines(lista.map(m => ({ id: m.id, nome: toPlainText(m.nome) })));
+      } catch (e) {
+        console.error(e);
+      }
+    })();
   }, []);
 
   // últimos templates para importar checklist
   useEffect(() => {
-    const tplQuery = query(
-      collection(db, 'agendamentosPreventivos'),
-      orderBy('criadoEm', 'desc'),
-      limit(5)
-    );
-    const unsub = onSnapshot(tplQuery, snap => {
-      const list = snap.docs.map(d => {
-        const data = d.data();
-        return {
-          id:          d.id,
-          maquinaNome: data.maquinaNome,
-          date:        data.criadoEm?.toDate?.() || new Date(),
-          itens:       data.itensChecklist || []
-        };
-      });
-      setTemplates(list);
-    });
-    return () => unsub();
+    (async () => {
+      try {
+        const ultimos = await listarAgendamentos({ limit: 5, order: 'recent' });
+        setTemplates(ultimos.map(a => ({
+          id: a.id,
+          maquinaNome: toPlainText(a.maquina_nome),
+          date: a.criado_em ? new Date(a.criado_em) : new Date(),
+          itens: Array.isArray(a.itens_checklist) ? a.itens_checklist : []
+        })));
+      } catch (e) {
+        console.error(e);
+      }
+    })();
   }, []);
 
   const getContrastColor = (bg) => {
@@ -136,44 +196,38 @@ export default function CalendarioGeralPage({ user }) {
     e.preventDefault();
     const itensArray = checklistTxt
       .split('\n')
-      .map(i => i.trim())
+      .map(i => toPlainText(i).trim())
       .filter(Boolean);
+
     if (!selMachine || !descAgendamento || itensArray.length === 0) {
       return toast.error(t('calendarioGeral.toasts.fillAll'));
     }
-    await addDoc(collection(db, 'agendamentosPreventivos'), {
-      maquinaId:       selMachine,
-      maquinaNome:     machines.find(m => m.id === selMachine).nome,
-      descricao:       descAgendamento,
-      itensChecklist:  itensArray,
-      originalStart:   slotInfo.start,
-      originalEnd:     slotInfo.end,
-      start:           slotInfo.start,
-      end:             slotInfo.end,
-      criadoEm:        serverTimestamp(),
-      status:          'agendado'
+
+    await criarAgendamento({
+      maquinaId: selMachine,
+      descricao: toPlainText(descAgendamento),
+      itensChecklist: itensArray,
+      start: slotInfo.start.toISOString(),
+      end:   slotInfo.end.toISOString()
     });
+
     toast.success(t('calendarioGeral.toasts.created'));
     setShowNew(false);
+    // recarrega mês atual
+    setCurrentDate(new Date(currentDate));
   };
 
   const handleIniciarManutencao = async (event) => {
     if (!window.confirm(t('calendarioGeral.confirm.startNow', { title: event.title }))) return;
     try {
-      await addDoc(collection(db, 'chamados'), {
-        maquina:       event.resource.maquinaNome,
-        descricao:     t('calendarioGeral.generated.callDesc', { title: event.title }),
-        status:        'Aberto',
-        tipo:          'preventiva',
-        checklist:     (event.resource.itensChecklist || []).map(item => ({ item, resposta: 'sim' })),
-        agendamentoId: event.id,
-        operadorNome:  t('calendarioGeral.generated.openedBy', { name: user.nome }),
-        dataAbertura:  serverTimestamp()
+      await iniciarAgendamento(event.id, {
+        criadoPorEmail: user.email,
+        role: user.role,
+        email: user.email
       });
-      const ref = doc(db, 'agendamentosPreventivos', event.id);
-      await updateDoc(ref, { status: 'iniciado' });
       toast.success(t('calendarioGeral.toasts.callCreated'));
       setSelectedEvent(null);
+      setCurrentDate(new Date(currentDate));
     } catch (err) {
       console.error(err);
       toast.error(t('calendarioGeral.toasts.startFail'));
@@ -183,9 +237,13 @@ export default function CalendarioGeralPage({ user }) {
   const handleDeleteAgendamento = async () => {
     if (!window.confirm(t('calendarioGeral.confirm.delete', { title: selectedEvent.title }))) return;
     try {
-      await deleteDoc(doc(db, 'agendamentosPreventivos', selectedEvent.id));
+      await excluirAgendamento(selectedEvent.id, {
+        "x-user-role": user.role,
+        "x-user-email": user.email
+      });
       toast.success(t('calendarioGeral.toasts.deleted'));
       setSelectedEvent(null);
+      setCurrentDate(new Date(currentDate));
     } catch (err) {
       console.error(err);
       toast.error(t('calendarioGeral.toasts.deleteFail'));
@@ -243,9 +301,17 @@ export default function CalendarioGeralPage({ user }) {
               draggableAccessor={() => user?.role === 'gestor'}
               onEventDrop={
                 user?.role === 'gestor'
-                  ? ({ event, start, end }) =>
-                      updateDoc(doc(db, 'agendamentosPreventivos', event.id), { start, end })
-                        .catch(() => toast.error(t('calendarioGeral.toasts.rescheduleFail')))
+                  ? async ({ event, start, end }) => {
+                      try {
+                        await atualizarAgendamento(
+                          event.id,
+                          { start: start.toISOString(), end: end.toISOString() },
+                          { "x-user-role": user.role, "x-user-email": user.email }
+                        );
+                      } catch {
+                        toast.error(t('calendarioGeral.toasts.rescheduleFail'));
+                      }
+                    }
                   : undefined
               }
               eventPropGetter={(event) => {
@@ -269,7 +335,11 @@ export default function CalendarioGeralPage({ user }) {
                 };
               }}
               components={{
-                event: ({ event }) => <div className={styles.eventoNoCalendario}>{event.title}</div>,
+                event: ({ event }) => (
+                  <div className={styles.eventoNoCalendario}>
+                    {toPlainText(event.title)}
+                  </div>
+                ),
                 agenda: { time: () => null }
               }}
               style={{ height: 600, backgroundColor: '#fff', borderRadius: 8 }}
@@ -279,34 +349,34 @@ export default function CalendarioGeralPage({ user }) {
       </div>
 
       {/* Modal de detalhes do evento */}
-      <Modal isOpen={!!selectedEvent} onClose={() => setSelectedEvent(null)} title={selectedEvent?.title}>
+      <Modal isOpen={!!selectedEvent} onClose={() => setSelectedEvent(null)} title={toPlainText(selectedEvent?.title)}>
         {selectedEvent && (
           <div className={styles.modalDetails}>
-            <p><strong>{t('calendarioGeral.details.machine')}</strong> {selectedEvent.resource.maquinaNome}</p>
-            <p><strong>{t('calendarioGeral.details.description')}</strong> {selectedEvent.resource.descricao}</p>
+            <p><strong>{t('calendarioGeral.details.machine')}</strong> {toPlainText(selectedEvent.resource.maquinaNome)}</p>
+            <p><strong>{t('calendarioGeral.details.description')}</strong> {toPlainText(selectedEvent.resource.descricao)}</p>
 
             <p><strong>{t('calendarioGeral.details.currentDate')}</strong> {fmtDate.format(selectedEvent.start)}</p>
             {selectedEvent.resource.originalStart && (
               <p>
                 <strong>{t('calendarioGeral.details.originalDate')}</strong>{' '}
-                {fmtDate.format(selectedEvent.resource.originalStart.toDate())}
+                {fmtDate.format(selectedEvent.resource.originalStart)}
               </p>
             )}
 
-            <p><strong>{t('calendarioGeral.details.status')}</strong> {selectedEvent.resource.status}</p>
+            <p><strong>{t('calendarioGeral.details.status')}</strong> {toPlainText(selectedEvent.resource.status)}</p>
             {selectedEvent.resource.concluidoEm && (
               <p>
                 <strong>{t('calendarioGeral.details.finishedAt')}</strong>{' '}
-                {fmtDate.format(selectedEvent.resource.concluidoEm.toDate())}
+                {fmtDate.format(selectedEvent.resource.concluidoEm)}
               </p>
             )}
 
-            {selectedEvent.resource.itensChecklist?.length > 0 && (
+            {Array.isArray(selectedEvent.resource.itensChecklist) && selectedEvent.resource.itensChecklist.length > 0 && (
               <>
                 <h4>{t('calendarioGeral.details.checklistTitle')}</h4>
                 <ul>
                   {selectedEvent.resource.itensChecklist.map((item, i) => (
-                    <li key={i}>{item}</li>
+                    <li key={i}>{toPlainText(item)}</li>
                   ))}
                 </ul>
               </>
@@ -348,7 +418,7 @@ export default function CalendarioGeralPage({ user }) {
               required
             >
               <option value="" disabled>{t('calendarioGeral.new.selectPlaceholder')}</option>
-              {machines.map(m => <option key={m.id} value={m.id}>{m.nome}</option>)}
+              {machines.map(m => <option key={m.id} value={m.id}>{toPlainText(m.nome)}</option>)}
             </select>
           </div>
           <div className={styles.formGroup}>
@@ -368,7 +438,8 @@ export default function CalendarioGeralPage({ user }) {
                 const id = e.target.value;
                 setSelTemplate(id);
                 const tpl = templates.find(tpl => tpl.id === id);
-                setChecklistTxt(tpl ? (tpl.itens || []).join('\n') : '');
+                const linhas = (tpl ? (tpl.itens || []) : []).map(toPlainText).filter(Boolean);
+                setChecklistTxt(linhas.join('\n'));
               }}
               className={styles.select}
             >

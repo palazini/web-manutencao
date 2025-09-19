@@ -1,56 +1,63 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import toast from 'react-hot-toast';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import {
-  doc, onSnapshot, updateDoc, serverTimestamp, Timestamp, getDoc,
-  arrayUnion, collection, addDoc, query, where, orderBy, deleteDoc
-} from 'firebase/firestore';
-import { db } from '../firebase';
+  getChamado, listarManutentores, listarCausasRaiz,
+  atribuirChamado, removerAtribuicao, atenderChamado,
+  adicionarObservacao, concluirChamado, deletarChamado,
+  atualizarChecklistChamado,               // <<< IMPORTANTE
+} from '../services/apiClient';
 import styles from './ChamadoDetalhe.module.css';
 import { useTranslation } from 'react-i18next';
 import { statusKey } from '../i18n/format';
 
-// (mantém util se precisar em algum ponto específico)
 function asDate(v) {
   try {
     if (!v) return null;
-    if (typeof v.toDate === 'function') return v.toDate();
     if (v instanceof Date) return v;
-    const d = new Date(v);
+    if (typeof v.toDate === 'function') return v.toDate();
+    const d = typeof v === 'string' ? new Date(v.replace(' ', 'T')) : new Date(v);
     return isNaN(d.getTime()) ? null : d;
   } catch { return null; }
 }
 
-const ChamadoDetalhe = ({ user }) => {
+// normaliza um item genérico de checklist
+function normChecklistItem(it) {
+  if (typeof it === 'string') return { item: it, resposta: 'sim' };
+  const itemTxt = it?.item || it?.texto || it?.key || '';
+  const resp = String(it?.resposta || 'sim').toLowerCase() === 'nao' ? 'nao' : 'sim';
+  return { item: itemTxt, resposta: resp };
+}
+
+export default function ChamadoDetalhe({ user }) {
   const { t, i18n } = useTranslation();
   const { id } = useParams();
   const navigate = useNavigate();
 
   const [chamado, setChamado] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [isUpdating, setIsUpdating] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [reloadTick, setReloadTick] = useState(0);
 
-  // conclusão
+  // edição / conclusão
   const [solucao, setSolucao] = useState('');
-  const [checklist, setChecklist] = useState([]);
-  const [causas, setCausas] = useState([]);
   const [causa, setCausa] = useState('');
+  const [causas, setCausas] = useState([]);
+
+  // checklist preventiva
+  const [checklist, setChecklist] = useState([]);
 
   // observações
   const [novaObservacao, setNovaObservacao] = useState('');
 
-  // atribuição
+  // atribuição (gestor)
   const [manutentores, setManutentores] = useState([]);
   const [selectedManutentor, setSelectedManutentor] = useState('');
   const [assigning, setAssigning] = useState(false);
 
-  const isGestor = user?.role === 'gestor';
-  const isManutentor = user?.role === 'manutentor';
+  const isGestor = (user?.role || '').toLowerCase() === 'gestor';
+  const isManutentor = (user?.role || '').toLowerCase() === 'manutentor';
 
-  const [isDeleting, setIsDeleting] = useState(false);
-  const podeExcluir = isGestor && ['Aberto', 'Em Andamento', 'Concluído'].includes(chamado?.status);
-
-  // formatter de data/hora conforme idioma atual
   const fmtDate = useMemo(
     () => new Intl.DateTimeFormat(i18n.language, { dateStyle: 'short' }),
     [i18n.language]
@@ -62,72 +69,105 @@ const ChamadoDetalhe = ({ user }) => {
 
   // --------- carregar chamado ---------
   useEffect(() => {
-    const ref = doc(db, 'chamados', id);
-    const unsub = onSnapshot(
-      ref,
-      (snap) => {
-        if (!snap.exists()) {
-          setChamado(null);
-          setLoading(false);
-          return;
-        }
-        const data = { id: snap.id, ...snap.data() };
-        setChamado(data);
+    let alive = true;
+    (async () => {
+      try {
+        setLoading(true);
+        const c = await getChamado(id);
 
-        if (Array.isArray(data.checklist)) {
-          const lista = data.checklist.map((it) => ({ ...it, resposta: it.resposta || 'sim' }));
-          setChecklist(lista);
-        }
+        // normalização “atribuído a”
+        const ownerId = c.responsavel_atual_id || c.manutentor_id_norm || c.atendido_por_id || c.atribuido_para_id || null;
+        const ownerNome = c.responsavel_atual_nome || c.manutentor_nome_norm || c.manutentor || c.atribuido_para_nome || '';
+        const ownerEmail = (c.responsavel_atual_email || c.manutentor_email_norm || c.manutentor_email || c.atribuido_para_email || '').toLowerCase();
 
-        if (data.assignedTo) setSelectedManutentor(data.assignedTo);
-        setCausa(data.causa || '');
-        setLoading(false);
-      },
-      (err) => {
-        console.error('Erro ao ouvir chamado:', err);
+        const mapped = {
+          ...c,
+          operadorNome: c.operadorNome ?? c.criado_por ?? '',
+          dataAbertura: c.dataAbertura ?? c.criado_em ?? null,
+          dataConclusao: c.dataConclusao ?? c.concluido_em ?? null,
+
+          manutentorNome: ownerNome,
+          manutentorId: ownerId,
+          manutentorEmail: ownerEmail,
+
+          assignedTo: ownerId,
+          assignedToNome: ownerNome,
+
+          observacoes: (c.observacoes || []).map(o => ({
+            autor: o.autor,
+            data: o.criado_em || o.data,
+            texto: o.texto,
+          })),
+        };
+
+        const list = Array.isArray(c.checklist) ? c.checklist.map(normChecklistItem).filter(x => x.item) : [];
+
+        if (!alive) return;
+        setChamado(mapped);
+        setCausa(mapped.causa || '');
+        setChecklist(list);
+        if (mapped.manutentorId) setSelectedManutentor(mapped.manutentorId);
+      } catch (e) {
+        console.error(e);
         toast.error(t('chamadoDetalhe.toasts.loadError'));
-        setLoading(false);
+      } finally {
+        if (alive) setLoading(false);
       }
-    );
-    return () => unsub();
-  }, [id, t]);
+    })();
+    return () => { alive = false; };
+  }, [id, t, reloadTick]);
 
   // --------- causas raiz ---------
   useEffect(() => {
-    const unsub = onSnapshot(
-      collection(db, 'causasRaiz'),
-      (snap) => {
-        const lista = snap.docs.map((d) => d.data()?.nome).filter(Boolean);
-        setCausas(lista);
-      },
-      (err) => console.error('Erro ao listar causas:', err)
-    );
-    return () => unsub();
+    (async () => {
+      try {
+        const list = await listarCausasRaiz();
+        setCausas(list.map(x => x.nome).filter(Boolean));
+      } catch (e) {
+        console.error('Erro ao listar causas:', e);
+      }
+    })();
   }, []);
 
   // --------- manutentores (somente gestor) ---------
   useEffect(() => {
     if (!isGestor) return;
-    const q = query(
-      collection(db, 'usuarios'),
-      where('role', '==', 'manutentor'),
-      orderBy('nome', 'asc')
-    );
-    const unsub = onSnapshot(
-      q,
-      (snap) => {
-        const lista = snap.docs.map((d) => {
-          const u = d.data() || {};
-          return { uid: d.id, nome: u.nome || u.displayName || u.email || d.id };
-        });
-        setManutentores(lista);
-      },
-      () => toast.error(t('chamadoDetalhe.toasts.listMaintDenied'))
-    );
-    return () => unsub();
+    (async () => {
+      try {
+        const lista = await listarManutentores();
+        setManutentores(lista.map(u => ({
+          uid: u.id,
+          nome: u.nome || u.email || u.id,
+          email: u.email,
+        })));
+      } catch {
+        toast.error(t('chamadoDetalhe.toasts.listMaintDenied'));
+      }
+    })();
   }, [isGestor, t]);
 
-  // --------- ações: atribuir / remover atribuição ---------
+  // --------- permissões ---------
+  const userId = user?.uid || user?.id || user?.userId || null;
+  const userEmail = (user?.email || '').toLowerCase();
+
+  const isOwner = useMemo(() => {
+    if (!chamado) return false;
+    const byId = !!userId && !!chamado.manutentorId && String(chamado.manutentorId) === String(userId);
+    const byEmail = !!userEmail && !!chamado.manutentorEmail && chamado.manutentorEmail === userEmail;
+    return byId || byEmail;
+  }, [chamado, userId, userEmail]);
+
+  const podeAtender =
+    isManutentor &&
+    chamado?.status === 'Aberto' &&
+    (!chamado?.manutentorNome || isOwner);
+
+  const podeConcluir =
+    isManutentor &&
+    chamado?.status === 'Em Andamento' &&
+    isOwner;
+
+  // --------- handlers ---------
   async function handleAtribuir() {
     if (!selectedManutentor) {
       toast.error(t('chamadoDetalhe.toasts.selectMaint'));
@@ -135,24 +175,10 @@ const ChamadoDetalhe = ({ user }) => {
     }
     setAssigning(true);
     try {
-      const ref = doc(db, 'chamados', id);
       const alvo = manutentores.find((m) => m.uid === selectedManutentor);
-      await updateDoc(ref, {
-        assignedTo: selectedManutentor,
-        assignedToNome: alvo?.nome || '',
-        assignedBy: user?.uid || '',
-        assignedAt: serverTimestamp(),
-        updatedAt: serverTimestamp(),
-        observacoes: arrayUnion({
-          texto: t('chamadoDetalhe.history.assigned', {
-            assignee: alvo?.nome || selectedManutentor,
-            by: user?.nome || user?.displayName || t('common.manager')
-          }),
-          autor: 'Sistema',
-          data: Timestamp.now()
-        })
-      });
+      await atribuirChamado(id, { manutentorEmail: alvo?.email || null, role: user.role, email: user.email });
       toast.success(t('chamadoDetalhe.toasts.assigned'));
+      setReloadTick(n => n + 1);
     } catch (e) {
       console.error(e);
       toast.error(t('chamadoDetalhe.toasts.assignError'));
@@ -164,23 +190,10 @@ const ChamadoDetalhe = ({ user }) => {
   async function handleRemoverAtribuicao() {
     setAssigning(true);
     try {
-      const ref = doc(db, 'chamados', id);
-      await updateDoc(ref, {
-        assignedTo: null,
-        assignedToNome: null,
-        assignedBy: user?.uid || '',
-        assignedAt: serverTimestamp(),
-        updatedAt: serverTimestamp(),
-        observacoes: arrayUnion({
-          texto: t('chamadoDetalhe.history.unassigned', {
-            by: user?.nome || user?.displayName || t('common.manager')
-          }),
-          autor: 'Sistema',
-          data: Timestamp.now()
-        })
-      });
+      await removerAtribuicao(id, { role: user.role, email: user.email });
       setSelectedManutentor('');
       toast.success(t('chamadoDetalhe.toasts.unassigned'));
+      setReloadTick(n => n + 1);
     } catch (e) {
       console.error(e);
       toast.error(t('chamadoDetalhe.toasts.unassignError'));
@@ -189,166 +202,76 @@ const ChamadoDetalhe = ({ user }) => {
     }
   }
 
-  // --------- ações: atender / concluir / observação ---------
-  const podeAtender =
-    isManutentor &&
-    chamado?.status === 'Aberto' &&
-    (!chamado?.assignedTo || chamado?.assignedTo === user?.uid);
-
-  const podeConcluir =
-    isManutentor &&
-    chamado?.status === 'Em Andamento' &&
-    chamado?.manutentorId === user?.uid;
-
   async function handleAtenderChamado() {
-    if (chamado?.assignedTo && chamado.assignedTo !== user?.uid) {
+    if (chamado?.assignedTo && !isOwner) {
       toast.error(t('chamadoDetalhe.toasts.assignedToOther'));
       return;
     }
-    setIsUpdating(true);
+    setBusy(true);
     try {
-      const ref = doc(db, 'chamados', id);
-      await updateDoc(ref, {
-        status: 'Em Andamento',
-        manutentorId: user?.uid,
-        manutentorNome: user?.nome || user?.displayName || user?.email || '—',
-        updatedAt: serverTimestamp(),
-        observacoes: arrayUnion({
-          texto: t('chamadoDetalhe.history.taken', {
-            by: user?.nome || user?.displayName || t('common.maintainer')
-          }),
-          autor: 'Sistema',
-          data: Timestamp.now()
-        })
-      });
+      await atenderChamado(id, { role: user.role, email: user.email });
       toast.success(t('chamadoDetalhe.toasts.taken'));
+      setReloadTick(n => n + 1);
     } catch (e) {
       console.error(e);
       toast.error(t('chamadoDetalhe.toasts.takeError'));
     } finally {
-      setIsUpdating(false);
+      setBusy(false);
     }
   }
 
-  function handleChecklistItemToggle(index, value) {
+  // marca sim/nao e PERSISTE no back (gera corretiva no server se virar sim->nao)
+  async function handleChecklistItemToggle(index, value) {
     const novo = [...checklist];
-    novo[index].resposta = value;
+    novo[index] = { ...novo[index], resposta: value };
     setChecklist(novo);
+    try {
+      await atualizarChecklistChamado(id, novo, user.email); // body: { checklist, userEmail }
+    } catch (e) {
+      console.error(e);
+      toast.error(t('chamadoDetalhe.toasts.checklistSaveError') || 'Falha ao salvar checklist.');
+    }
   }
 
   async function handleAdicionarObservacao() {
     const texto = (novaObservacao || '').trim();
     if (!texto) return;
-    setIsUpdating(true);
+    setBusy(true);
     try {
-      const ref = doc(db, 'chamados', id);
-      await updateDoc(ref, {
-        updatedAt: serverTimestamp(),
-        observacoes: arrayUnion({
-          texto,
-          autor: user?.nome || user?.displayName || user?.email || '—',
-          data: Timestamp.now()
-        })
-      });
+      await adicionarObservacao(id, { texto, role: user.role, email: user.email });
       setNovaObservacao('');
       toast.success(t('chamadoDetalhe.toasts.noteAdded'));
+      setReloadTick(n => n + 1);
     } catch (e) {
       console.error(e);
       toast.error(t('chamadoDetalhe.toasts.noteError'));
     } finally {
-      setIsUpdating(false);
+      setBusy(false);
     }
   }
 
   async function handleConcluirChamado(e) {
     e.preventDefault();
-
-    if (chamado?.manutentorId && chamado.manutentorId !== user?.uid) {
+    if (!isOwner) {
       toast.error(t('chamadoDetalhe.toasts.finishOnlyOwner'));
       return;
     }
-
-    setIsUpdating(true);
-    const ref = doc(db, 'chamados', id);
-    const updatesBase = {
-      status: 'Concluído',
-      dataConclusao: serverTimestamp(),
-      updatedAt: serverTimestamp()
-    };
-
+    setBusy(true);
     try {
       if (chamado?.tipo === 'preventiva') {
-        const itensComFalha = (checklist || []).filter((i) => i.resposta === 'nao');
-        await updateDoc(ref, { ...updatesBase, checklist });
-
-        if (itensComFalha.length > 0) {
-          for (const item of itensComFalha) {
-            await addDoc(collection(db, 'chamados'), {
-              maquina: chamado.maquina,
-              descricao: t('chamadoDetalhe.autoCorrective', { item: item.item }),
-              status: 'Aberto',
-              tipo: 'corretiva',
-              operadorNome: t('chamadoDetalhe.autoBy', { name: user?.nome || user?.displayName || '—' }),
-              dataAbertura: serverTimestamp()
-            });
-          }
-          toast.success(t('chamadoDetalhe.toasts.autoOpened', { count: itensComFalha.length }));
-        }
+        await concluirChamado(id, { tipo: 'preventiva', checklist }, { role: user.role, email: user.email });
       } else {
-        if (!causa) {
-          toast.error(t('chamadoDetalhe.toasts.selectCause'));
-          setIsUpdating(false);
-          return;
-        }
-        if (!solucao.trim()) {
-          toast.error(t('chamadoDetalhe.toasts.describeService'));
-          setIsUpdating(false);
-          return;
-        }
-        await updateDoc(ref, { ...updatesBase, causa, solucao });
+        if (!causa) { toast.error(t('chamadoDetalhe.toasts.selectCause')); setBusy(false); return; }
+        if (!solucao.trim()) { toast.error(t('chamadoDetalhe.toasts.describeService')); setBusy(false); return; }
+        await concluirChamado(id, { tipo: 'corretiva', causa, solucao }, { role: user.role, email: user.email });
       }
-
-      // atualizar agendamento (se houver)
-      if (chamado?.agendamentoId) {
-        const agRef = doc(db, 'agendamentosPreventivos', chamado.agendamentoId);
-        const agSnap = await getDoc(agRef);
-        let original = null;
-        if (agSnap.exists()) {
-          const raw = agSnap.data().originalStart;
-          original = asDate(raw);
-        }
-        const now = new Date();
-        let atrasado = false;
-        if (original) {
-          const origDay = new Date(original.getFullYear(), original.getMonth(), original.getDate());
-          const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-          atrasado = today > origDay;
-        }
-        await updateDoc(agRef, { status: 'concluido', concluidoEm: serverTimestamp(), atrasado });
-      }
-
-      // atualizar plano (preventivo/preditivo) se houver
-      if (chamado?.planoId) {
-        const collectionName = chamado.tipo === 'preventiva' ? 'planosPreventivos' : 'planosPreditivos';
-        const planoRef = doc(db, collectionName, chamado.planoId);
-        const planoSnap = await getDoc(planoRef);
-        if (planoSnap.exists()) {
-          const plano = planoSnap.data();
-          const novaProximaData = new Date();
-          if (plano?.frequencia) {
-            novaProximaData.setDate(novaProximaData.getDate() + Number(plano.frequencia || 0));
-          }
-          await updateDoc(planoRef, { proximaData: novaProximaData, dataUltimaManutencao: serverTimestamp() });
-        }
-      }
-
       toast.success(t('chamadoDetalhe.toasts.finished'));
       navigate('/');
     } catch (e) {
       console.error('Erro ao concluir:', e);
       toast.error(t('chamadoDetalhe.toasts.finishError'));
     } finally {
-      setIsUpdating(false);
+      setBusy(false);
     }
   }
 
@@ -358,27 +281,16 @@ const ChamadoDetalhe = ({ user }) => {
       return;
     }
     if (!window.confirm(t('chamadoDetalhe.delete.confirm'))) return;
-
-    setIsDeleting(true);
+    setBusy(true);
     try {
-      if (chamado?.origin === 'checklist' && chamado?.refLockId) {
-        try {
-          const lockRef = doc(db, 'checklistLocks', chamado.refLockId);
-          await updateDoc(lockRef, { status: 'Concluído', unlockedAt: serverTimestamp() });
-        } catch (e) {
-          console.warn('Não foi possível atualizar lock antes de excluir:', e);
-        }
-      }
-
-      await deleteDoc(doc(db, 'chamados', id));
-
+      await deletarChamado(id, { role: user.role, email: user.email });
       toast.success(t('chamadoDetalhe.toasts.deleted'));
       navigate(-1);
     } catch (e) {
       console.error('Erro ao excluir chamado:', e);
       toast.error(t('chamadoDetalhe.toasts.deleteError'));
     } finally {
-      setIsDeleting(false);
+      setBusy(false);
     }
   }
 
@@ -387,6 +299,7 @@ const ChamadoDetalhe = ({ user }) => {
   if (!chamado) return <p style={{ padding: 20 }}>{t('chamadoDetalhe.notFound')}</p>;
 
   const openedAt = chamado?.dataAbertura ? fmtDateTime.format(asDate(chamado.dataAbertura)) : '—';
+  const isPreventiva = (chamado?.tipo || '').toLowerCase() === 'preventiva';
 
   return (
     <div className={styles.container}>
@@ -395,7 +308,7 @@ const ChamadoDetalhe = ({ user }) => {
         <small>
           {t('chamadoDetalhe.header.openedBy', {
             name: chamado.operadorNome,
-            date: openedAt
+            date: openedAt,
           })}
         </small>
       </header>
@@ -413,15 +326,8 @@ const ChamadoDetalhe = ({ user }) => {
 
           {chamado.manutentorNome && (
             <div className={styles.detailItem}>
-              <strong>{t('chamadoDetalhe.fields.takenBy')}</strong>
-              <p>{chamado.manutentorNome}</p>
-            </div>
-          )}
-
-          {chamado.assignedToNome && (
-            <div className={styles.detailItem}>
               <strong>{t('chamadoDetalhe.fields.assignedTo')}</strong>
-              <p>{chamado.assignedToNome}</p>
+              <p>{chamado.manutentorNome}</p>
             </div>
           )}
 
@@ -431,11 +337,11 @@ const ChamadoDetalhe = ({ user }) => {
           </div>
 
           {chamado.status === 'Concluído' && (
-            chamado.tipo === 'preventiva' ? (
+            isPreventiva ? (
               <div className={styles.detailItem}>
                 <strong>{t('chamadoDetalhe.fields.checklistDone')}</strong>
                 <p>
-                  {((chamado.checklist || []).filter(i => i.resposta === 'sim').length)} {t('chamadoDetalhe.of')} {(chamado.checklist || []).length}
+                  {(chamado.checklist || []).filter(i => i.resposta === 'sim').length} {t('chamadoDetalhe.of')} {(chamado.checklist || []).length}
                 </p>
               </div>
             ) : (
@@ -443,13 +349,13 @@ const ChamadoDetalhe = ({ user }) => {
                 <strong>{t('chamadoDetalhe.fields.performedService')}</strong>
                 <p style={{ wordBreak: 'break-word' }}>{chamado.solucao}</p>
                 <small>{t('chamadoDetalhe.fields.finishedAt', {
-                  date: chamado.dataConclusao ? fmtDateTime.format(asDate(chamado.dataConclusao)) : '—'
+                  date: chamado.dataConclusao ? fmtDateTime.format(asDate(chamado.dataConclusao)) : '—',
                 })}</small>
               </div>
             )
           )}
 
-          {chamado.tipo !== 'preventiva' && ['Em Andamento', 'Concluído'].includes(chamado.status) && (
+          {!isPreventiva && ['Em Andamento', 'Concluído'].includes(chamado.status) && (
             <div className={styles.detailItem}>
               <strong>{t('chamadoDetalhe.fields.cause')}</strong>
               {chamado.status === 'Em Andamento' ? (
@@ -528,10 +434,10 @@ const ChamadoDetalhe = ({ user }) => {
             <button
               onClick={handleAdicionarObservacao}
               className={styles.button}
-              disabled={isUpdating}
+              disabled={busy}
               style={{ marginTop: 10 }}
             >
-              {isUpdating ? t('common.saving') : t('chamadoDetalhe.history.saveNote')}
+              {busy ? t('common.saving') : t('chamadoDetalhe.history.saveNote')}
             </button>
           </div>
         )}
@@ -553,43 +459,46 @@ const ChamadoDetalhe = ({ user }) => {
       {/* Ações */}
       {podeAtender && (
         <div className={styles.card}>
-          <button onClick={handleAtenderChamado} className={styles.button} disabled={isUpdating}>
-            {isUpdating ? t('common.processing') : t('chamadoDetalhe.actions.take')}
+          <button onClick={handleAtenderChamado} className={styles.button} disabled={busy}>
+            {busy ? t('common.processing') : t('chamadoDetalhe.actions.take')}
           </button>
         </div>
       )}
 
       {podeConcluir && (
-        chamado.tipo === 'preventiva' ? (
+        isPreventiva ? (
           <div className={styles.card}>
             <h2 className={styles.cardTitle}>{t('chamadoDetalhe.preventive.title')}</h2>
             <form onSubmit={handleConcluirChamado} className={styles.checklistContainer}>
-              {checklist.map((item, idx) => (
-                <div key={idx} className={styles.checklistItem}>
-                  <span className={styles.itemLabel}>{item.item}</span>
-                  <div className={styles.radioGroup}>
-                    <input
-                      type="radio"
-                      id={`sim-${idx}`}
-                      name={`resposta-${idx}`}
-                      checked={item.resposta === 'sim'}
-                      onChange={() => handleChecklistItemToggle(idx, 'sim')}
-                    />
-                    <label htmlFor={`sim-${idx}`}>{t('common.yes')}</label>
+              {checklist.map((item, idx) => {
+                const label = item.item || '(sem texto)';
+                return (
+                  <div key={idx} className={styles.checklistItem}>
+                    <span className={styles.itemLabel}>{label}</span>
+                    <div className={styles.radioGroup}>
+                      <input
+                        type="radio"
+                        id={`sim-${idx}`}
+                        name={`resposta-${idx}`}
+                        checked={item.resposta === 'sim'}
+                        onChange={() => handleChecklistItemToggle(idx, 'sim')}
+                      />
+                      <label htmlFor={`sim-${idx}`}>{t('common.yes')}</label>
 
-                    <input
-                      type="radio"
-                      id={`nao-${idx}`}
-                      name={`resposta-${idx}`}
-                      checked={item.resposta === 'nao'}
-                      onChange={() => handleChecklistItemToggle(idx, 'nao')}
-                    />
-                    <label htmlFor={`nao-${idx}`}>{t('common.no')}</label>
+                      <input
+                        type="radio"
+                        id={`nao-${idx}`}
+                        name={`resposta-${idx}`}
+                        checked={item.resposta === 'nao'}
+                        onChange={() => handleChecklistItemToggle(idx, 'nao')}
+                      />
+                      <label htmlFor={`nao-${idx}`}>{t('common.no')}</label>
+                    </div>
                   </div>
-                </div>
-              ))}
-              <button type="submit" className={styles.button} disabled={isUpdating}>
-                {isUpdating ? t('chamadoDetalhe.actions.finishing') : t('chamadoDetalhe.actions.finish')}
+                );
+              })}
+              <button type="submit" className={styles.button} disabled={busy}>
+                {busy ? t('chamadoDetalhe.actions.finishing') : t('chamadoDetalhe.actions.finish')}
               </button>
             </form>
           </div>
@@ -608,28 +517,26 @@ const ChamadoDetalhe = ({ user }) => {
                   required
                 />
               </div>
-              <button type="submit" className={styles.button} disabled={isUpdating || !causa}>
-                {isUpdating ? t('common.saving') : t('chamadoDetalhe.actions.finish')}
+              <button type="submit" className={styles.button} disabled={busy || !causa}>
+                {busy ? t('common.saving') : t('chamadoDetalhe.actions.finish')}
               </button>
             </form>
           </div>
         )
       )}
 
-      {podeExcluir && (
+      {(isGestor && ['Aberto','Em Andamento','Concluído'].includes(chamado.status)) && (
         <div className={styles.card} style={{ display: 'flex', justifyContent: 'flex-end' }}>
           <button
             onClick={handleExcluirChamado}
             className={`${styles.button} ${styles.buttonDanger}`}
-            disabled={isDeleting}
+            disabled={busy}
             title={t('chamadoDetalhe.delete.title')}
           >
-            {isDeleting ? t('common.deleting') : t('chamadoDetalhe.delete.button')}
+            {busy ? t('common.deleting') : t('chamadoDetalhe.delete.button')}
           </button>
         </div>
       )}
     </div>
   );
-};
-
-export default ChamadoDetalhe;
+}

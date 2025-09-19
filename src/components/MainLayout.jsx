@@ -1,9 +1,6 @@
 // src/components/MainLayout.jsx
-import React, { useState, useEffect } from 'react'; // Adicionado useState
-import { Routes, Route, NavLink, Link } from 'react-router-dom';
-import { auth, db } from '../firebase';
-import { collection, query, where, onSnapshot } from 'firebase/firestore';
-import { signOut } from 'firebase/auth';
+import React, { useState, useEffect } from 'react';
+import { Routes, Route, NavLink, Link, useNavigate } from 'react-router-dom';
 import {
   FiHome, FiLogOut, FiCheckSquare, FiUser, FiCalendar, FiUsers,
   FiServer, FiMenu, FiX, FiBarChart2, FiPackage, FiClipboard, FiPieChart, FiPlusCircle
@@ -28,13 +25,15 @@ import MeusChamados from '../pages/MeusChamados';
 import AbrirChamadoManutentor from '../pages/AbrirChamadoManutentor.jsx';
 import LanguageMenu from '../components/LanguageMenu.jsx';
 
-
 import logo from '../assets/logo-sidebar.png';
-
 import { useTranslation } from 'react-i18next';
 
+// API (sem Firebase)
+import { listarChamados, listarAgendamentos, connectSSE } from '../services/apiClient';
+
 const MainLayout = ({ user }) => {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
+  const navigate = useNavigate();
 
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [hasOpenCalls, setHasOpenCalls] = useState(false);
@@ -42,74 +41,74 @@ const MainLayout = ({ user }) => {
   const [myActiveCount, setMyActiveCount] = useState(0);
   const hasMyActiveCalls = myActiveCount > 0;
 
+  // Helpers de refresh (usados no mount e quando chegam eventos SSE)
+  const refreshOpenCalls = async () => {
+    try {
+      const a = await listarChamados({ status: 'Aberto', pageSize: 1 });
+      const e = await listarChamados({ status: 'Em Andamento', pageSize: 1 });
+      setHasOpenCalls(((a?.total || 0) + (e?.total || 0)) > 0);
+    } catch {
+      // silencioso
+    }
+  };
+
+  const refreshSoonDue = async () => {
+    try {
+      const now = new Date();
+      const from = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      const to   = new Date(now.getTime() + 1 * 24 * 60 * 60 * 1000); // até amanhã
+      const lista = await listarAgendamentos({ from: from.toISOString(), to: to.toISOString() });
+      const qtd = (lista || []).filter(a =>
+        a.status === 'agendado' && new Date(a.start_ts) <= to
+      ).length;
+      setHasSoonDue(qtd > 0);
+    } catch {
+      // silencioso
+    }
+  };
+
+  const refreshMyActive = async () => {
+    if (user?.role !== 'manutentor' || !user?.email) { setMyActiveCount(0); return; }
+    try {
+      const a = await listarChamados({ status: 'Aberto',       manutentorEmail: user.email, pageSize: 1 });
+      const e = await listarChamados({ status: 'Em Andamento', manutentorEmail: user.email, pageSize: 1 });
+      setMyActiveCount((a?.total || 0) + (e?.total || 0));
+    } catch {
+      // silencioso
+    }
+  };
+
+  // Conexão SSE + primeira carga dos badges
   useEffect(() => {
-    const q = query(
-      collection(db, 'chamados'),
-      where('status', 'in', ['Aberto', 'Em Andamento'])
-    );
-    const unsub = onSnapshot(q, snap => {
-      setHasOpenCalls(snap.size > 0);
-    }, err => {
-      console.error('Erro ao ouvir chamados abertos:', err);
-    });
-    return () => unsub();
-  }, []);
+    let stopped = false;
 
-  useEffect(() => {
-    const daysAhead = 1;
-    const now = new Date();
-    const cutoff = new Date(now.getTime() + daysAhead * 24 * 60 * 60 * 1000);
+    // carga inicial
+    refreshOpenCalls();
+    refreshSoonDue();
+    refreshMyActive();
 
-    const q = query(
-      collection(db, 'agendamentosPreventivos'),
-      where('status', '==', 'agendado'),
-      where('start', '<=', cutoff)
-    );
-    const unsub = onSnapshot(q, snap => {
-      setHasSoonDue(snap.size > 0);
-    }, err => {
-      console.error('Erro ao ouvir próximos agendamentos:', err);
-    });
-    return () => unsub();
-  }, []);
-
-  useEffect(() => {
-    if (!user?.uid || user?.role !== 'manutentor') return;
-
-    let assignedIds = new Set();
-    let attendedIds = new Set();
-
-    const qAssigned = query(
-      collection(db, 'chamados'),
-      where('assignedTo', '==', user.uid),
-      where('status', 'in', ['Aberto', 'Em Andamento'])
-    );
-    const qAttended = query(
-      collection(db, 'chamados'),
-      where('manutentorId', '==', user.uid),
-      where('status', 'in', ['Aberto', 'Em Andamento'])
-    );
-
-    const unsub1 = onSnapshot(qAssigned, (snap) => {
-      assignedIds = new Set(snap.docs.map(d => d.id));
-      setMyActiveCount(new Set([...assignedIds, ...attendedIds]).size);
-    });
-    const unsub2 = onSnapshot(qAttended, (snap) => {
-      attendedIds = new Set(snap.docs.map(d => d.id));
-      setMyActiveCount(new Set([...assignedIds, ...attendedIds]).size);
+    // eventos em tempo real
+    const disconnect = connectSSE({
+      chamados: () => { if (!stopped) { refreshOpenCalls(); refreshMyActive(); } },
+      agendamentos: () => { if (!stopped) refreshSoonDue(); },
+      // checklist/pecas não impactam badges do layout; podemos ouvir em cada página específica
     });
 
-    return () => { unsub1(); unsub2(); };
-  }, [user?.uid, user?.role]);
+    return () => { stopped = true; disconnect(); };
+  }, [user?.role, user?.email]);
 
   const handleLogout = () => {
-    signOut(auth).catch((error) => console.error('Erro no logout: ', error));
+    try {
+      localStorage.removeItem('authUser');
+      localStorage.removeItem('dadosTurno');
+    } catch {}
+    navigate('/login', { replace: true });
   };
 
   const getDashboardTitle = () => {
-    if (user.role === 'operador')   return t('dashboard.operator');
-    if (user.role === 'manutentor') return t('dashboard.maintainer');
-    if (user.role === 'gestor')     return t('dashboard.manager');
+    if (user?.role === 'operador')   return t('dashboard.operator');
+    if (user?.role === 'manutentor') return t('dashboard.maintainer');
+    if (user?.role === 'gestor')     return t('dashboard.manager');
     return '—';
   };
 
@@ -125,16 +124,16 @@ const MainLayout = ({ user }) => {
         <span>{t('nav.profile')}</span>
       </NavLink>
 
-      {(user.role === 'manutentor' || user.role === 'gestor') && (
+      {(user?.role === 'manutentor' || user?.role === 'gestor') && (
         <>
           <h3 className={styles.navSectionTitle}>{t('layout.sections.manageMaintenance')}</h3>
           <NavLink
             to="/maquinas"
             className={({ isActive }) => {
               const base = styles.navLink;
-              if (isActive) return `${base} ${styles.activeLink}`;
-              if (hasOpenCalls) return `${base} ${styles.alertLink}`;
-              return base;
+              const active = isActive ? ` ${styles.activeLink}` : '';
+              const alert  = hasOpenCalls ? ` ${styles.alertLink}` : '';
+              return `${base}${active}${alert}`.trim();
             }}
           >
             <div style={{ position: 'relative' }}>
@@ -146,14 +145,14 @@ const MainLayout = ({ user }) => {
         </>
       )}
 
-      {user.role === 'manutentor' && (
+      {user?.role === 'manutentor' && (
         <NavLink
           to="/meus-chamados"
           className={({ isActive }) => {
             const base = styles.navLink;
-            if (isActive) return `${base} ${styles.activeLink}`;
-            if (hasMyActiveCalls) return `${base} ${styles.alertLink}`;
-            return base;
+            const active = isActive ? ` ${styles.activeLink}` : '';
+            const alert  = hasMyActiveCalls ? ` ${styles.alertLink}` : '';
+            return `${base}${active}${alert}`.trim();
           }}
         >
           <div style={{ position: 'relative' }}>
@@ -164,7 +163,7 @@ const MainLayout = ({ user }) => {
         </NavLink>
       )}
 
-      {user.role === 'manutentor' && (
+      {user?.role === 'manutentor' && (
         <NavLink
           to="/abrir-chamado"
           className={({ isActive }) => {
@@ -177,7 +176,7 @@ const MainLayout = ({ user }) => {
         </NavLink>
       )}
 
-      {(user.role === 'manutentor' || user.role === 'gestor') && (
+      {(user?.role === 'manutentor' || user?.role === 'gestor') && (
         <NavLink
           to="/calendario-geral"
           className={({ isActive }) => {
@@ -192,21 +191,21 @@ const MainLayout = ({ user }) => {
         </NavLink>
       )}
 
-      {(user.role === 'manutentor' || user.role === 'gestor') && (
+      {(user?.role === 'manutentor' || user?.role === 'gestor') && (
         <NavLink to="/historico" className={({ isActive }) => isActive ? `${styles.navLink} ${styles.activeLink}` : styles.navLink}>
           <FiCheckSquare className={styles.navIcon} />
           <span>{t('nav.history')}</span>
         </NavLink>
       )}
 
-      {(user.role === 'manutentor' || user.role === 'gestor') && (
+      {(user?.role === 'manutentor' || user?.role === 'gestor') && (
         <NavLink to="/estoque" className={({ isActive }) => isActive ? `${styles.navLink} ${styles.activeLink}` : styles.navLink}>
           <FiPackage  className={styles.navIcon} />
           <span>{t('nav.inventory')}</span>
         </NavLink>
       )}
 
-      {user.role === 'gestor' && (
+      {user?.role === 'gestor' && (
         <>
           <h3 className={styles.navSectionTitle}>{t('layout.sections.analytics')}</h3>
           <NavLink to="/analise-falhas" className={({ isActive }) => isActive ? `${styles.navLink} ${styles.activeLink}` : styles.navLink}>
@@ -249,7 +248,7 @@ const MainLayout = ({ user }) => {
           <NavContent />
         </nav>
         <div className={styles.userInfo}>
-          <span className={styles.userEmail}>{user.nome}</span>
+          <span className={styles.userEmail}>{user?.nome}</span>
           <button onClick={handleLogout} className={styles.logoutButton} title={t('common.logout', 'Sair')}>
             <FiLogOut />
           </button>
@@ -270,7 +269,7 @@ const MainLayout = ({ user }) => {
           <NavContent />
         </nav>
         <div className={styles.userInfo}>
-          <span className={styles.userEmail}>{user.nome}</span>
+          <span className={styles.userEmail}>{user?.nome}</span>
           <button onClick={handleLogout} className={styles.logoutButton} title={t('common.logout', 'Sair')}>
             <FiLogOut />
           </button>
@@ -290,7 +289,7 @@ const MainLayout = ({ user }) => {
         <Routes>
           <Route
             path="/"
-            element={user.role === 'operador' ? (
+            element={user?.role === 'operador' ? (
               <OperatorDashboard user={user} />
             ) : (
               <InicioPage user={user} />
@@ -314,10 +313,10 @@ const MainLayout = ({ user }) => {
           <Route path="/abrir-chamado" element={<AbrirChamadoManutentor user={user} />} />
 
           <Route path="/analise-falhas" element={<AnaliseFalhasPage />} />
-          <Route path="/causas-raiz" element={<CausasRaizPage />} />
+          <Route path="/causas-raiz" element={<CausasRaizPage user={user} />} />
           <Route path="/calendario-geral" element={<CalendarioGeralPage user={user} />} />
           <Route path="/estoque" element={<EstoquePage user={user} />} />
-          <Route path="/gerir-utilizadores" element={<GerirUtilizadoresPage />} />
+          <Route path="/gerir-utilizadores" element={<GerirUtilizadoresPage user={user} />} />
         </Routes>
       </main>
     </div>

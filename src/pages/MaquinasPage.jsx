@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import { db } from '../firebase';
-import { collection, query, onSnapshot, orderBy, where, addDoc } from 'firebase/firestore';
+import { getMaquinas, listarChamados, criarMaquina } from '../services/apiClient';
 import toast from 'react-hot-toast';
 import styles from './MaquinasPage.module.css';
 import Modal from '../components/Modal.jsx';
@@ -17,44 +16,65 @@ const MaquinasPage = () => {
   const [nomeNovaMaquina, setNomeNovaMaquina] = useState('');
 
   useEffect(() => {
-    const qMaquinas = query(collection(db, 'maquinas'), orderBy('nome'));
-    const unsubMaquinas = onSnapshot(qMaquinas, (snapshot) => {
-      setMaquinas(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
-    });
+    let alive = true;
+    setLoading(true);
+    (async () => {
+      try {
+        // 1) Máquinas
+        const lista = await getMaquinas(); // [{id, nome, tag, setor, critico}]
+        if (!alive) return;
+        setMaquinas(lista);
 
-    const qChamados = query(collection(db, 'chamados'), where('status', 'in', ['Aberto', 'Em Andamento']));
-    const unsubChamados = onSnapshot(qChamados, (snapshot) => {
-      setChamadosAtivos(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
-      setLoading(false);
-    });
-
+        // 2) Chamados ativos (fazemos duas buscas e mesclamos)
+        const [abertos, emAndamento] = await Promise.all([
+          listarChamados({ status: 'Aberto', page: 1, pageSize: 200 }),
+          listarChamados({ status: 'Em Andamento', page: 1, pageSize: 200 }),
+        ]);
+        const itemsAbertos = abertos.items ?? abertos;
+        const itemsAnd = emAndamento.items ?? emAndamento;
+        const porId = new Map();
+        [...itemsAbertos, ...itemsAnd].forEach((c) => porId.set(c.id, c));
+        if (!alive) return;
+        setChamadosAtivos([...porId.values()]);
+      } catch (e) {
+        console.error(e);
+      } finally {
+        if (alive) setLoading(false);
+      }
+    })();
     return () => {
-      unsubMaquinas();
-      unsubChamados();
+      alive = false;
     };
   }, []);
 
   const maquinasComStatus = useMemo(() => {
     const statusPorMaquina = {};
     const prioridade = { corretiva: 3, preventiva: 2, preditiva: 1 };
-    chamadosAtivos.forEach(chamado => {
+    chamadosAtivos.forEach((chamado) => {
       const tipo = chamado.tipo || 'corretiva';
-      if (!statusPorMaquina[chamado.maquina] || prioridade[tipo] > prioridade[statusPorMaquina[chamado.maquina]]) {
+      if (
+        !statusPorMaquina[chamado.maquina] ||
+        prioridade[tipo] > prioridade[statusPorMaquina[chamado.maquina]]
+      ) {
         statusPorMaquina[chamado.maquina] = tipo;
       }
     });
-    return maquinas.map(maquina => ({
+    return maquinas.map((maquina) => ({
       ...maquina,
       statusDestaque: statusPorMaquina[maquina.nome] || 'normal',
     }));
   }, [maquinas, chamadosAtivos]);
 
   const getStatusClass = (status) => {
-    switch(status) {
-      case 'corretiva': return styles.statusCorretiva;
-      case 'preventiva': return styles.statusPreventiva;
-      case 'preditiva': return styles.statusPreditiva;
-      default: return styles.statusNormal;
+    switch (status) {
+      case 'corretiva':
+        return styles.statusCorretiva;
+      case 'preventiva':
+        return styles.statusPreventiva;
+      case 'preditiva':
+        return styles.statusPreditiva;
+      default:
+        return styles.statusNormal;
     }
   };
 
@@ -65,11 +85,12 @@ const MaquinasPage = () => {
       return;
     }
     try {
-      await addDoc(collection(db, 'maquinas'), {
-        nome: nomeNovaMaquina,
-        checklistDiario: [],
-        operadoresPorTurno: { turno1: [], turno2: [] },
+      const nova = await criarMaquina({
+        nome: nomeNovaMaquina.trim(),
+        // opcionalmente: tag, setor, critico
       });
+      // atualiza a lista local sem depender de reload
+      setMaquinas((prev) => [nova, ...prev].sort((a, b) => a.nome.localeCompare(b.nome, 'pt')));
       toast.success(t('maquinas.toasts.created', { name: nomeNovaMaquina }));
       setNomeNovaMaquina('');
       setIsModalOpen(false);
@@ -81,7 +102,13 @@ const MaquinasPage = () => {
 
   return (
     <>
-      <header style={{ padding: '20px', backgroundColor: '#ffffff', borderBottom: '1px solid #e0e0e0' }}>
+      <header
+        style={{
+          padding: '20px',
+          backgroundColor: '#ffffff',
+          borderBottom: '1px solid #e0e0e0',
+        }}
+      >
         <h1>{t('maquinas.title')}</h1>
       </header>
 
@@ -106,7 +133,7 @@ const MaquinasPage = () => {
             </div>
 
             <div className={styles.grid}>
-              {maquinasComStatus.map(maquina => (
+              {maquinasComStatus.map((maquina) => (
                 <Link
                   to={`/maquinas/${maquina.id}`}
                   key={maquina.id}
@@ -132,14 +159,13 @@ const MaquinasPage = () => {
         )}
       </div>
 
-      <Modal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        title={t('maquinas.modal.title')}
-      >
+      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title={t('maquinas.modal.title')}>
         <form onSubmit={handleCriarMaquina}>
           <div style={{ marginBottom: '15px' }}>
-            <label htmlFor="nome-maquina" style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>
+            <label
+              htmlFor="nome-maquina"
+              style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}
+            >
               {t('maquinas.modal.nameLabel')}
             </label>
             <input
@@ -153,7 +179,14 @@ const MaquinasPage = () => {
           </div>
           <button
             type="submit"
-            style={{ padding: '10px 15px', border: 'none', borderRadius: '4px', backgroundColor: '#4B70E2', color: 'white', cursor: 'pointer' }}
+            style={{
+              padding: '10px 15px',
+              border: 'none',
+              borderRadius: '4px',
+              backgroundColor: '#4B70E2',
+              color: 'white',
+              cursor: 'pointer',
+            }}
           >
             {t('maquinas.modal.save')}
           </button>

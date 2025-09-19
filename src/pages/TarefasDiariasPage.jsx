@@ -1,86 +1,128 @@
-import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { db } from '../firebase';
-import { collection, query, where, getDocs, onSnapshot } from 'firebase/firestore';
+// src/pages/TarefasDiariasPage.jsx
+import React, { useEffect, useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import styles from './TarefasDiariasPage.module.css';
 import { useTranslation } from 'react-i18next';
+import { listarMaquinas, listarSubmissoesDiarias } from '../services/apiClient';
 
-// A página recebe 'dadosTurno' como prop
-const TarefasDiariasPage = ({ user, dadosTurno }) => {
+function hojeISO() {
+  return new Date().toISOString().slice(0, 10);
+}
+
+export default function TarefasDiariasPage({ user, dadosTurno }) {
   const { t } = useTranslation();
+  const navigate = useNavigate();
 
-  const [tarefasPendentes, setTarefasPendentes] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [tarefasPendentes, setTarefasPendentes] = useState([]);
 
-  // helper: divide um array em pedaços de tamanho n
-  const chunk = (arr, n) => {
-    const out = [];
-    for (let i = 0; i < arr.length; i += n) out.push(arr.slice(i, i + n));
-    return out;
-  };
+  const operadorEmail = useMemo(() => String(user?.email || '').toLowerCase(), [user?.email]);
+  const maquinasSelecionadas = useMemo(
+    () => (Array.isArray(dadosTurno?.maquinas) ? dadosTurno.maquinas : []),
+    [dadosTurno?.maquinas]
+  );
 
   useEffect(() => {
-    if (!dadosTurno || !user?.uid) return;
+    let alive = true;
+    (async () => {
+      try {
+        setLoading(true);
 
-    let unsubscribe = () => {}; // garante cleanup mesmo com async
+        // 1) Carrega todas as máquinas e cria mapa id->obj (para nome etc.)
+        const todas = await listarMaquinas().catch(() => []);
+        const mapById = new Map((todas || []).map((m) => [m.id, m]));
 
-    const carregarTarefas = async () => {
-      setLoading(true);
+        // 2) Submissões do dia para este operador
+        const submissoes = await listarSubmissoesDiarias({
+          operadorEmail,
+          date: hojeISO(),
+        }).catch(() => []);
 
-      // 1) Busca as máquinas selecionadas (em chunks de até 10 IDs)
-      let maquinasDoOperador = [];
-      const ids = Array.isArray(dadosTurno.maquinas) ? dadosTurno.maquinas : [];
-      if (ids.length === 0) {
-        setTarefasPendentes([]);
-        setLoading(false);
-        return;
-      }
-
-      const idChunks = chunk(ids, 10);
-      const results = await Promise.all(
-        idChunks.map(async (ids10) => {
-          const qMaquinas = query(collection(db, 'maquinas'), where('__name__', 'in', ids10));
-          const snap = await getDocs(qMaquinas);
-          return snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        })
-      );
-      maquinasDoOperador = results.flat();
-
-      // 2) Ouve as submissões de HOJE para esse operador
-      const hoje = new Date();
-      const inicioDoDia = new Date(hoje.getFullYear(), hoje.getMonth(), hoje.getDate());
-
-      const qSubmissoes = query(
-        collection(db, 'checklistSubmissions'),
-        where('operadorId', '==', user.uid),
-        where('dataSubmissao', '>=', inicioDoDia)
-      );
-
-      unsubscribe = onSnapshot(qSubmissoes, (submissoesSnapshot) => {
-        const maquinasJaFeitas = new Set(
-          submissoesSnapshot.docs.map(doc => doc.data().maquinaId)
+        // normaliza campo de máquina nas submissões (ideal: maquina_id vindo do backend)
+        const feitosSet = new Set(
+          (submissoes || []).map((s) => s.maquina_id || s.maquinaId || s.maquina || null)
         );
-        const pendentes = maquinasDoOperador.filter(maq => !maquinasJaFeitas.has(maq.id));
-        setTarefasPendentes(pendentes);
-        setLoading(false);
-      }, (err) => {
-        console.error('Erro ao ouvir checklistSubmissions:', err);
-        setLoading(false);
-      });
-    };
 
-    carregarTarefas();
+        // 3) Filtra as selecionadas que ainda não foram submetidas
+        const pendentesIds = maquinasSelecionadas.filter((id) => !feitosSet.has(id));
 
+        const pendentesObjs = pendentesIds
+          .map((id) => mapById.get(id))
+          .filter(Boolean)
+          .sort((a, b) => String(a.nome || '').localeCompare(String(b.nome || ''), 'pt'));
+
+        if (!alive) return;
+        setTarefasPendentes(pendentesObjs);
+
+        // Sincroniza localStorage (mantém ultimaMaquina se ainda pendente)
+        try {
+          const raw = localStorage.getItem('dadosTurno');
+          if (raw) {
+            const st = JSON.parse(raw);
+            if (st?.dataISO === hojeISO() && st?.operadorEmail?.toLowerCase() === operadorEmail) {
+              const ultimaAindaPendente = pendentesIds.includes(st?.ultimaMaquina);
+              const novo = {
+                ...st,
+                maquinasSelecionadas: Array.from(new Set([...(st.maquinasSelecionadas || []), ...maquinasSelecionadas])),
+                ultimaMaquina: ultimaAindaPendente ? st.ultimaMaquina : null,
+              };
+              localStorage.setItem('dadosTurno', JSON.stringify(novo));
+            }
+          }
+        } catch {}
+      } catch (e) {
+        console.error(e);
+      } finally {
+        if (alive) setLoading(false);
+      }
+    })();
     return () => {
-      try { unsubscribe(); } catch {}
+      alive = false;
     };
-  }, [user?.uid, dadosTurno]);
+  }, [operadorEmail, maquinasSelecionadas.join('|')]);
+
+  const irParaChecklist = (maquina) => {
+    // grava ultimaMaquina no estado do dia
+    try {
+      const raw = localStorage.getItem('dadosTurno');
+      const st = raw ? JSON.parse(raw) : {};
+      const novo = {
+        ...st,
+        dataISO: hojeISO(),
+        operadorEmail,
+        ultimaMaquina: maquina.id,
+        // garante que a máquina clicada está na lista (união)
+        maquinasSelecionadas: Array.from(
+          new Set([...(st?.maquinasSelecionadas || []), ...maquinasSelecionadas, maquina.id])
+        ),
+      };
+      localStorage.setItem('dadosTurno', JSON.stringify(novo));
+    } catch {}
+
+    navigate(`/checklist/${maquina.id}`);
+  };
+
+  const handleLogout = () => {
+    try {
+      localStorage.removeItem('authUser');
+      localStorage.removeItem('dadosTurno');
+    } catch {}
+    navigate('/login', { replace: true });
+  };
 
   return (
     <div className={styles.pageContainer}>
       <header className={styles.header}>
         <h1>{t('tarefasDiarias.title')}</h1>
         <p>{t('tarefasDiarias.greeting', { name: user?.nome || '' })}</p>
+        <button
+          type="button"
+          className={styles.logoutBtn}
+          onClick={handleLogout}
+          title={t('common.logout', 'Sair')}
+        >
+          {t('common.logout', 'Sair')}
+        </button>
       </header>
 
       {loading && <p>{t('tarefasDiarias.checking')}</p>}
@@ -91,18 +133,23 @@ const TarefasDiariasPage = ({ user, dadosTurno }) => {
 
       {!loading && tarefasPendentes.length > 0 && (
         <ul className={styles.taskList}>
-          {tarefasPendentes.map(maquina => (
-            <Link to={`/checklist/${maquina.id}`} key={maquina.id} className={styles.taskItem}>
+          {tarefasPendentes.map((maquina) => (
+            <li
+              key={maquina.id}
+              className={styles.taskItem}
+              onClick={() => irParaChecklist(maquina)}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => (e.key === 'Enter' ? irParaChecklist(maquina) : null)}
+            >
               <div className={styles.taskInfo}>
                 <strong>{maquina.nome}</strong>
               </div>
               <span>{t('tarefasDiarias.fillChecklist')}</span>
-            </Link>
+            </li>
           ))}
         </ul>
       )}
     </div>
   );
-};
-
-export default TarefasDiariasPage;
+}

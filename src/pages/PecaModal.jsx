@@ -1,27 +1,19 @@
 // src/pages/PecaModal.jsx
-import { getAuth } from 'firebase/auth';
 import React, { useState, useEffect } from 'react';
-import {
-  collection,
-  doc,
-  addDoc,
-  updateDoc,
-  serverTimestamp
-} from 'firebase/firestore';
-import { db } from '../firebase';
+import { criarPeca, atualizarPeca } from '../services/apiClient';
 import Modal from '../components/Modal.jsx';
 import toast from 'react-hot-toast';
 import styles from './PecaModal.module.css';
 
-export default function PecaModal({ peca, onClose }) {
-  const [codigo, setCodigo]           = useState('');
-  const [nome, setNome]               = useState('');
-  const [categoria, setCategoria]     = useState('');
-  const [unidade, setUnidade]         = useState('');
-  const [estoqueAtual, setEstoqueAtual]   = useState(0);
+export default function PecaModal({ peca, onClose, user, onSaved }) {
+  const [codigo, setCodigo] = useState('');
+  const [nome, setNome] = useState('');
+  const [categoria, setCategoria] = useState('');
+  const [unidade, setUnidade] = useState('');
+  const [estoqueAtual, setEstoqueAtual] = useState(0);
   const [estoqueMinimo, setEstoqueMinimo] = useState(0);
   const [localizacao, setLocalizacao] = useState('');
-  const [isSaving, setIsSaving]       = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
     if (peca) {
@@ -49,35 +41,29 @@ export default function PecaModal({ peca, onClose }) {
     e.preventDefault();
     setIsSaving(true);
     try {
-
-        const auth = getAuth();
-    const idTokenResult = await auth.currentUser.getIdTokenResult(true);
-    console.log('>>> Claims atuais:', idTokenResult.claims);
-      const data = {
-        codigo,
-        nome,
-        categoria,
-        unidade,
-        estoqueAtual,
-        estoqueMinimo,
-        localizacao,
-        atualizadoEm: serverTimestamp()
+      const payload = {
+        codigo: codigo.trim(),
+        nome: nome.trim(),
+        categoria: categoria?.trim() || null,
+        // "unidade" ainda não persiste no banco
+        estoqueAtual: Number(estoqueAtual || 0),  // opcional na criação
+        estoqueMinimo: Number(estoqueMinimo || 0),
+        localizacao: localizacao?.trim() || null,
       };
 
+      let saved;
       if (peca === null) {
-        // criação
-        await addDoc(collection(db, 'pecas'), {
-          ...data,
-          criadoEm: serverTimestamp()
-        });
+        // criar
+        saved = await criarPeca(payload, { role: user?.role, email: user?.email });
         toast.success('Peça criada com sucesso!');
       } else {
-        // edição
-        const ref = doc(db, 'pecas', peca.id);
-        await updateDoc(ref, data);
+        // editar
+        saved = await atualizarPeca(peca.id, payload, { role: user?.role, email: user?.email });
         toast.success('Peça atualizada com sucesso!');
       }
 
+      // Atualiza a lista do pai imediatamente (sem F5)
+      onSaved?.(saved);
       onClose();
     } catch (err) {
       console.error('Erro ao salvar peça:', err);

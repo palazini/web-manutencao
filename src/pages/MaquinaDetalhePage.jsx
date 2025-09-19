@@ -1,151 +1,84 @@
+// src/pages/MaquinaDetalhePage.jsx
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { db } from '../firebase.js';
 import {
-  doc, onSnapshot, collection, query, where, orderBy,
-  updateDoc, arrayUnion, arrayRemove, addDoc, serverTimestamp
-} from 'firebase/firestore';
+  getMaquina,
+  listarChamadosPorMaquina,
+  addChecklistItem,
+  removeChecklistItem,
+  listarSubmissoesDiarias, // <— vamos usar para abrir o detalhe
+} from '../services/apiClient';
 import toast from 'react-hot-toast';
 import styles from './MaquinaDetalhePage.module.css';
-import { FiPlus, FiTrash2, FiCheckCircle, FiXCircle, FiDownload } from 'react-icons/fi';
+import { FiTrash2, FiCheckCircle, FiXCircle, FiDownload } from 'react-icons/fi';
 import { QRCodeCanvas } from 'qrcode.react';
-import Modal from '../components/Modal.jsx';
-
-import { Calendar } from 'react-big-calendar';
-import withDragAndDrop from 'react-big-calendar/lib/addons/dragAndDrop';
-import 'react-big-calendar/lib/addons/dragAndDrop/styles.css';
-
-import { dateFnsLocalizer } from 'react-big-calendar';
-import { ptBR } from 'date-fns/locale';
-import { format, parse, startOfWeek, getDay } from 'date-fns';
-import moment from 'moment';
-import 'moment/locale/pt-br';
-
 import { useTranslation } from 'react-i18next';
 import { df, statusKey } from '../i18n/format';
-
-const locales = { 'pt-BR': ptBR };
-const localizer = dateFnsLocalizer({
-  format,
-  parse: (value, formatStr) => parse(value, formatStr, new Date(), { locale: ptBR }),
-  startOfWeek: () => startOfWeek(new Date(), { locale: ptBR }),
-  getDay,
-  locales,
-});
-const DnDCalendar = withDragAndDrop(Calendar);
 
 const MaquinaDetalhePage = ({ user }) => {
   const { t, i18n } = useTranslation();
   const { id } = useParams();
+
   const [maquina, setMaquina] = useState(null);
   const [chamadosConcluidos, setChamadosConcluidos] = useState([]);
   const [chamadosAtivos, setChamadosAtivos] = useState([]);
-  const [historicoChecklist, setHistoricoChecklist] = useState([]);
+
+  // Histórico do back
+  const [historicoDiario, setHistoricoDiario] = useState([]);
+  const [submissoesRecentes, setSubmissoesRecentes] = useState([]);
+
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('ativos');
-  const [selectedSubmission, setSelectedSubmission] = useState(null);
-  const [eventosPreventivos, setEventosPreventivos] = useState([]);
-  const [agendamentos, setAgendamentos] = useState([]);
-  const [modalAgendamentoOpen, setModalAgendamentoOpen] = useState(false);
-  const [dadosAgendamento, setDadosAgendamento] = useState(null);
-  const [descAgendamento, setDescAgendamento] = useState('');
-  const [itensChecklistAgendamento, setItensChecklistAgendamento] = useState('');
-  const [eventoSelecionado, setEventoSelecionado] = useState(null);
-  const [currentDate, setCurrentDate] = useState(new Date());
-  const [view, setView] = useState('month');
   const [novoItemChecklist, setNovoItemChecklist] = useState('');
-  const qrCodeRef = useRef(null);
+  const [reloadTick, setReloadTick] = useState(0);
 
+  // Modal de detalhe da submissão
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalTitulo, setModalTitulo] = useState('');
+  const [modalSubmissoes, setModalSubmissoes] = useState([]); // cada item tem {criado_em, operador_nome, respostas, turno}
+
+  const qrCodeRef = useRef(null);
   const fmtDate = useMemo(() => df({ dateStyle: 'short' }), [i18n.language]);
+  const fmtDateTime = useMemo(() => df({ dateStyle: 'short', timeStyle: 'short' }), [i18n.language]);
 
   useEffect(() => {
-    const maquinaDocRef = doc(db, 'maquinas', id);
-    const unsubMaquina = onSnapshot(maquinaDocRef, (docSnap) => {
-      if (docSnap.exists()) {
-        const maquinaData = { id: docSnap.id, ...docSnap.data() };
-        setMaquina(maquinaData);
+    let alive = true;
+    (async () => {
+      try {
+        setLoading(true);
 
-        const unsubAgendamentos = onSnapshot(
-          query(collection(db, 'agendamentosPreventivos'), where('maquinaId', '==', maquinaData.id)),
-          (snapshot) => {
-            const eventos = snapshot.docs.map(d => {
-              const data = d.data();
-              return {
-                id: d.id,
-                title: data.descricao,
-                start: data.start.toDate(),
-                end: data.end.toDate(),
-                allDay: true,
-                resource: data
-              };
-            });
-            setAgendamentos(eventos);
-          }
-        );
+        // 1) Máquina + histórico (o back já manda)
+        const m = await getMaquina(id);
+        if (!alive) return;
 
-        const unsubAtivos = onSnapshot(
-          query(
-            collection(db, 'chamados'),
-            where('maquina', '==', maquinaData.nome),
-            where('status', 'in', ['Aberto', 'Em Andamento']),
-            orderBy('dataAbertura', 'desc')
-          ),
-          (s) => setChamadosAtivos(s.docs.map(d => ({ id: d.id, ...d.data() })))
-        );
+        setMaquina({
+          ...m,
+          checklistDiario: m.checklist_diario ?? m.checklistDiario ?? []
+        });
 
-        const unsubConcluidos = onSnapshot(
-          query(
-            collection(db, 'chamados'),
-            where('maquina', '==', maquinaData.nome),
-            where('status', '==', 'Concluído'),
-            orderBy('dataAbertura', 'desc')
-          ),
-          (s) => setChamadosConcluidos(s.docs.map(d => ({ id: d.id, ...d.data() })))
-        );
+        setHistoricoDiario(Array.isArray(m.historicoChecklist) ? m.historicoChecklist : []);
+        setSubmissoesRecentes(Array.isArray(m.checklistHistorico) ? m.checklistHistorico : []);
 
-        const unsubPlanos = onSnapshot(
-          query(collection(db, 'planosPreventivos'), where('maquina', '==', maquinaData.nome)),
-          (snapshot) => {
-            const eventos = snapshot.docs.map((d) => {
-              const data = d.data();
-              const proximaData = data.proximaData?.toDate?.() || null;
-              return {
-                id: d.id,
-                title: data.descricao,
-                start: proximaData || new Date(),
-                end: proximaData || new Date(),
-                allDay: true,
-                resource: data
-              };
-            });
-            setEventosPreventivos(eventos);
-          }
-        );
+        // 2) Chamados
+        const [abertos, andamento, concluidos] = await Promise.all([
+          listarChamadosPorMaquina(id, { status: 'Aberto' }),
+          listarChamadosPorMaquina(id, { status: 'Em Andamento' }),
+          listarChamadosPorMaquina(id, { status: 'Concluído' }),
+        ]);
+        if (!alive) return;
 
-        const hoje = new Date();
-        const dataInicio = new Date();
-        dataInicio.setDate(hoje.getDate() - 30);
-        const unsubSubmissoes = onSnapshot(
-          query(
-            collection(db, 'checklistSubmissions'),
-            where('maquinaId', '==', maquinaData.id),
-            where('dataSubmissao', '>=', dataInicio)
-          ),
-          (snapshot) => {
-            const submissions = snapshot.docs.map(d => ({ ...d.data(), dataSubmissao: d.data().dataSubmissao.toDate() }));
-            processarHistoricoChecklist(submissions);
-          }
-        );
-
-        setLoading(false);
-        return () => { unsubAgendamentos(); unsubAtivos(); unsubConcluidos(); unsubPlanos(); unsubSubmissoes(); };
-      } else {
-        setMaquina(null);
-        setLoading(false);
+        const sortByCriado = (a, b) => new Date(b.criado_em) - new Date(a.criado_em);
+        setChamadosAtivos([...(abertos || []), ...(andamento || [])].sort(sortByCriado));
+        setChamadosConcluidos((concluidos || []).sort(sortByCriado));
+      } catch (e) {
+        console.error(e);
+        toast.error(t('maquinaDetalhe.toasts.loadError'));
+      } finally {
+        if (alive) setLoading(false);
       }
-    });
-    return () => unsubMaquina();
-  }, [id]);
+    })();
+    return () => { alive = false; };
+  }, [id, t, reloadTick]);
 
   const handleAdicionarItemChecklist = async () => {
     if (novoItemChecklist.trim() === '') {
@@ -153,9 +86,10 @@ const MaquinaDetalhePage = ({ user }) => {
       return;
     }
     try {
-      await updateDoc(doc(db, 'maquinas', id), { checklistDiario: arrayUnion(novoItemChecklist) });
+      await addChecklistItem(id, novoItemChecklist.trim(), { role: user.role, email: user.email });
       toast.success(t('maquinaDetalhe.toasts.itemAdded'));
       setNovoItemChecklist('');
+      setReloadTick(n => n + 1);
     } catch (e) {
       console.error(e);
       toast.error(t('maquinaDetalhe.toasts.itemAddError'));
@@ -165,52 +99,55 @@ const MaquinaDetalhePage = ({ user }) => {
   const handleRemoverItemChecklist = async (itemParaRemover) => {
     if (!window.confirm(t('maquinaDetalhe.checklist.confirmRemove', { item: itemParaRemover }))) return;
     try {
-      await updateDoc(doc(db, 'maquinas', id), { checklistDiario: arrayRemove(itemParaRemover) });
+      await removeChecklistItem(id, itemParaRemover, { role: user.role, email: user.email });
       toast.success(t('maquinaDetalhe.toasts.itemRemoved'));
+      setReloadTick(n => n + 1);
     } catch (e) {
       console.error(e);
       toast.error(t('maquinaDetalhe.toasts.itemRemoveError'));
     }
   };
 
-  const processarHistoricoChecklist = (submissoes) => {
-    const relatorio = {};
-    const hoje = new Date();
-    for (let i = 0; i < 30; i++) {
-      const dia = new Date();
-      dia.setDate(hoje.getDate() - i);
-      const diaString = dia.toLocaleDateString('pt-BR'); // interno
-      relatorio[diaString] = {
-        dataObj: dia,
-        turno1: { status: 'Pendente', submission: null },
-        turno2: { status: 'Pendente', submission: null },
-      };
-    }
-    submissoes.forEach(sub => {
-      const dataSub = sub.dataSubmissao;
-      const diaString = dataSub.toLocaleDateString('pt-BR');
-      const minutosAtuais = dataSub.getHours() * 60 + dataSub.getMinutes();
-      const inicioTurno2 = 15 * 60 + 18;
-      const turno = minutosAtuais < inicioTurno2 ? 'turno1' : 'turno2';
-      if (relatorio[diaString]) {
-        relatorio[diaString][turno] = { status: 'Entregue', operador: sub.operadorNome, submission: sub };
-      }
-    });
-    setHistoricoChecklist(Object.values(relatorio).sort((a, b) => b.dataObj - a.dataObj));
-  };
+  if (loading) return <p style={{ padding: 20 }}>{t('maquinaDetalhe.loading')}</p>;
+  if (!maquina) return <p style={{ padding: 20 }}>{t('maquinaDetalhe.notFound')}</p>;
 
-  const handleShowDetails = (submission) => {
-    if (submission) setSelectedSubmission(submission);
-  };
+  const ListaDeChamados = ({ lista, titulo, mensagemVazia }) => (
+    <div>
+      <h2>{titulo}</h2>
+      {lista.length === 0 ? <p>{mensagemVazia}</p> : (
+        <ul className={styles.chamadoList}>
+          {lista.map(chamado => {
+            const tipoChamado = chamado.tipo || 'corretiva';
+            const isConcluido = chamado.status === 'Concluído';
+            const statusClass =
+              isConcluido
+                ? styles.concluidoCard
+                : (tipoChamado === 'corretiva' ? styles.corretiva
+                  : (tipoChamado === 'preventiva' ? styles.preventiva
+                    : (tipoChamado === 'preditiva' ? styles.preditiva : styles.normal)));
 
-  const getStatusClass = (tipo) => {
-    switch (tipo) {
-      case 'corretiva': return styles.corretiva;
-      case 'preventiva': return styles.preventiva;
-      case 'preditiva': return styles.preditiva;
-      default: return styles.normal;
-    }
-  };
+            return (
+              <Link to={`/maquinas/chamado/${chamado.id}`} key={chamado.id} className={styles.chamadoCard}>
+                <li className={`${styles.chamadoItem} ${statusClass}`}>
+                  <strong>{chamado.descricao}</strong>
+                  <p>
+                    {t('maquinaDetalhe.listas.statusLabel', {
+                      status: t(`status.${statusKey ? statusKey(chamado.status) : 'open'}`)
+                    })}
+                  </p>
+                  <small>
+                    {t('maquinaDetalhe.listas.openedAt', {
+                      date: chamado.criado_em ? fmtDateTime.format(new Date(chamado.criado_em)) : 'N/A'
+                    })}
+                  </small>
+                </li>
+              </Link>
+            );
+          })}
+        </ul>
+      )}
+    </div>
+  );
 
   const handleDownloadQRCode = () => {
     const canvas = qrCodeRef.current?.querySelector('canvas');
@@ -225,118 +162,107 @@ const MaquinaDetalhePage = ({ user }) => {
     }
   };
 
-  const handleSelectSlot = (slot) => {
-    if (user.role !== 'gestor') return;
-    setDadosAgendamento({ start: slot.start, end: slot.end });
-    setModalAgendamentoOpen(true);
+  // ========= Detalhe por operador (modal) =========
+  const deriveTurno = (turno, criadoEmStr) => {
+    const t = String(turno || '').toLowerCase();
+    if (t === 'turno1' || t === '1') return 'turno1';
+    if (t === 'turno2' || t === '2') return 'turno2';
+    // sem turno explícito: deduz pelo horário
+    const hh = parseInt((criadoEmStr || '').slice(11, 13), 10);
+    return !isNaN(hh) && hh >= 14 ? 'turno2' : 'turno1';
   };
 
-  const handleSelectEvent = (event) => setEventoSelecionado(event);
-
-  const handleCriarAgendamento = async (e) => {
-    e.preventDefault();
-    const itensArray = itensChecklistAgendamento.split('\n').filter(item => item.trim() !== '');
-    if (!descAgendamento || itensArray.length === 0) {
-      toast.error(t('maquinaDetalhe.agendar.errors.missing'));
-      return;
-    }
-    try {
-      await addDoc(collection(db, 'agendamentosPreventivos'), {
-        maquinaId: id,
-        maquinaNome: maquina.nome,
-        descricao: descAgendamento,
-        itensChecklist: itensArray,
-        start: dadosAgendamento.start,
-        end: dadosAgendamento.end,
-        criadoEm: serverTimestamp(),
-        status: 'agendado',
-      });
-      toast.success(t('maquinaDetalhe.agendar.toasts.created'));
-      setModalAgendamentoOpen(false);
-      setDescAgendamento('');
-      setItensChecklistAgendamento('');
-    } catch (error) {
-      console.error(error);
-      toast.error(t('maquinaDetalhe.agendar.toasts.error'));
-    }
+  // tenta descobrir o e-mail do operador pelo mesmo dia/turno dentro das submissões recentes
+  const findEmailFor = (diaISO, turno, operadorNome) => {
+    const rec = submissoesRecentes.find((s) => {
+      const sDia = String(s.criado_em || '').slice(0, 10);
+      const sTurno = deriveTurno(s.turno, s.criado_em);
+      return (
+        sDia === diaISO &&
+        sTurno === turno &&
+        String(s.operador_nome || '').trim() === String(operadorNome || '').trim()
+      );
+    });
+    return rec?.operador_email || null;
   };
 
-  const handleIniciarManutencao = async (agendamento) => {
-    if (!window.confirm(t('maquinaDetalhe.evento.confirmStart', { title: agendamento.title }))) return;
+  const abrirDetalheOperador = async (diaISO, turno, operadorNome) => {
     try {
-      const chamadoRef = await addDoc(collection(db, 'chamados'), {
-        maquina: agendamento.resource.maquinaNome,
-        descricao: t('maquinaDetalhe.evento.callDesc', { title: agendamento.title }),
-        status: 'Aberto',
-        tipo: 'preventiva',
-        checklist: agendamento.resource.itensChecklist.map(item => ({ item, resposta: 'sim' })),
-        agendamentoId: agendamento.id,
-        operadorNome: t('maquinaDetalhe.evento.openedBy', { name: user.nome }),
-        dataAbertura: serverTimestamp(),
+      // 1) Fallback local: procurar nas submissões recentes que já vieram do back
+      const locais = (submissoesRecentes || []).filter((s) => {
+        const sDia = String(s.criado_em || '').slice(0, 10);
+        const sTurno = deriveTurno(s.turno, s.criado_em);
+        return (
+          String(s.maquina_id) === String(id) &&
+          sDia === diaISO &&
+          sTurno === turno &&
+          String(s.operador_nome || '').trim() === String(operadorNome || '').trim() &&
+          s.respostas // precisa ter respostas
+        );
       });
-      toast.success(t('maquinaDetalhe.evento.toasts.callCreated'));
 
-      const agRef = doc(db, 'agendamentosPreventivos', agendamento.id);
-      await updateDoc(agRef, { status: 'iniciado' });
+      if (locais.length > 0) {
+        setModalTitulo(
+          `${fmtDate.format(new Date(`${diaISO}T00:00:00`))} • ${turno === 'turno1' ? t('maquinaDetalhe.checklist.columns.turn1') : t('maquinaDetalhe.checklist.columns.turn2')} • ${operadorNome}`
+        );
+        setModalSubmissoes(locais);
+        setModalOpen(true);
+        return;
+      }
 
-      const unsubscribe = onSnapshot(chamadoRef, (snap) => {
-        const data = snap.data();
-        if (data?.status === 'Concluído') {
-          updateDoc(agRef, { status: 'concluido' });
-          unsubscribe();
-        }
+      // 2) Se não encontrou localmente, tenta via e-mail (mesma heurística de antes)
+      const email = (submissoesRecentes || []).find((s) => {
+        const sDia = String(s.criado_em || '').slice(0, 10);
+        const sTurno = deriveTurno(s.turno, s.criado_em);
+        return (
+          sDia === diaISO &&
+          sTurno === turno &&
+          String(s.operador_nome || '').trim() === String(operadorNome || '').trim() &&
+          s.operador_email
+        );
+      })?.operador_email;
+
+      if (!email) {
+        toast.error(t('maquinaDetalhe.checklist.detailNoEmail', 'Não foi possível localizar o e-mail deste operador para esse dia.'));
+        return;
+      }
+
+      const subms = await listarSubmissoesDiarias({ operadorEmail: email, date: diaISO });
+      const filtradas = (subms || []).filter((s) => {
+        if (String(s.maquina_id) !== String(id)) return false;
+        const sTurno = deriveTurno(s.turno, s.criado_em);
+        return sTurno === turno;
       });
-      setEventoSelecionado(null);
+
+      if (filtradas.length === 0) {
+        toast(t('maquinaDetalhe.checklist.detailEmpty', 'Não há submissões encontradas para esse dia/turno.'));
+        return;
+      }
+
+      setModalTitulo(
+        `${fmtDate.format(new Date(`${diaISO}T00:00:00`))} • ${turno === 'turno1' ? t('maquinaDetalhe.checklist.columns.turn1') : t('maquinaDetalhe.checklist.columns.turn2')} • ${operadorNome}`
+      );
+      setModalSubmissoes(filtradas);
+      setModalOpen(true);
     } catch (e) {
       console.error(e);
-      toast.error(t('maquinaDetalhe.evento.toasts.startError'));
+      toast.error(t('maquinaDetalhe.toasts.loadError'));
     }
   };
 
-  const ListaDeChamados = ({ lista, titulo, mensagemVazia }) => (
-    <div>
-      <h2>{titulo}</h2>
-      {lista.length === 0 ? <p>{mensagemVazia}</p> : (
-        <ul className={styles.chamadoList}>
-          {lista.map(chamado => {
-            const tipoChamado = chamado.tipo || 'corretiva';
-            const isConcluido = chamado.status === 'Concluído';
-            const statusClass = isConcluido ? styles.concluidoCard : getStatusClass(tipoChamado);
 
-            return (
-              <Link to={`/maquinas/chamado/${chamado.id}`} key={chamado.id} className={styles.chamadoCard}>
-                <li className={`${styles.chamadoItem} ${statusClass}`}>
-                  <strong>{chamado.descricao}</strong>
-                  <p>
-                    {t('maquinaDetalhe.listas.statusLabel', {
-                      status: t(`status.${statusKey ? statusKey(chamado.status) : 'open'}`)
-                    })}
-                  </p>
-                  <small>
-                    {t('maquinaDetalhe.listas.openedAt', {
-                      date: chamado.dataAbertura ? fmtDate.format(chamado.dataAbertura.toDate()) : 'N/A'
-                    })}
-                  </small>
-                </li>
-              </Link>
-            );
-          })}
-        </ul>
-      )}
-    </div>
-  );
+  // helper para transformar "Fulano, Sicrana" em array
+  const splitNomes = (s) =>
+    String(s || '')
+      .split(',')
+      .map((x) => x.trim())
+      .filter(Boolean);
 
-  function getContrastColor(hex) {
-    hex = hex.replace('#', '');
-    const r = parseInt(hex.substring(0, 2), 16);
-    const g = parseInt(hex.substring(2, 4), 16);
-    const b = parseInt(hex.substring(4, 6), 16);
-    const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
-    return luminance > 0.5 ? '#000000' : '#FFFFFF';
-  }
-
-  if (loading) return <p style={{ padding: 20 }}>{t('maquinaDetalhe.loading')}</p>;
-  if (!maquina) return <p style={{ padding: 20 }}>{t('maquinaDetalhe.notFound')}</p>;
+  // Helper para formatar a string YYYY-MM-DD vinda do back
+  const fmtDia = (diaStr) => {
+    try { return fmtDate.format(new Date(`${diaStr}T00:00:00`)); }
+    catch { return diaStr; }
+  };
 
   return (
     <>
@@ -350,7 +276,6 @@ const MaquinaDetalhePage = ({ user }) => {
           <nav className={styles.tabs}>
             <button className={`${styles.tabButton} ${activeTab === 'ativos' ? styles.active : ''}`} onClick={() => setActiveTab('ativos')}>{t('maquinaDetalhe.tabs.active')}</button>
             <button className={`${styles.tabButton} ${activeTab === 'historico' ? styles.active : ''}`} onClick={() => setActiveTab('historico')}>{t('maquinaDetalhe.tabs.history')}</button>
-            <button className={`${styles.tabButton} ${activeTab === 'preventiva' ? styles.active : ''}`} onClick={() => setActiveTab('preventiva')}>{t('maquinaDetalhe.tabs.preventive')}</button>
             <button className={`${styles.tabButton} ${activeTab === 'checklist' ? styles.active : ''}`} onClick={() => setActiveTab('checklist')}>{t('maquinaDetalhe.tabs.checklist')}</button>
             <button className={`${styles.tabButton} ${activeTab === 'qrcode' ? styles.active : ''}`} onClick={() => setActiveTab('qrcode')}>{t('maquinaDetalhe.tabs.qrcode')}</button>
           </nav>
@@ -370,86 +295,6 @@ const MaquinaDetalhePage = ({ user }) => {
                 titulo={t('maquinaDetalhe.listas.historyTitle', { name: maquina.nome })}
                 mensagemVazia={t('maquinaDetalhe.listas.historyEmpty')}
               />
-            )}
-
-            {activeTab === 'preventiva' && (
-              <div className={styles.planSection}>
-                {/* legenda */}
-                <div className={styles.legend}>
-                  <div><span className={styles.legendBox} style={{ backgroundColor: '#8B0000' }}></span> {t('maquinaDetalhe.legend.overdue')}</div>
-                  <div><span className={styles.legendBox} style={{ backgroundColor: '#FFA500' }}></span> {t('maquinaDetalhe.legend.today')}</div>
-                  <div><span className={styles.legendBox} style={{ backgroundColor: '#90EE90' }}></span> {t('maquinaDetalhe.legend.future')}</div>
-                  <div><span className={styles.legendBox} style={{ backgroundColor: '#006400' }}></span> {t('maquinaDetalhe.legend.started')}</div>
-                  <div><span className={styles.legendBox} style={{ backgroundColor: '#00008B' }}></span> {t('maquinaDetalhe.legend.finished')}</div>
-                </div>
-
-                <div style={{ height: 600, marginTop: 20 }}>
-                  <DnDCalendar
-                    localizer={localizer}
-                    date={currentDate}
-                    onNavigate={setCurrentDate}
-                    view={view}
-                    onView={setView}
-                    views={['month', 'agenda']}
-                    defaultView="month"
-                    length={30}
-                    toolbar
-                    events={agendamentos}
-                    startAccessor="start"
-                    endAccessor="end"
-                    selectable={user.role === 'gestor'}
-                    onSelectSlot={(slot) => {
-                      setDadosAgendamento({ start: slot.start, end: slot.end });
-                      setModalAgendamentoOpen(true);
-                    }}
-                    onSelectEvent={setEventoSelecionado}
-                    onEventDrop={({ event, start, end }) => {
-                      updateDoc(doc(db, 'agendamentosPreventivos', event.id), { start, end })
-                        .catch(() => toast.error(t('maquinaDetalhe.agendar.toasts.rescheduleError')));
-                    }}
-                    messages={{
-                      next: t('calendar.next'),
-                      previous: t('calendar.previous'),
-                      today: t('calendar.today'),
-                      month: t('calendar.month'),
-                      week: t('calendar.week'),
-                      day: t('calendar.day'),
-                      agenda: t('calendar.agenda'),
-                      date: t('calendar.date'),
-                      time: t('calendar.time'),
-                      showMore: (total) => t('calendar.showMore', { total }),
-                    }}
-                    formats={{
-                      agendaHeaderFormat: ({ start, end }) =>
-                        `${moment(start).format('DD/MM/YYYY')} – ${moment(end).format('DD/MM/YYYY')}`
-                    }}
-                    eventPropGetter={event => {
-                      const today = new Date(); today.setHours(0,0,0,0);
-                      const startDate = event.start;
-                      let bg;
-                      if (event.resource.status === 'iniciado') bg = '#006400';
-                      else if (event.resource.status === 'agendado') {
-                        if (startDate < today) bg = '#8B0000';
-                        else if (startDate.toDateString() === today.toDateString()) bg = '#FFA500';
-                        else bg = '#90EE90';
-                      } else if (event.resource.status === 'concluido') bg = '#00008B';
-                      else bg = '#FFFFFF';
-                      return {
-                        style: {
-                          backgroundColor: bg,
-                          color: getContrastColor(bg),
-                          borderRadius: 4,
-                          border: '1px solid #aaa'
-                        }
-                      };
-                    }}
-                    components={{
-                      event: ({ event }) => <div className={styles.eventoNoCalendario}>{event.title}</div>
-                    }}
-                    style={{ backgroundColor: 'white', borderRadius: 8, padding: 10 }}
-                  />
-                </div>
-              </div>
             )}
 
             {activeTab === 'checklist' && (
@@ -475,7 +320,13 @@ const MaquinaDetalhePage = ({ user }) => {
                   ))}
                 </ul>
 
-                <div className={styles.checklistInputForm}>
+                <form
+                  className={styles.checklistInputForm}
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    handleAdicionarItemChecklist(); // Enter chama o mesmo handler
+                  }}
+                >
                   <input
                     type="text"
                     value={novoItemChecklist}
@@ -483,10 +334,11 @@ const MaquinaDetalhePage = ({ user }) => {
                     className={styles.checklistInput}
                     placeholder={t('maquinaDetalhe.checklist.placeholder')}
                   />
-                  <button onClick={handleAdicionarItemChecklist} className={styles.checklistAddButton}>
+                  <button type="submit" className={styles.checklistAddButton}>
                     {t('maquinaDetalhe.checklist.add')}
                   </button>
-                </div>
+                </form>
+
 
                 <div className={styles.historyReport}>
                   <h3>{t('maquinaDetalhe.checklist.historyTitle')}</h3>
@@ -495,25 +347,60 @@ const MaquinaDetalhePage = ({ user }) => {
                     <span>{t('maquinaDetalhe.checklist.columns.turn1')}</span>
                     <span>{t('maquinaDetalhe.checklist.columns.turn2')}</span>
                   </div>
-                  {historicoChecklist.map((entry) => (
-                    <div key={entry.dataObj.toISOString()} className={styles.dayEntry}>
-                      <span>{fmtDate.format(entry.dataObj)}</span>
-                      <div
-                        className={`${styles.turnStatus} ${entry.turno1.status === 'Entregue' ? styles.completed : styles.pending} ${entry.turno1.submission ? styles.clickable : ''}`}
-                        onClick={() => handleShowDetails(entry.turno1.submission)}
-                      >
-                        {entry.turno1.status === 'Entregue' ? <FiCheckCircle /> : <FiXCircle />}
-                        <span>{entry.turno1.operador || t('maquinaDetalhe.checklist.pending')}</span>
+
+                  {historicoDiario.map((row) => {
+                    const diaISO = row.dia;
+                    const nomesT1 = splitNomes(row.turno1_operadores);
+                    const nomesT2 = splitNomes(row.turno2_operadores);
+                    const t1ok = !!row.turno1_ok;
+                    const t2ok = !!row.turno2_ok;
+
+                    return (
+                      <div key={diaISO} className={styles.dayEntry}>
+                        <span>{fmtDia(diaISO)}</span>
+
+                        <div className={`${styles.turnStatus} ${t1ok ? styles.completed : styles.pending}`}>
+                          {t1ok ? <FiCheckCircle /> : <FiXCircle />}
+                          <span style={{ marginLeft: 8 }}>
+                            {nomesT1.length ? nomesT1.map((nome) => (
+                              <button
+                                key={`t1-${diaISO}-${nome}`}
+                                onClick={() => abrirDetalheOperador(diaISO, 'turno1', nome)}
+                                style={{
+                                  marginRight: 6, marginTop: 4,
+                                  padding: '2px 8px', borderRadius: 999,
+                                  border: '1px solid #d0d7de', background: '#f6f8fa', cursor: 'pointer'
+                                }}
+                                title={t('maquinaDetalhe.checklist.viewSubmission', 'Ver submissão')}
+                              >
+                                {nome}
+                              </button>
+                            )) : t('maquinaDetalhe.checklist.pending')}
+                          </span>
+                        </div>
+
+                        <div className={`${styles.turnStatus} ${t2ok ? styles.completed : styles.pending}`}>
+                          {t2ok ? <FiCheckCircle /> : <FiXCircle />}
+                          <span style={{ marginLeft: 8 }}>
+                            {nomesT2.length ? nomesT2.map((nome) => (
+                              <button
+                                key={`t2-${diaISO}-${nome}`}
+                                onClick={() => abrirDetalheOperador(diaISO, 'turno2', nome)}
+                                style={{
+                                  marginRight: 6, marginTop: 4,
+                                  padding: '2px 8px', borderRadius: 999,
+                                  border: '1px solid #d0d7de', background: '#f6f8fa', cursor: 'pointer'
+                                }}
+                                title={t('maquinaDetalhe.checklist.viewSubmission', 'Ver submissão')}
+                              >
+                                {nome}
+                              </button>
+                            )) : t('maquinaDetalhe.checklist.pending')}
+                          </span>
+                        </div>
                       </div>
-                      <div
-                        className={`${styles.turnStatus} ${entry.turno2.status === 'Entregue' ? styles.completed : styles.pending} ${entry.turno2.submission ? styles.clickable : ''}`}
-                        onClick={() => handleShowDetails(entry.turno2.submission)}
-                      >
-                        {entry.turno2.status === 'Entregue' ? <FiCheckCircle /> : <FiXCircle />}
-                        <span>{entry.turno2.operador || t('maquinaDetalhe.checklist.pending')}</span>
-                      </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
             )}
@@ -555,135 +442,61 @@ const MaquinaDetalhePage = ({ user }) => {
             titulo={t('maquinaDetalhe.listas.historyTitle', { name: maquina.nome })}
             mensagemVazia={t('maquinaDetalhe.listas.historyEmpty')}
           />
-
-          <hr style={{ margin: '30px 0' }} />
-          <div className={styles.planSection}>
-            <h3>{t('maquinaDetalhe.preventiveCalendar.title')}</h3>
-            <p>{t('maquinaDetalhe.preventiveCalendar.subtitle')}</p>
-
-            <div style={{ padding: 16, backgroundColor: '#ffffff', border: '1px solid #e0e0e0', borderRadius: 8, marginTop: 20 }}>
-              <div style={{ display: 'flex', gap: '1rem', marginBottom: 12 }}>
-                <div><span style={{ display: 'inline-block', width: 16, height: 16, backgroundColor: '#8B0000', marginRight: 4 }} />{t('maquinaDetalhe.legend.overdue')}</div>
-                <div><span style={{ display: 'inline-block', width: 16, height: 16, backgroundColor: '#FFA500', marginRight: 4 }} />{t('maquinaDetalhe.legend.today')}</div>
-                <div><span style={{ display: 'inline-block', width: 16, height: 16, backgroundColor: '#90EE90', marginRight: 4 }} />{t('maquinaDetalhe.legend.future')}</div>
-                <div><span style={{ display: 'inline-block', width: 16, height: 16, backgroundColor: '#006400', marginRight: 4 }} />{t('maquinaDetalhe.legend.started')}</div>
-                <div><span style={{ display: 'inline-block', width: 16, height: 16, backgroundColor: '#00008B', marginRight: 4 }} />{t('maquinaDetalhe.legend.finished')}</div>
-              </div>
-
-              <Calendar
-                localizer={localizer}
-                date={currentDate}
-                onNavigate={setCurrentDate}
-                view={view}
-                onView={setView}
-                views={['month', 'agenda']}
-                defaultView="month"
-                toolbar
-                events={agendamentos}
-                startAccessor="start"
-                endAccessor="end"
-                selectable={false}
-                onSelectEvent={setEventoSelecionado}
-                messages={{
-                  previous: t('calendar.previous'),
-                  today: t('calendar.today'),
-                  next: t('calendar.next'),
-                  month: t('calendar.month'),
-                  agenda: t('calendar.agenda'),
-                  showMore: (total) => t('calendar.showMore', { total }),
-                }}
-                formats={{
-                  agendaHeaderFormat: ({ start, end }) =>
-                    `${moment(start).format('DD/MM/YYYY')} – ${moment(end).format('DD/MM/YYYY')}`,
-                }}
-                eventPropGetter={event => {
-                  const hoje = new Date(); hoje.setHours(0,0,0,0);
-                  const inicio = event.start;
-                  const s = event.resource.status;
-                  let bg = '#FFFFFF';
-                  if      (s === 'iniciado')                        bg = '#006400';
-                  else if (s === 'agendado' && inicio < hoje)       bg = '#8B0000';
-                  else if (s === 'agendado' && inicio.toDateString() === hoje.toDateString()) bg = '#FFA500';
-                  else if (s === 'agendado')                        bg = '#90EE90';
-                  else if (s === 'concluido')                       bg = '#00008B';
-                  return { style: { backgroundColor: bg, color: getContrastColor(bg), borderRadius: 4, border: '1px solid #aaa' } };
-                }}
-                components={{
-                  event: ({ event }) => <div className={styles.eventoNoCalendario}>{event.title}</div>,
-                  agenda: { time: () => null }
-                }}
-                style={{ height: 600, backgroundColor: '#fff', borderRadius: 8 }}
-              />
-            </div>
-          </div>
         </div>
       )}
 
-      {/* Modal: criar agendamento */}
-      <Modal isOpen={modalAgendamentoOpen} onClose={() => setModalAgendamentoOpen(false)} title={t('maquinaDetalhe.agendar.title')}>
-        <form onSubmit={handleCriarAgendamento}>
-          <div className={styles.formGroup}>
-            <label>{t('maquinaDetalhe.agendar.descricao')}</label>
-            <input value={descAgendamento} onChange={e => setDescAgendamento(e.target.value)} className={styles.input} required />
-          </div>
-          <div className={styles.formGroup}>
-            <label>{t('maquinaDetalhe.agendar.itensLabel')}</label>
-            <textarea value={itensChecklistAgendamento} onChange={e => setItensChecklistAgendamento(e.target.value)} className={styles.textarea} rows="5" required />
-          </div>
-          <button type="submit" className={styles.button}>{t('maquinaDetalhe.agendar.save')}</button>
-        </form>
-      </Modal>
+      {/* ===== Modal simples com o detalhe das respostas ===== */}
+      {modalOpen && (
+        <div
+          onClick={() => setModalOpen(false)}
+          style={{
+            position: 'fixed', inset: 0, background: 'rgba(0,0,0,.35)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 9999
+          }}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              background: '#fff', borderRadius: 12, width: 'min(900px, 95vw)', maxHeight: '85vh',
+              overflow: 'auto', padding: 20, boxShadow: '0 10px 30px rgba(0,0,0,.2)'
+            }}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
+              <h3 style={{ margin: 0 }}>{modalTitulo}</h3>
+              <button onClick={() => setModalOpen(false)} style={{ border: 'none', background: 'transparent', fontSize: 20, cursor: 'pointer' }}>×</button>
+            </div>
 
-      {/* Modal: detalhes de evento e iniciar manutenção */}
-      <Modal isOpen={!!eventoSelecionado} onClose={() => setEventoSelecionado(null)} title={eventoSelecionado?.title}>
-        {eventoSelecionado && (
-          <div className={styles.modalDetails}>
-            <p><strong>{t('maquinaDetalhe.evento.descricao')} </strong>{eventoSelecionado.resource.descricao}</p>
-            <p><strong>{t('maquinaDetalhe.evento.data')} </strong>{fmtDate.format(eventoSelecionado.start)}</p>
-            <p><strong>{t('maquinaDetalhe.evento.status')} </strong>{eventoSelecionado.resource.status}</p>
-
-            {eventoSelecionado.resource.itensChecklist && (
-              <>
-                <h4>{t('maquinaDetalhe.evento.checklistTitle')}</h4>
-                <ul>
-                  {eventoSelecionado.resource.itensChecklist.map((item, i) => (<li key={i}>{item}</li>))}
-                </ul>
-              </>
-            )}
-
-            {eventoSelecionado.resource.status !== 'iniciado' && eventoSelecionado.resource.status !== 'concluido' && (
-              <button className={styles.modalButton} onClick={() => handleIniciarManutencao(eventoSelecionado)}>
-                {t('maquinaDetalhe.evento.startNow')}
-              </button>
-            )}
+            {modalSubmissoes.map((s) => (
+              <div key={s.id} style={{ border: '1px solid #e5e7eb', borderRadius: 10, padding: 12, marginBottom: 12 }}>
+                <div style={{ marginBottom: 8, fontSize: 13, color: '#6b7280' }}>
+                  {t('maquinaDetalhe.checklist.submittedAt', 'Enviado em')}: {s.criado_em ? fmtDateTime.format(new Date(s.criado_em)) : '—'}
+                </div>
+                <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                  <thead>
+                    <tr>
+                      <th style={{ textAlign: 'left', padding: '8px 6px', borderBottom: '1px solid #e5e7eb' }}>{t('maquinaDetalhe.checklist.item', 'Item')}</th>
+                      <th style={{ textAlign: 'left', padding: '8px 6px', borderBottom: '1px solid #e5e7eb' }}>{t('maquinaDetalhe.checklist.answer', 'Resposta')}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {Object.entries(s.respostas || {}).map(([pergunta, resp]) => {
+                      const isNao = String(resp).toLowerCase() === 'nao';
+                      return (
+                        <tr key={pergunta}>
+                          <td style={{ padding: '6px', borderBottom: '1px solid #f3f4f6' }}>{pergunta}</td>
+                          <td style={{ padding: '6px', borderBottom: '1px solid #f3f4f6', fontWeight: 600, color: isNao ? '#b91c1c' : '#065f46' }}>
+                            {isNao ? t('checklist.no') : t('checklist.yes')}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            ))}
           </div>
-        )}
-      </Modal>
-
-      {/* Modal: detalhes da submissão do checklist */}
-      <Modal
-        isOpen={!!selectedSubmission}
-        onClose={() => setSelectedSubmission(null)}
-        title={t('maquinaDetalhe.submission.title', {
-          date: selectedSubmission?.dataSubmissao ? fmtDate.format(selectedSubmission.dataSubmissao) : ''
-        })}
-      >
-        {selectedSubmission && (
-          <div>
-            <h4>{selectedSubmission.checklistNome}</h4>
-            <ul className={styles.detailsList}>
-              {Object.entries(selectedSubmission.respostas).map(([pergunta, resposta]) => (
-                <li key={pergunta} className={styles.detailItem}>
-                  <span>{pergunta}</span>
-                  <strong className={resposta === 'sim' ? styles.completed : styles.pending}>
-                    {resposta.toUpperCase()}
-                  </strong>
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
-      </Modal>
+        </div>
+      )}
     </>
   );
 };
