@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+﻿import React, { useState, useEffect, useMemo } from 'react';
 import { Calendar, momentLocalizer } from 'react-big-calendar';
 import withDragAndDrop from 'react-big-calendar/lib/addons/dragAndDrop';
 import moment from 'moment';
@@ -213,6 +213,7 @@ export default function CalendarioGeralPage({ user }) {
 
     toast.success(t('calendarioGeral.toasts.created'));
     setShowNew(false);
+    setReloadTick((n) => n + 1);
     // recarrega mês atual
     setCurrentDate(new Date(currentDate));
   };
@@ -227,6 +228,7 @@ export default function CalendarioGeralPage({ user }) {
       });
       toast.success(t('calendarioGeral.toasts.callCreated'));
       setSelectedEvent(null);
+      setReloadTick((n) => n + 1);
       setCurrentDate(new Date(currentDate));
     } catch (err) {
       console.error(err);
@@ -243,6 +245,7 @@ export default function CalendarioGeralPage({ user }) {
       });
       toast.success(t('calendarioGeral.toasts.deleted'));
       setSelectedEvent(null);
+      setReloadTick((n) => n + 1);
       setCurrentDate(new Date(currentDate));
     } catch (err) {
       console.error(err);
@@ -302,14 +305,34 @@ export default function CalendarioGeralPage({ user }) {
               onEventDrop={
                 user?.role === 'gestor'
                   ? async ({ event, start, end }) => {
+                      const previousStart = event.start;
+                      const previousEnd = event.end;
+                      const nextStart = new Date(start);
+                      const nextEnd = new Date(end);
+
+                      setEvents((prevEvents) =>
+                        prevEvents.map((ev) =>
+                          ev.id === event.id ? { ...ev, start: nextStart, end: nextEnd } : ev
+                        )
+                      );
+
                       try {
                         await atualizarAgendamento(
                           event.id,
-                          { start: start.toISOString(), end: end.toISOString() },
+                          { start: nextStart.toISOString(), end: nextEnd.toISOString() },
                           { "x-user-role": user.role, "x-user-email": user.email }
                         );
-                      } catch {
+                        setReloadTick((n) => n + 1);
+                      } catch (err) {
+                        console.error(err);
                         toast.error(t('calendarioGeral.toasts.rescheduleFail'));
+                        setEvents((prevEvents) =>
+                          prevEvents.map((ev) =>
+                            ev.id === event.id
+                              ? { ...ev, start: previousStart, end: previousEnd }
+                              : ev
+                          )
+                        );
                       }
                     }
                   : undefined
@@ -469,3 +492,6 @@ export default function CalendarioGeralPage({ user }) {
     </>
   );
 }
+
+
+

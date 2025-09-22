@@ -237,10 +237,15 @@ export async function removerAtribuicao(id, { role, email }) {
   if (!res.ok) throw new Error(data?.error || `Erro ao remover atribuição (${res.status})`);
   return data;
 }
-export async function atenderChamado(id, { role, email }) {
+export async function atenderChamado(id, { role, email } = {}) {
+  const headers = {
+    "Content-Type": "application/json",
+    "x-user-role": role ? String(role).trim() : "",
+    "x-user-email": email ? String(email).trim().toLowerCase() : ""
+  };
   const res = await fetch(`${BASE}/chamados/${id}/atender`, {
     method: "POST",
-    headers: { "Content-Type": "application/json", "x-user-role": role, "x-user-email": email }
+    headers
   });
   const data = await res.json().catch(() => ({}));
   if (!res.ok) throw new Error(data?.error || `Erro ao atender (${res.status})`);
