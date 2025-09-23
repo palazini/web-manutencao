@@ -223,9 +223,6 @@ const OperatorDashboard = ({ user }) => {
               rows="4"
               required
             />
-            <small>
-              {t('operatorDashboard.form.minChars', { count: 5 })}
-            </small>
           </div>
           <button type="submit" className={styles.submitButton} disabled={formLoading}>
             {formLoading ? t('operatorDashboard.form.sending') : t('operatorDashboard.form.open')}
