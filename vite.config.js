@@ -15,9 +15,9 @@ export default defineConfig({
         'apple-touch-icon.png'
       ],
       manifest: {
-        name: 'TPM �?" Manuten��ǜo',
+        name: 'TPM - Manutencao',
         short_name: 'TPM',
-        description: 'Painel de Manuten��ǜo (PWA)',
+        description: 'Painel de Manutencao (PWA)',
         start_url: '/',
         scope: '/',
         display: 'standalone',
