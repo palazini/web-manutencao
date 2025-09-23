@@ -6,6 +6,7 @@ import {
   doc, getDoc,
   query, where, onSnapshot, getDocs, limit
 } from 'firebase/firestore';
+import { getAuth } from 'firebase/auth';
 import { db } from '../firebase';
 import toast from 'react-hot-toast';
 import { useTranslation } from 'react-i18next';
@@ -30,28 +31,50 @@ const ChecklistPage = ({ user }) => {
       .replace(/[^a-z0-9]+/g, '_')
       .replace(/^_|_$/g, '');
 
+  // Helper: obter role do usuário (doc /usuarios/{uid} ou custom claim)
+  const getUserRole = async (uid) => {
+    // 1) tenta Firestore
+    try {
+      const uref = doc(db, 'usuarios', uid);
+      const usnap = await getDoc(uref);
+      const r = usnap.exists() ? usnap.data()?.role : null;
+      if (r) return r;
+    } catch (_) {
+      // ignora e cai pro claim
+    }
+    // 2) cai para custom claim
+    const auth = getAuth();
+    const token = await auth.currentUser?.getIdTokenResult(true);
+    return token?.claims?.role || null;
+  };
+
   // 1) Busca checklist da máquina
   useEffect(() => {
     if (!maquinaId) return;
     (async () => {
-      const maquinaRef = doc(db, 'maquinas', maquinaId);
-      const snap = await getDoc(maquinaRef);
-      if (!snap.exists()) {
-        toast.error(t('checklist.notFound'));
+      try {
+        const maquinaRef = doc(db, 'maquinas', maquinaId);
+        const snap = await getDoc(maquinaRef);
+        if (!snap.exists()) {
+          toast.error(t('checklist.notFound'));
+          setLoading(false);
+          return;
+        }
+        const data = snap.data();
+        setMaquina(data);
+        const lista = data.checklistDiario || [];
+        setPerguntas(lista);
+
+        // inicializa todas as respostas em "sim"
+        const iniciais = {};
+        lista.forEach(item => { iniciais[item] = 'sim'; });
+        setRespostas(iniciais);
+      } catch (e) {
+        console.error(e);
+        toast.error(t('checklist.toastFail'));
+      } finally {
         setLoading(false);
-        return;
       }
-      const data = snap.data();
-      setMaquina(data);
-      const lista = data.checklistDiario || [];
-      setPerguntas(lista);
-
-      // inicializa todas as respostas em "sim"
-      const iniciais = {};
-      lista.forEach(item => { iniciais[item] = 'sim'; });
-      setRespostas(iniciais);
-
-      setLoading(false);
     })();
   }, [maquinaId, t]);
 
@@ -62,7 +85,7 @@ const ChecklistPage = ({ user }) => {
       collection(db, 'chamados'),
       where('maquinaId', '==', maquinaId),
       where('tipo', '==', 'preditiva'),
-      where('status', 'in', ['Aberto','Em Andamento'])
+      where('status', 'in', ['Aberto', 'Em Andamento'])
     );
     const unsub = onSnapshot(qRef, snap => {
       const bloqueios = {};
@@ -72,6 +95,8 @@ const ChecklistPage = ({ user }) => {
         bloqueios[key] = d.id;
       });
       setBlockedItems(bloqueios);
+    }, (err) => {
+      console.error(err);
     });
     return () => unsub();
   }, [maquinaId]);
@@ -91,6 +116,12 @@ const ChecklistPage = ({ user }) => {
     setLoading(true);
     let gerados = 0;
     try {
+      // role necessário para as regras (criadoPorRole == roleFromAuth())
+      const role = await getUserRole(user.uid);
+      if (!role) {
+        throw new Error('Usuário sem role configurado (nem em /usuarios nem em custom claim).');
+      }
+
       for (const pergunta of perguntas) {
         if (respostas[pergunta] === 'nao') {
           const key = slugify(pergunta);
@@ -101,29 +132,52 @@ const ChecklistPage = ({ user }) => {
               where('maquinaId', '==', maquinaId),
               where('tipo', '==', 'preditiva'),
               where('checklistItemKey', '==', key),
-              where('status', 'in', ['Aberto','Em Andamento']),
+              where('status', 'in', ['Aberto', 'Em Andamento']),
               limit(1)
             );
             const snap = await getDocs(qChk);
             if (!snap.empty) continue;
 
+            // descrição precisa ter >= 5 chars (regras)
+            const descRaw = (t('checklist.generatedDescription', { item: pergunta }) || '').trim();
+            const descricaoValida = descRaw.length >= 5
+              ? descRaw
+              : `Problema identificado no item: ${pergunta}`;
+
+            // >>>> CRIAÇÃO DO CHAMADO: atende ao bloco (B) das regras
             await addDoc(collection(db, 'chamados'), {
+              // básicos
               maquina: maquina?.nome,
-              maquinaId,
+              maquinaId,                         // string
               item: pergunta,
               checklistItemKey: key,
-              descricao: t('checklist.generatedDescription', { item: pergunta }),
+              descricao: descricaoValida,        // size >= 5
               status: 'Aberto',
               tipo: 'preditiva',
-              operadorId: user.uid,
-              operadorNome: user.nome,
               dataAbertura: serverTimestamp(),
+
+              // origem + autoria (regras exigem)
+              origin: 'checklist',
+              criadoPorId: user.uid,             // == auth.uid
+              criadoPorNome: user.nome,
+              criadoPorRole: role,               // == roleFromAuth()
+
+              // operador (amarrado ao auth)
+              operadorId: user.uid,              // == auth.uid
+              operadorNome: user.nome,
+
+              // deve vir desatribuído (regras checam == null)
+              manutentorId: null,
+              manutentorNome: null,
+              responsavelAtualId: null
             });
+
             gerados++;
           }
         }
       }
 
+      // Registro da submissão do checklist (rules: operadorId == auth.uid)
       await addDoc(collection(db, 'checklistSubmissions'), {
         operadorId: user.uid,
         operadorNome: user.nome,
@@ -195,9 +249,9 @@ const ChecklistPage = ({ user }) => {
           <button
             onClick={handleSubmit}
             className={styles.submitButton}
-            disabled={loading}
+            disabled={loading || enviando}
           >
-            {loading ? t('checklist.sending') : t('checklist.send')}
+            {enviando ? t('checklist.sending') : t('checklist.send')}
           </button>
         </div>
       </div>
