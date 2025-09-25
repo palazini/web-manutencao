@@ -254,7 +254,9 @@
       "checklistDone": "Checklist completata",
       "performedService": "Servizio eseguito",
       "finishedAt": "Chiuso il: {{date}}",
-      "cause": "Causa del guasto"
+      "cause": "Causa del guasto",
+      "attendedBy": "Presa in carico da",
+      "attendedAt": "Gestito il: {{date}}"
     },
     "of": "di",
     "selects": {

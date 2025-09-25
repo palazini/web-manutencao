@@ -254,7 +254,9 @@
       "checklistDone": "Checkliste abgeschlossen",
       "performedService": "Durchgeführte Leistung",
       "finishedAt": "Abgeschlossen am: {{date}}",
-      "cause": "Fehlerursache"
+      "cause": "Fehlerursache",
+      "attendedBy": "Bearbeitet von",
+      "attendedAt": "Bearbeitet am: {{date}}"
     },
     "of": "von",
     "selects": {

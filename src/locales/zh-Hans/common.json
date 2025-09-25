@@ -254,7 +254,9 @@
       "checklistDone": "检查表已完成",
       "performedService": "已执行的服务",
       "finishedAt": "完成于：{{date}}",
-      "cause": "故障原因"
+      "cause": "故障原因",
+      "attendedBy": "处理人",
+      "attendedAt": "处理时间：{{date}}"
     },
     "of": "的",
     "selects": {

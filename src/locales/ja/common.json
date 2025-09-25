@@ -249,12 +249,14 @@
     "fields": {
       "status": "状態",
       "takenBy": "担当者",
-      "assignedTo": "割り当て先",
+      "assignedTo": "担当者",
       "reportedProblem": "報告された問題",
       "checklistDone": "チェックリスト完了",
       "performedService": "実施作業",
       "finishedAt": "完了日：{{date}}",
-      "cause": "故障原因"
+      "cause": "故障原因",
+      "attendedBy": "対応者",
+      "attendedAt": "対応日時: {{date}}"
     },
     "of": "の",
     "selects": {

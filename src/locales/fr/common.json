@@ -254,7 +254,9 @@
       "checklistDone": "Checklist complétée",
       "performedService": "Service effectué",
       "finishedAt": "Clôturé le : {{date}}",
-      "cause": "Cause de la panne"
+      "cause": "Cause de la panne",
+      "attendedBy": "Pris en charge par",
+      "attendedAt": "Pris en charge le : {{date}}"
     },
     "of": "de",
     "selects": {

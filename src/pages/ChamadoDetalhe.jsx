@@ -75,10 +75,15 @@ export default function ChamadoDetalhe({ user }) {
         setLoading(true);
         const c = await getChamado(id);
 
-        // normalização “atribuído a”
-        const ownerId = c.responsavel_atual_id || c.manutentor_id_norm || c.atendido_por_id || c.atribuido_para_id || null;
-        const ownerNome = c.responsavel_atual_nome || c.manutentor_nome_norm || c.manutentor || c.atribuido_para_nome || '';
-        const ownerEmail = (c.responsavel_atual_email || c.manutentor_email_norm || c.manutentor_email || c.atribuido_para_email || '').toLowerCase();
+        // normaliza responsabilidades do chamado
+        const assignedToId = c.atribuido_para_id ?? null;
+        const assignedToNome = c.atribuido_para_nome ?? '';
+        const assignedToEmail = (c.atribuido_para_email ?? '').toLowerCase();
+
+        const attendedById = c.atendido_por_id ?? null;
+        const attendedByNome = c.atendido_por_nome ?? '';
+        const attendedByEmail = (c.atendido_por_email ?? '').toLowerCase();
+        const attendedEm = c.atendido_em ?? null;
 
         const mapped = {
           ...c,
@@ -86,12 +91,16 @@ export default function ChamadoDetalhe({ user }) {
           dataAbertura: c.dataAbertura ?? c.criado_em ?? null,
           dataConclusao: c.dataConclusao ?? c.concluido_em ?? null,
 
-          manutentorNome: ownerNome,
-          manutentorId: ownerId,
-          manutentorEmail: ownerEmail,
+          manutentorId: assignedToId,
+          manutentorNome: assignedToNome,
+          manutentorEmail: assignedToEmail,
+          atendidoPorId: attendedById,
+          atendidoPorNome: attendedByNome,
+          atendidoPorEmail: attendedByEmail,
+          atendidoEm: attendedEm,
 
-          assignedTo: ownerId,
-          assignedToNome: ownerNome,
+          assignedTo: assignedToId,
+          assignedToNome: assignedToNome,
 
           observacoes: (c.observacoes || []).map(o => ({
             autor: o.autor,
@@ -324,9 +333,21 @@ export default function ChamadoDetalhe({ user }) {
             </p>
           </div>
 
+          {chamado.atendidoPorNome && (
+            <div className={styles.detailItem}>
+              <strong>{t('chamadoDetalhe.fields.attendedBy') || 'Atendido por'}</strong>
+              <p>{chamado.atendidoPorNome}</p>
+              {chamado.atendidoEm && (
+                <small>
+                  {t('chamadoDetalhe.fields.attendedAt', { date: fmtDateTime.format(asDate(chamado.atendidoEm)) }) || `Atendido em: ${fmtDateTime.format(asDate(chamado.atendidoEm))}`}
+                </small>
+              )}
+            </div>
+          )}
+
           {chamado.manutentorNome && (
             <div className={styles.detailItem}>
-              <strong>{t('chamadoDetalhe.fields.assignedTo')}</strong>
+              <strong>{t('chamadoDetalhe.fields.assignedTo') || 'Atribuído a'}</strong>
               <p>{chamado.manutentorNome}</p>
             </div>
           )}

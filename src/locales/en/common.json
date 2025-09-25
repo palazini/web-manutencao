@@ -254,7 +254,9 @@
       "checklistDone": "Checklist Completed",
       "performedService": "Service Performed",
       "finishedAt": "Closed on: {{date}}",
-      "cause": "Failure Cause"
+      "cause": "Failure Cause",
+      "attendedBy": "Handled by",
+      "attendedAt": "Attended on: {{date}}"
     },
     "of": "of",
     "selects": {
