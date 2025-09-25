@@ -249,7 +249,7 @@
     "fields": {
       "status": "상태",
       "takenBy": "처리자",
-      "assignedTo": "할당 대상",
+      "assignedTo": "담당자",
       "reportedProblem": "보고된 문제",
       "checklistDone": "체크리스트 완료",
       "performedService": "수행된 작업",
