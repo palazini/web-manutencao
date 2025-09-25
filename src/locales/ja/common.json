@@ -248,8 +248,8 @@
     },
     "fields": {
       "status": "状態",
-      "takenBy": "担当者",
-      "assignedTo": "割り当て先",
+      "takenBy": "対応者",
+      "assignedTo": "対応者",
       "reportedProblem": "報告された問題",
       "checklistDone": "チェックリスト完了",
       "performedService": "実施作業",
@@ -390,7 +390,7 @@
         "machine": "機械",
         "callType": "依頼種別",
         "openedAt": "開始日",
-        "attendedBy": "担当者",
+        "attendedBy": "対応者",
         "performedService": "実施作業",
         "cause": "故障原因",
         "concludedAt": "完了日",
@@ -414,7 +414,7 @@
     },
     "item": {
       "machine": "機械：{{name}}",
-      "attendedBy": "担当者：{{name}}",
+      "attendedBy": "対応者：{{name}}",
       "unknown": "未記載",
       "concludedAt": "完了日：{{date}}",
       "problem": "問題：",
