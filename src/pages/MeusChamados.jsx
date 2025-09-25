@@ -19,10 +19,10 @@ function byRecent(a, b) {
   const bKey = tsToDate(b.assignedAt) || tsToDate(b.dataAbertura) || 0;
   return bKey - aKey;
 }
-const STATUS_BADGE = {
-  'Aberto': 'aberto',
-  'Em Andamento': 'emandamento',
-  'Concluído': 'concluido'
+const BADGE_BY_SK = {
+  open: 'aberto',
+  in_progress: 'emandamento',
+  closed: 'concluido'
 };
 
 export default function MeusChamados({ user }) {
@@ -76,7 +76,7 @@ export default function MeusChamados({ user }) {
         setLoading(false);
       }
     })();
-  }, [email, role]);
+  }, [email, role, reloadTick]);
 
   useEffect(() => {
     const unsubscribe = subscribeSSE((msg) => {
@@ -88,6 +88,10 @@ export default function MeusChamados({ user }) {
   // 2) ABERTOS por mim (qualquer papel)
   useEffect(() => {
     if (!email) return;
+    if (role === 'manutentor') {
+      setDocsAtendidos([]);
+      return;
+    }
     (async () => {
       try {
         const res = await listarChamadosPorCriador(email, 1, 100);
@@ -104,18 +108,22 @@ export default function MeusChamados({ user }) {
         console.error('Erro criadoPorEmail==user:', e);
       }
     })();
-  }, [email, reloadTick]);
+  }, [email, reloadTick, role]);
 
   // Mescla + filtros + ordenação
   const chamados = useMemo(() => {
     const map = new Map();
-    [...docsAssigned, ...docsAtendidos].forEach(c => map.set(c.id, c));
+    const fonte = role === 'manutentor' ? docsAssigned : [...docsAssigned, ...docsAtendidos];
+    fonte.forEach(c => map.set(c.id, c));
     let arr = Array.from(map.values());
 
     if (statusFiltro === 'ativos') {
-      arr = arr.filter(c => c.status === 'Aberto' || c.status === 'Em Andamento');
+      arr = arr.filter(c => {
+        const sk = statusKey(c.status); // 'open' | 'in_progress' | 'closed' | 'cancelled'
+        return sk === 'open' || sk === 'in_progress';
+      });
     } else if (statusFiltro === 'concluidos') {
-      arr = arr.filter(c => c.status === 'Concluído');
+      arr = arr.filter(c => statusKey(c.status) === 'closed');
     }
 
     const q = busca.trim().toLowerCase();
@@ -128,7 +136,7 @@ export default function MeusChamados({ user }) {
 
     arr.sort(byRecent);
     return arr;
-  }, [docsAssigned, docsAtendidos, statusFiltro, busca]);
+  }, [docsAssigned, docsAtendidos, statusFiltro, busca, role]);
 
   if (!email) {
     return (
@@ -200,7 +208,7 @@ export default function MeusChamados({ user }) {
                       {(c.descricao || '').slice(0, 80) + ((c.descricao || '').length > 80 ? '…' : '')}
                     </td>
                     <td>
-                      <span className={`${styles.badge} ${styles[STATUS_BADGE[c.status] || 'badge']}`}>
+                      <span className={`${styles.badge} ${styles[BADGE_BY_SK[statusKey(c.status)] || 'badge']}`}>
                         {/* mostra traduzido, mas mantém status original no dado */}
                         {t(`status.${statusKey(c.status)}`)}
                       </span>
@@ -222,3 +230,5 @@ export default function MeusChamados({ user }) {
     </>
   );
 }
+
+

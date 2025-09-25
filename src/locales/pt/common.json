@@ -17,7 +17,7 @@
   "status": {
     "open": "Aberto",
     "in_progress": "Em andamento",
-    "closed": "Concluído",
+    "closed": "Concluido",
     "cancelled": "Cancelado"
   },
   "login": {
@@ -146,7 +146,7 @@
       "today": "Hoje",
       "future": "Futuro",
       "started": "Iniciado",
-      "finished": "Concluído"
+      "finished": "Concluido"
     },
     "checklist": {
       "title": "Itens do Checklist Diário da {{name}}",
@@ -251,9 +251,9 @@
       "takenBy": "Atendido por",
       "assignedTo": "Atribuído a",
       "reportedProblem": "Problema Reportado",
-      "checklistDone": "Checklist Concluído",
+      "checklistDone": "Checklist Concluido",
       "performedService": "Serviço Realizado",
-      "finishedAt": "Concluído em: {{date}}",
+      "finishedAt": "Concluido em: {{date}}",
       "cause": "Causa da Falha"
     },
     "of": "de",
@@ -334,8 +334,8 @@
       "today": "Hoje",
       "future": "Futuro",
       "started": "Iniciado",
-      "finished": "Concluído",
-      "finishedLate": "Concluído com Atraso"
+      "finished": "Concluido",
+      "finishedLate": "Concluido com Atraso"
     },
     "details": {
       "machine": "Máquina:",
@@ -416,7 +416,7 @@
       "machine": "Máquina: {{name}}",
       "attendedBy": "Atendido por: {{name}}",
       "unknown": "Não identificado",
-      "concludedAt": "Concluído em: {{date}}",
+      "concludedAt": "Concluido em: {{date}}",
       "problem": "Problema:",
       "notSpecified": "Não especificado"
     }
@@ -569,10 +569,10 @@
       "statusTitle": "Filtrar por status",
       "active": "Abertos & Em andamento",
       "all": "Todos",
-      "closed": "Concluídos",
+      "closed": "Concluidos",
       "searchPlaceholder": "Buscar por máquina ou descrição..."
     },
-    "footerTip": "Dica: use o filtro “Concluídos” para histórico pessoal.",
+    "footerTip": "Dica: use o filtro “Concluidos” para histórico pessoal.",
     "loading": "Carregando...",
     "empty": "Nenhum chamado encontrado.",
     "table": {

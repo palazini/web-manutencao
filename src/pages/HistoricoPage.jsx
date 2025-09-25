@@ -70,7 +70,7 @@ const HistoricoPage = () => {
     setLoading(true);
     (async () => {
       try {
-        const data = await listarChamados({ status: 'Concluído', page: 1, pageSize: 500 });
+        const data = await listarChamados({ status: 'Concluido', page: 1, pageSize: 500 });
         const rows = data.items ?? data;
 
         const mapped = rows.map(r => ({

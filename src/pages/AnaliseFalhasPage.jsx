@@ -40,7 +40,7 @@ const AnaliseFalhasPage = () => {
 
         const itens = await listarChamados({
           tipo: 'corretiva',
-          status: 'Concluído',
+          status: 'Concluido',
           from: from.toISOString(),
           to:   to.toISOString()
         });

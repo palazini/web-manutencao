@@ -336,7 +336,7 @@ export default function ChamadoDetalhe({ user }) {
             <p style={{ wordBreak: 'break-word' }}>{chamado.descricao}</p>
           </div>
 
-          {chamado.status === 'Concluído' && (
+          {chamado.status === 'Concluido' && (
             isPreventiva ? (
               <div className={styles.detailItem}>
                 <strong>{t('chamadoDetalhe.fields.checklistDone')}</strong>
@@ -355,7 +355,7 @@ export default function ChamadoDetalhe({ user }) {
             )
           )}
 
-          {!isPreventiva && ['Em Andamento', 'Concluído'].includes(chamado.status) && (
+          {!isPreventiva && ['Em Andamento', 'Concluido'].includes(chamado.status) && (
             <div className={styles.detailItem}>
               <strong>{t('chamadoDetalhe.fields.cause')}</strong>
               {chamado.status === 'Em Andamento' ? (
@@ -382,7 +382,7 @@ export default function ChamadoDetalhe({ user }) {
       </div>
 
       {/* Atribuição (gestor) */}
-      {isGestor && chamado.status !== 'Concluído' && (
+      {isGestor && chamado.status !== 'Concluido' && (
         <div className={styles.card}>
           <h2 className={styles.cardTitle}>{t('chamadoDetalhe.assign.title')}</h2>
           <div className={styles.formGroup}>
@@ -525,7 +525,7 @@ export default function ChamadoDetalhe({ user }) {
         )
       )}
 
-      {(isGestor && ['Aberto','Em Andamento','Concluído'].includes(chamado.status)) && (
+      {(isGestor && ['Aberto','Em Andamento','Concluido'].includes(chamado.status)) && (
         <div className={styles.card} style={{ display: 'flex', justifyContent: 'flex-end' }}>
           <button
             onClick={handleExcluirChamado}

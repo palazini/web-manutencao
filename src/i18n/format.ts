@@ -77,7 +77,7 @@ export const statusKey = (value: string): 'open' | 'in_progress' | 'closed' | 'c
   // PT
   if (v === 'Aberto')        return 'open';
   if (v === 'Em Andamento')  return 'in_progress';
-  if (v === 'Concluído')     return 'closed';
+  if (v === 'Concluido')     return 'closed';
   if (v === 'Cancelado')     return 'cancelled';
 
   // ES

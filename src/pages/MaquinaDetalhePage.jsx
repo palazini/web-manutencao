@@ -63,7 +63,7 @@ const MaquinaDetalhePage = ({ user }) => {
         const [abertos, andamento, concluidos] = await Promise.all([
           listarChamadosPorMaquina(id, { status: 'Aberto' }),
           listarChamadosPorMaquina(id, { status: 'Em Andamento' }),
-          listarChamadosPorMaquina(id, { status: 'Concluído' }),
+          listarChamadosPorMaquina(id, { status: 'Concluido' }),
         ]);
         if (!alive) return;
 
@@ -118,7 +118,7 @@ const MaquinaDetalhePage = ({ user }) => {
         <ul className={styles.chamadoList}>
           {lista.map(chamado => {
             const tipoChamado = chamado.tipo || 'corretiva';
-            const isConcluido = chamado.status === 'Concluído';
+            const isConcluido = chamado.status === 'Concluido';
             const statusClass =
               isConcluido
                 ? styles.concluidoCard

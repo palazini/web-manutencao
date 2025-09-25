@@ -70,7 +70,7 @@
 
 .aberto { background-color: #007bff; }
 .emandamento { background-color: #ffc107; color: #333; }
-.concluído { background-color: #28a745; }
+.concluido { background-color: #28a745; }
 
 .formGroup { margin-bottom: 16px; }
 .formGroup label { display: block; margin-bottom: 8px; font-weight: 500; }

@@ -19,7 +19,7 @@ import {
 const STATUS_BADGE = {
   Aberto: 'aberto',
   'Em Andamento': 'emandamento',
-  'Concluído': 'concluido',
+  'Concluido': 'concluido',
 };
 
 export default function OperatorDashboard({ user }) {
