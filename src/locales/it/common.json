@@ -118,7 +118,10 @@
       "createError": "Errore durante la creazione della macchina.",
       "deleted": "Macchina «{{name}}» eliminata.",
       "deleteError": "Impossibile eliminare la macchina.",
-      "deleteBlocked": "Macchina con collegamenti (es.: ticket). Rimuovi/chiudi prima i collegamenti."
+      "deleteBlocked": "Macchina con collegamenti (es.: ticket). Rimuovi/chiudi prima i collegamenti.",
+      "renamed": "Macchina rinominata in «{{name}}»",
+      "renameError": "Errore durante la rinomina della macchina.",
+      "renameDuplicated": "Esiste già una macchina con questo nome/tag."
     },
     "modal": {
       "title": "Crea nuova macchina",
@@ -128,6 +131,11 @@
     "confirmDelete": {
       "title": "Eliminare «{{name}}»?",
       "text": "Questa azione non può essere annullata."
+    },
+    "edit": {
+      "title": "Rinominare la macchina «{{name}}»",
+      "label": "Nuovo nome della macchina",
+      "syncTag": "Aggiorna anche il tag in modo che corrisponda al nome"
     }
   },
   "maquinaDetalhe": {
@@ -242,6 +250,7 @@
     "deleting": "Eliminazione...",
     "delete": "Elimina",
     "edit": "Modifica",
+    "save": "Salva",
     "cancel": "Annulla",
     "yes": "Sì",
     "no": "No",

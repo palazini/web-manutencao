@@ -118,7 +118,10 @@
       "createError": "機械の作成に失敗しました。",
       "deleted": "機械「{{name}}」を削除しました。",
       "deleteError": "機械を削除できませんでした。",
-      "deleteBlocked": "この機械には関連（例：チケット）があります。先に関連を削除／クローズしてください。"
+      "deleteBlocked": "この機械には関連（例：チケット）があります。先に関連を削除／クローズしてください。",
+      "renamed": "機械名を「{{name}}」に変更しました。",
+      "renameError": "機械名の変更に失敗しました。",
+      "renameDuplicated": "同じ名前／タグの機械が既に存在します。"
     },
     "modal": {
       "title": "新しい機械を作成",
@@ -128,6 +131,11 @@
     "confirmDelete": {
       "title": "「{{name}}」を削除しますか？",
       "text": "この操作は元に戻せません。"
+    },
+    "edit": {
+      "title": "機械「{{name}}」の名前を変更",
+      "label": "新しい機械名",
+      "syncTag": "タグも名前に合わせて更新する"
     }
   },
   "maquinaDetalhe": {
@@ -242,6 +250,7 @@
     "deleting": "削除中...",
     "delete": "削除",
     "edit": "編集",
+    "save": "保存",
     "cancel": "キャンセル",
     "yes": "はい",
     "no": "いいえ",

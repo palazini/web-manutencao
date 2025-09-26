@@ -118,7 +118,10 @@
       "createError": "Fehler beim Erstellen der Maschine.",
       "deleted": "Maschine „{{name}}“ gelöscht.",
       "deleteError": "Die Maschine konnte nicht gelöscht werden.",
-      "deleteBlocked": "Maschine mit Verknüpfungen (z. B. Tickets). Bitte entfernen/schließen Sie die Verknüpfungen zuerst."
+      "deleteBlocked": "Maschine mit Verknüpfungen (z. B. Tickets). Bitte entfernen/schließen Sie die Verknüpfungen zuerst.",
+      "renamed": "Maschine in „{{name}}“ umbenannt",
+      "renameError": "Fehler beim Umbenennen der Maschine.",
+      "renameDuplicated": "Es gibt bereits eine Maschine mit diesem Namen/Tag."
     },
     "modal": {
       "title": "Neue Maschine erstellen",
@@ -128,6 +131,11 @@
     "confirmDelete": {
       "title": "„{{name}}“ löschen?",
       "text": "Diese Aktion kann nicht rückgängig gemacht werden."
+    },
+    "edit": {
+      "title": "Maschine „{{name}}“ umbenennen",
+      "label": "Neuer Maschinenname",
+      "syncTag": "Tag/Schlagwort ebenfalls aktualisieren, sodass es dem Namen entspricht"
     }
   },
   "maquinaDetalhe": {
@@ -242,6 +250,7 @@
     "deleting": "Löschen...",
     "delete": "Löschen",
     "edit": "Bearbeiten",
+    "save": "Speichern",
     "cancel": "Abbrechen",
     "yes": "Ja",
     "no": "Nein",

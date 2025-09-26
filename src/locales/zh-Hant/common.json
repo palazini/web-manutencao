@@ -118,7 +118,10 @@
       "createError": "建立機器時發生錯誤。",
       "deleted": "機器「{{name}}」已刪除。",
       "deleteError": "無法刪除該機器。",
-      "deleteBlocked": "此機器存在關聯（例如：工單）。請先移除／關閉關聯後再試。"
+      "deleteBlocked": "此機器存在關聯（例如：工單）。請先移除／關閉關聯後再試。",
+      "renamed": "機器已更名為「{{name}}」",
+      "renameError": "重命名機器時發生錯誤。",
+      "renameDuplicated": "已存在同名／同標籤的機器。"
     },
     "modal": {
       "title": "建立新機器",
@@ -128,6 +131,11 @@
     "confirmDelete": {
       "title": "刪除「{{name}}」？",
       "text": "此操作無法撤銷。"
+    },
+    "edit": {
+      "title": "重新命名機器「{{name}}」",
+      "label": "新的機器名稱",
+      "syncTag": "同時更新標籤，使其與名稱一致"
     }
   },
   "maquinaDetalhe": {
@@ -242,6 +250,7 @@
     "deleting": "刪除中...",
     "delete": "刪除",
     "edit": "編輯",
+    "save": "儲存",
     "cancel": "取消",
     "yes": "是",
     "no": "否",

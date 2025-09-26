@@ -118,7 +118,10 @@
       "createError": "Error creating the machine.",
       "deleted": "Machine \"{{name}}\" deleted.",
       "deleteError": "Unable to delete the machine.",
-      "deleteBlocked": "Machine has linked records (e.g., tickets). Remove/close the links first."
+      "deleteBlocked": "Machine has linked records (e.g., tickets). Remove/close the links first.",
+      "renamed": "Machine renamed to {{name}}",
+      "renameError": "Error renaming machine.",
+      "renameDuplicated": "A machine with this name/tag already exists."
     },
     "modal": {
       "title": "Create New Machine",
@@ -128,6 +131,11 @@
     "confirmDelete": {
       "title": "Delete \"{{name}}\"?",
       "text": "This action cannot be undone."
+    },
+    "edit": {
+      "title": "Rename Machine {{name}}",
+      "label": "New Machine Name",
+      "syncTag": "Also update the tag to match the name"
     }
   },
   "maquinaDetalhe": {
@@ -242,6 +250,7 @@
     "deleting": "Deleting...",
     "delete": "Delete",
     "edit": "Edit",
+    "save": "Save",
     "cancel": "Cancel",
     "yes": "Yes",
     "no": "No",

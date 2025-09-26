@@ -118,7 +118,10 @@
       "createError": "Error al crear la máquina.",
       "deleted": "Máquina \"{{name}}\" eliminada.",
       "deleteError": "No se pudo eliminar la máquina.",
-      "deleteBlocked": "Máquina con vínculos (p. ej., tickets). Elimina/cierra los vínculos primero."
+      "deleteBlocked": "Máquina con vínculos (p. ej., tickets). Elimina/cierra los vínculos primero.",
+      "renamed": "Máquina renombrada a \"{{name}}\"",
+      "renameError": "Error al renombrar la máquina.",
+      "renameDuplicated": "Ya existe una máquina con ese nombre/etiqueta."
     },
     "modal": {
       "title": "Crear Nueva Máquina",
@@ -128,6 +131,11 @@
     "confirmDelete": {
       "title": "¿Eliminar \"{{name}}\"?",
       "text": "Esta acción no se puede deshacer."
+    },
+    "edit": {
+      "title": "Renombrar máquina \"{{name}}\"",
+      "label": "Nuevo nombre de la máquina",
+      "syncTag": "Actualizar también la etiqueta para que coincida con el nombre"
     }
   },
   "maquinaDetalhe": {
@@ -242,6 +250,7 @@
     "deleting": "Eliminando...",
     "delete": "Eliminar",
     "edit": "Editar",
+    "save": "Guardar",
     "cancel": "Cancelar",
     "yes": "Sí",
     "no": "No",

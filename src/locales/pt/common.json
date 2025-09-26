@@ -118,7 +118,10 @@
       "createError": "Erro ao criar a máquina.",
       "deleted": "Máquina \"{{name}}\" excluída.",
       "deleteError": "Não foi possível excluir a máquina.",
-      "deleteBlocked": "Máquina com vínculos (ex.: chamados). Exclua/encerre os vínculos antes."
+      "deleteBlocked": "Máquina com vínculos (ex.: chamados). Exclua/encerre os vínculos antes.",
+      "renamed": "Máquina renomeada para {{name}}",
+      "renameError": "Erro ao renomear máquina.",
+      "renameDuplicated": "Já existe uma máquina com esse nome/tag."
     },
     "modal": {
       "title": "Criar Nova Máquina",
@@ -128,6 +131,11 @@
     "confirmDelete": {
       "title": "Excluir \"{{name}}\"?",
       "text": "Esta ação não pode ser desfeita."
+    },
+    "edit": {
+      "title": "Renomear máquina {{name}}",
+      "label": "Novo nome da máquina",
+      "syncTag": "Atualizar também a tag para ficar igual ao nome"
     }
   },
   "maquinaDetalhe": {
@@ -242,6 +250,7 @@
     "deleting": "Excluindo...",
     "delete": "Excluir",
     "edit": "Editar",
+    "save": "Salvar",
     "cancel": "Cancelar",
     "yes": "Sim",
     "no": "Não",

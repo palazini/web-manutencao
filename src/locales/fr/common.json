@@ -118,7 +118,10 @@
       "createError": "Erreur lors de la création de la machine.",
       "deleted": "Machine « {{name}} » supprimée.",
       "deleteError": "Impossible de supprimer la machine.",
-      "deleteBlocked": "Machine avec des liens (p. ex. : tickets). Supprimez/fermez d’abord les liens."
+      "deleteBlocked": "Machine avec des liens (p. ex. : tickets). Supprimez/fermez d’abord les liens.",
+      "renamed": "Machine renommée en « {{name}} »",
+      "renameError": "Erreur lors du renommage de la machine.",
+      "renameDuplicated": "Une machine avec ce nom/étiquette existe déjà."
     },
     "modal": {
       "title": "Créer une nouvelle machine",
@@ -128,6 +131,11 @@
     "confirmDelete": {
       "title": "Supprimer « {{name}} » ?",
       "text": "Cette action ne peut pas être annulée."
+    },
+    "edit": {
+      "title": "Renommer la machine « {{name}} »",
+      "label": "Nouveau nom de la machine",
+      "syncTag": "Mettre également à jour l’étiquette pour qu’elle corresponde au nom"
     }
   },
   "maquinaDetalhe": {
@@ -242,6 +250,7 @@
     "deleting": "Suppression…",
     "delete": "Supprimer",
     "edit": "Modifier",
+    "save": "Enregistrer",
     "cancel": "Annuler",
     "yes": "Oui",
     "no": "Non",

@@ -693,6 +693,33 @@ export async function deletarMaquina(id, auth = {}) {
   }
   return data || true;
 }
+
+export async function renomearMaquina(id, { nome, syncTag = true }, auth = {}) {
+  const res = await fetch(`${BASE}/maquinas/${encodeURIComponent(id)}/nome`, {
+    method: 'PATCH',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-user-role':  auth.role  || '',
+      'x-user-email': auth.email || '',
+    },
+    body: JSON.stringify({ nome, syncTag }),
+  });
+
+  const ct = res.headers.get('content-type') || '';
+  const data = ct.includes('application/json')
+    ? await res.json().catch(() => ({}))
+    : await res.text().catch(() => '');
+
+  if (!res.ok) {
+    const err = new Error(
+      data?.error || (typeof data === 'string' ? data : `Erro ao renomear máquina (${res.status})`)
+    );
+    err.status = res.status;
+    throw err;
+  }
+  return data; // { id, nome, tag, setor, critico }
+}
+
 export function connectSSE(handlers = {}) {
   const es = new EventSource(`${BASE}/events`);
   es.addEventListener('hello',       e => handlers.hello?.(JSON.parse(e.data)));

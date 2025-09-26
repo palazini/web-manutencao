@@ -118,7 +118,10 @@
       "createError": "创建机器时发生错误。",
       "deleted": "机器“{{name}}”已删除。",
       "deleteError": "无法删除该机器。",
-      "deleteBlocked": "该机器存在关联（如：工单）。请先移除/关闭关联后再试。"
+      "deleteBlocked": "该机器存在关联（如：工单）。请先移除/关闭关联后再试。",
+      "renamed": "机器已重命名为“{{name}}”",
+      "renameError": "重命名机器时发生错误。",
+      "renameDuplicated": "已存在同名/同标签的机器。"
     },
     "modal": {
       "title": "创建新机器",
@@ -128,6 +131,11 @@
     "confirmDelete": {
       "title": "删除“{{name}}”？",
       "text": "此操作无法撤销。"
+    },
+    "edit": {
+      "title": "重命名机器“{{name}}”",
+      "label": "新的机器名称",
+      "syncTag": "同时更新标签使其与名称一致"
     }
   },
   "maquinaDetalhe": {
@@ -242,6 +250,7 @@
     "deleting": "删除中...",
     "delete": "删除",
     "edit": "编辑",
+    "save": "保存",
     "cancel": "取消",
     "yes": "是",
     "no": "否",
