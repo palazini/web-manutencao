@@ -111,15 +111,23 @@
       "preditiva": "예지 보전 (작업자 체크리스트)"
     },
     "cardHint": "자세히 보려면 클릭",
+    "actions": "작업",
+    "toasts": {
+      "nameRequired": "기계 이름은 비워둘 수 없습니다.",
+      "created": "기계 \"{{name}}\"이(가) 생성되었습니다!",
+      "createError": "기계 생성 중 오류가 발생했습니다.",
+      "deleted": "기계 \"{{name}}\"이(가) 삭제되었습니다.",
+      "deleteError": "기계를 삭제할 수 없습니다.",
+      "deleteBlocked": "이 기계에는 연결된 항목(예: 티켓)이 있습니다. 먼저 연결을 해제하거나 종료해 주세요."
+    },
     "modal": {
       "title": "새 기계 생성",
       "nameLabel": "기계 이름",
       "save": "기계 저장"
     },
-    "toasts": {
-      "nameRequired": "기계 이름은 비워둘 수 없습니다.",
-      "created": "기계 \"{{name}}\"이(가) 생성되었습니다!",
-      "createError": "기계 생성 중 오류가 발생했습니다."
+    "confirmDelete": {
+      "title": "\"{{name}}\"을(를) 삭제하시겠습니까?",
+      "text": "이 작업은 되돌릴 수 없습니다."
     }
   },
   "maquinaDetalhe": {
@@ -232,6 +240,9 @@
     "processing": "처리 중...",
     "saving": "저장 중...",
     "deleting": "삭제 중...",
+    "delete": "삭제",
+    "edit": "편집",
+    "cancel": "취소",
     "yes": "예",
     "no": "아니오",
     "manager": "관리자",

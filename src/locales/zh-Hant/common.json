@@ -111,15 +111,23 @@
       "preditiva": "預測性（操作員檢查表）"
     },
     "cardHint": "點擊以查看詳情",
+    "actions": "操作",
+    "toasts": {
+      "nameRequired": "機器名稱不能為空。",
+      "created": "機器「{{name}}」建立成功！",
+      "createError": "建立機器時發生錯誤。",
+      "deleted": "機器「{{name}}」已刪除。",
+      "deleteError": "無法刪除該機器。",
+      "deleteBlocked": "此機器存在關聯（例如：工單）。請先移除／關閉關聯後再試。"
+    },
     "modal": {
       "title": "建立新機器",
       "nameLabel": "機器名稱",
       "save": "儲存機器"
     },
-    "toasts": {
-      "nameRequired": "機器名稱不能為空。",
-      "created": "機器「{{name}}」建立成功！",
-      "createError": "建立機器時發生錯誤。"
+    "confirmDelete": {
+      "title": "刪除「{{name}}」？",
+      "text": "此操作無法撤銷。"
     }
   },
   "maquinaDetalhe": {
@@ -232,6 +240,9 @@
     "processing": "處理中...",
     "saving": "儲存中...",
     "deleting": "刪除中...",
+    "delete": "刪除",
+    "edit": "編輯",
+    "cancel": "取消",
     "yes": "是",
     "no": "否",
     "manager": "經理",

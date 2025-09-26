@@ -111,15 +111,23 @@
       "preditiva": "预测性（操作员检查表）"
     },
     "cardHint": "点击以查看详情",
+    "actions": "操作",
+    "toasts": {
+      "nameRequired": "机器名称不能为空。",
+      "created": "机器“{{name}}”创建成功！",
+      "createError": "创建机器时发生错误。",
+      "deleted": "机器“{{name}}”已删除。",
+      "deleteError": "无法删除该机器。",
+      "deleteBlocked": "该机器存在关联（如：工单）。请先移除/关闭关联后再试。"
+    },
     "modal": {
       "title": "创建新机器",
       "nameLabel": "机器名称",
       "save": "保存机器"
     },
-    "toasts": {
-      "nameRequired": "机器名称不能为空。",
-      "created": "机器“{{name}}”创建成功！",
-      "createError": "创建机器时发生错误。"
+    "confirmDelete": {
+      "title": "删除“{{name}}”？",
+      "text": "此操作无法撤销。"
     }
   },
   "maquinaDetalhe": {
@@ -232,6 +240,9 @@
     "processing": "处理中...",
     "saving": "保存中...",
     "deleting": "删除中...",
+    "delete": "删除",
+    "edit": "编辑",
+    "cancel": "取消",
     "yes": "是",
     "no": "否",
     "manager": "经理",

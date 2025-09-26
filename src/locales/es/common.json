@@ -111,15 +111,23 @@
       "preditiva": "Predictiva (Checklist de Operadores)"
     },
     "cardHint": "Haz clic para ver detalles",
+    "actions": "Acciones",
+    "toasts": {
+      "nameRequired": "El nombre de la máquina no puede estar vacío.",
+      "created": "¡Máquina \"{{name}}\" creada con éxito!",
+      "createError": "Error al crear la máquina.",
+      "deleted": "Máquina \"{{name}}\" eliminada.",
+      "deleteError": "No se pudo eliminar la máquina.",
+      "deleteBlocked": "Máquina con vínculos (p. ej., tickets). Elimina/cierra los vínculos primero."
+    },
     "modal": {
       "title": "Crear Nueva Máquina",
       "nameLabel": "Nombre de la Máquina",
       "save": "Guardar Máquina"
     },
-    "toasts": {
-      "nameRequired": "El nombre de la máquina no puede estar vacío.",
-      "created": "¡Máquina \"{{name}}\" creada con éxito!",
-      "createError": "Error al crear la máquina."
+    "confirmDelete": {
+      "title": "¿Eliminar \"{{name}}\"?",
+      "text": "Esta acción no se puede deshacer."
     }
   },
   "maquinaDetalhe": {
@@ -232,6 +240,9 @@
     "processing": "Procesando...",
     "saving": "Guardando...",
     "deleting": "Eliminando...",
+    "delete": "Eliminar",
+    "edit": "Editar",
+    "cancel": "Cancelar",
     "yes": "Sí",
     "no": "No",
     "manager": "Gestor",

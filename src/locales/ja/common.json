@@ -111,15 +111,23 @@
       "preditiva": "予知保守（オペレーターチェック）"
     },
     "cardHint": "クリックで詳細を表示",
+    "actions": "操作",
+    "toasts": {
+      "nameRequired": "機械名は必須です。",
+      "created": "機械「{{name}}」を作成しました！",
+      "createError": "機械の作成に失敗しました。",
+      "deleted": "機械「{{name}}」を削除しました。",
+      "deleteError": "機械を削除できませんでした。",
+      "deleteBlocked": "この機械には関連（例：チケット）があります。先に関連を削除／クローズしてください。"
+    },
     "modal": {
       "title": "新しい機械を作成",
       "nameLabel": "機械名",
       "save": "機械を保存"
     },
-    "toasts": {
-      "nameRequired": "機械名は必須です。",
-      "created": "機械「{{name}}」を作成しました！",
-      "createError": "機械の作成に失敗しました。"
+    "confirmDelete": {
+      "title": "「{{name}}」を削除しますか？",
+      "text": "この操作は元に戻せません。"
     }
   },
   "maquinaDetalhe": {
@@ -232,6 +240,9 @@
     "processing": "処理中...",
     "saving": "保存中...",
     "deleting": "削除中...",
+    "delete": "削除",
+    "edit": "編集",
+    "cancel": "キャンセル",
     "yes": "はい",
     "no": "いいえ",
     "manager": "マネージャー",

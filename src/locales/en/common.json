@@ -111,15 +111,23 @@
       "preditiva": "Predictive (Operators Checklist)"
     },
     "cardHint": "Click to view details",
+    "actions": "Actions",
+    "toasts": {
+      "nameRequired": "The machine name cannot be empty.",
+      "created": "Machine \"{{name}}\" successfully created!",
+      "createError": "Error creating the machine.",
+      "deleted": "Machine \"{{name}}\" deleted.",
+      "deleteError": "Unable to delete the machine.",
+      "deleteBlocked": "Machine has linked records (e.g., tickets). Remove/close the links first."
+    },
     "modal": {
       "title": "Create New Machine",
       "nameLabel": "Machine Name",
       "save": "Save Machine"
     },
-    "toasts": {
-      "nameRequired": "The machine name cannot be empty.",
-      "created": "Machine \"{{name}}\" successfully created!",
-      "createError": "Error creating the machine."
+    "confirmDelete": {
+      "title": "Delete \"{{name}}\"?",
+      "text": "This action cannot be undone."
     }
   },
   "maquinaDetalhe": {
@@ -232,6 +240,9 @@
     "processing": "Processing...",
     "saving": "Saving...",
     "deleting": "Deleting...",
+    "delete": "Delete",
+    "edit": "Edit",
+    "cancel": "Cancel",
     "yes": "Yes",
     "no": "No",
     "manager": "Manager",

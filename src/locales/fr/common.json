@@ -111,15 +111,23 @@
       "preditiva": "Prédictive (Checklist des opérateurs)"
     },
     "cardHint": "Cliquez pour voir les détails",
+    "actions": "Actions",
+    "toasts": {
+      "nameRequired": "Le nom de la machine ne peut pas être vide.",
+      "created": "Machine « {{name}} » créée avec succès !",
+      "createError": "Erreur lors de la création de la machine.",
+      "deleted": "Machine « {{name}} » supprimée.",
+      "deleteError": "Impossible de supprimer la machine.",
+      "deleteBlocked": "Machine avec des liens (p. ex. : tickets). Supprimez/fermez d’abord les liens."
+    },
     "modal": {
       "title": "Créer une nouvelle machine",
       "nameLabel": "Nom de la machine",
       "save": "Enregistrer la machine"
     },
-    "toasts": {
-      "nameRequired": "Le nom de la machine ne peut pas être vide.",
-      "created": "Machine « {{name}} » créée avec succès !",
-      "createError": "Erreur lors de la création de la machine."
+    "confirmDelete": {
+      "title": "Supprimer « {{name}} » ?",
+      "text": "Cette action ne peut pas être annulée."
     }
   },
   "maquinaDetalhe": {
@@ -232,6 +240,9 @@
     "processing": "Traitement…",
     "saving": "Enregistrement…",
     "deleting": "Suppression…",
+    "delete": "Supprimer",
+    "edit": "Modifier",
+    "cancel": "Annuler",
     "yes": "Oui",
     "no": "Non",
     "manager": "Gestionnaire",

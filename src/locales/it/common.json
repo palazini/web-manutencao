@@ -111,15 +111,23 @@
       "preditiva": "Predittiva (Checklist operatori)"
     },
     "cardHint": "Clicca per vedere i dettagli",
+    "actions": "Azioni",
+    "toasts": {
+      "nameRequired": "Il nome della macchina non può essere vuoto.",
+      "created": "Macchina «{{name}}» creata con successo!",
+      "createError": "Errore durante la creazione della macchina.",
+      "deleted": "Macchina «{{name}}» eliminata.",
+      "deleteError": "Impossibile eliminare la macchina.",
+      "deleteBlocked": "Macchina con collegamenti (es.: ticket). Rimuovi/chiudi prima i collegamenti."
+    },
     "modal": {
       "title": "Crea nuova macchina",
       "nameLabel": "Nome macchina",
       "save": "Salva macchina"
     },
-    "toasts": {
-      "nameRequired": "Il nome della macchina non può essere vuoto.",
-      "created": "Macchina «{{name}}» creata con successo!",
-      "createError": "Errore durante la creazione della macchina."
+    "confirmDelete": {
+      "title": "Eliminare «{{name}}»?",
+      "text": "Questa azione non può essere annullata."
     }
   },
   "maquinaDetalhe": {
@@ -232,6 +240,9 @@
     "processing": "Elaborazione...",
     "saving": "Salvataggio...",
     "deleting": "Eliminazione...",
+    "delete": "Elimina",
+    "edit": "Modifica",
+    "cancel": "Annulla",
     "yes": "Sì",
     "no": "No",
     "manager": "Responsabile",

@@ -1,42 +1,88 @@
 // src/components/LoginPage.jsx
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { login } from '../services/apiClient';
 import toast from 'react-hot-toast';
 import styles from './LoginPage.module.css';
 import logo from '../assets/logo.png';
-
-// ⬇️ novo: seletor de idioma com popover
 import LanguageMenu from './LanguageMenu.jsx';
 
-const LoginPage = () => {
+function readStoredUser() {
+  try {
+    const raw =
+      localStorage.getItem('usuario') ||
+      localStorage.getItem('authUser') ||
+      localStorage.getItem('user') ||
+      localStorage.getItem('currentUser');
+    return raw ? JSON.parse(raw) : null;
+  } catch {
+    return null;
+  }
+}
+
+function persistUser(userObj) {
+  try {
+    const json = JSON.stringify(userObj);
+    localStorage.setItem('usuario', json);
+    localStorage.setItem('authUser', json);     // compat
+    localStorage.setItem('user', json);         // compat
+    localStorage.setItem('currentUser', json);  // compat
+  } catch {}
+}
+
+export default function LoginPage() {
   const { t } = useTranslation();
+  const navigate = useNavigate();
+  const location = useLocation();
+
   const [userInput, setUserInput] = useState('');
   const [senha, setSenha] = useState('');
   const [loading, setLoading] = useState(false);
-  const navigate = useNavigate();
+
+  // para suportar /login?redirect=/alguma-rota
+  const search = new URLSearchParams(location.search);
+  const redirectTo = search.get('redirect') || '/maquinas';
+
+  // se já tem sessão no storage, pula login
+  useEffect(() => {
+    const u = readStoredUser();
+    if (u?.email) {
+      navigate(redirectTo, { replace: true });
+    }
+  }, [navigate, redirectTo]);
 
   const handleLogin = async (e) => {
     e.preventDefault();
+    if (loading) return;
     setLoading(true);
-    let identifier = (userInput || '').trim();
 
     try {
-      // se usuário sem @ foi digitado, assume o domínio da empresa
+      let identifier = (userInput || '').trim();
+      // se foi digitado apenas o usuário, completa domínio
       if (identifier && !identifier.includes('@')) {
         identifier = `${identifier}@m.continua.tpm`;
       }
-      // chama sua API
+
       const user = await login({ userOrEmail: identifier, senha });
-      // persiste sessão simples (o seu App pode ler isso ao iniciar)
-      try { localStorage.setItem('authUser', JSON.stringify(user)); } catch {}
-      navigate('/', { replace: true });
-      // opcional: forçar re-load se seu App ainda lê usuário do localStorage no mount
-      // window.location.reload();
-    } catch (error) {
+
+      // normaliza campos essenciais
+      const normalized = {
+        ...user,
+        email: String(user?.email || identifier).trim().toLowerCase(),
+        role: String(user?.role || '').trim().toLowerCase(),
+      };
+
+      // salva em todas as chaves compatíveis
+      persistUser(normalized);
+
+      // navega para a área logada
+      navigate(redirectTo, { replace: true });
+      // Se alguma parte do app só lê storage no mount, descomente:
+      // setTimeout(() => window.location.reload(), 0);
+    } catch (err) {
+      console.error('Erro no login:', err);
       toast.error(t('login.invalid'));
-      console.error('Erro no login: ', error);
     } finally {
       setLoading(false);
     }
@@ -44,7 +90,6 @@ const LoginPage = () => {
 
   return (
     <div className={styles.pageWrapper}>
-      {/* Seletor de idioma (popover) */}
       <LanguageMenu className={styles.loginLangMenu} />
 
       <div className={styles.loginContainer}>
@@ -64,6 +109,8 @@ const LoginPage = () => {
               value={userInput}
               onChange={(e) => setUserInput(e.target.value)}
               required
+              autoComplete="username"
+              autoFocus
             />
             <label htmlFor="userInput" className={styles.label}>
               {t('login.userOrEmail')}
@@ -78,6 +125,7 @@ const LoginPage = () => {
               value={senha}
               onChange={(e) => setSenha(e.target.value)}
               required
+              autoComplete="current-password"
             />
             <label htmlFor="senha" className={styles.label}>
               {t('login.password')}
@@ -93,6 +141,4 @@ const LoginPage = () => {
       </div>
     </div>
   );
-};
-
-export default LoginPage;
+}

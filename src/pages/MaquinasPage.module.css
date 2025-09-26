@@ -106,3 +106,51 @@
   transform: none; /* Remove o efeito de levantar para este card */
   box-shadow: none;
 }
+
+/* certifique-se de que o card é posição de referência */
+.card { position: relative; }
+
+/* botão 3 pontinhos */
+.menuButton {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 6px;
+}
+.menuButton:hover { background: #f2f2f2; }
+
+/* dropdown */
+.menu {
+  position: absolute;
+  top: 36px;
+  right: 8px;
+  min-width: 160px;
+  background: #fff;
+  border: 1px solid #e6e6e6;
+  border-radius: 8px;
+  box-shadow: 0 6px 18px rgba(0,0,0,.08);
+  z-index: 2;
+  padding: 6px;
+}
+.menuItem {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  color: #222;
+  border-radius: 6px;
+  text-align: left;
+}
+.menuItem:hover { background: #f6f6f6; }
+.danger { color: #c62828; }
+
+/* link ocupa a área inteira “clicável” do card */
+.cardLink { text-decoration: none; color: inherit; display: block; width: 100%; height: 100%; }

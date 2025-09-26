@@ -111,15 +111,23 @@
       "preditiva": "Prädiktiv (Checkliste der Bediener)"
     },
     "cardHint": "Klicken, um Details anzuzeigen",
+    "actions": "Aktionen",
+    "toasts": {
+      "nameRequired": "Der Maschinenname darf nicht leer sein.",
+      "created": "Maschine „{{name}}“ erfolgreich erstellt!",
+      "createError": "Fehler beim Erstellen der Maschine.",
+      "deleted": "Maschine „{{name}}“ gelöscht.",
+      "deleteError": "Die Maschine konnte nicht gelöscht werden.",
+      "deleteBlocked": "Maschine mit Verknüpfungen (z. B. Tickets). Bitte entfernen/schließen Sie die Verknüpfungen zuerst."
+    },
     "modal": {
       "title": "Neue Maschine erstellen",
       "nameLabel": "Maschinenname",
       "save": "Maschine speichern"
     },
-    "toasts": {
-      "nameRequired": "Der Maschinenname darf nicht leer sein.",
-      "created": "Maschine „{{name}}“ erfolgreich erstellt!",
-      "createError": "Fehler beim Erstellen der Maschine."
+    "confirmDelete": {
+      "title": "„{{name}}“ löschen?",
+      "text": "Diese Aktion kann nicht rückgängig gemacht werden."
     }
   },
   "maquinaDetalhe": {
@@ -232,6 +240,9 @@
     "processing": "Verarbeiten...",
     "saving": "Speichern...",
     "deleting": "Löschen...",
+    "delete": "Löschen",
+    "edit": "Bearbeiten",
+    "cancel": "Abbrechen",
     "yes": "Ja",
     "no": "Nein",
     "manager": "Manager",

@@ -1,17 +1,39 @@
-// src/services/apiClient.js
+﻿// src/services/apiClient.js
 export const BASE = (
   import.meta.env?.VITE_API_URL ||
   import.meta.env?.VITE_API_BASE ||        // opcional: aceita os dois nomes
   "http://localhost:3000"
 ).replace(/\/+$/, ""); // remove barra no final
 
-function buildAuthHeaders(auth) {
-  const h = { "Content-Type": "application/json" };
-  if (auth?.email) h["X-User-Email"] = auth.email;
-  if (auth?.role)  h["X-User-Role"]  = auth.role;
-  return h;
+// Tenta descobrir o e-mail salvo pelo app (ajuste as chaves se necessario)
+function getLoggedUserEmail() {
+  try {
+    const candidates = ['usuario', 'user', 'currentUser'];
+    for (const k of candidates) {
+      const raw = localStorage.getItem(k);
+      if (!raw) continue;
+      const obj = JSON.parse(raw);
+      const email =
+        obj?.email ||
+        obj?.user?.email ||
+        obj?.perfil?.email ||
+        obj?.current?.email;
+      if (email) return String(email).trim().toLowerCase();
+    }
+  } catch {}
+  return '';
 }
 
+function buildAuthHeaders(auth) {
+  const h = { 'Content-Type': 'application/json' };
+  const email = (auth?.email || getLoggedUserEmail() || '').trim().toLowerCase();
+
+  if (email) h['x-user-email'] = email;
+  // papel via header e opcional; o back ja confere o papel no DB.
+  if (auth?.role) h['x-user-role'] = String(auth.role).trim().toLowerCase();
+
+  return h;
+}
 export async function criarChamado({
   maquinaTag,        // opcional
   maquinaNome,       // opcional
@@ -28,7 +50,7 @@ export async function criarChamado({
   role,
   email
 } = {}) {
-  // 1) validação mínima de máquina (evita 400 no backend)
+  // 1) validaÃ§Ã£o mÃ­nima de mÃ¡quina (evita 400 no backend)
   if (!maquinaId && !maquinaTag && !maquinaNome) {
     throw new Error('Informe maquinaId, maquinaTag ou maquinaNome.');
   }
@@ -37,12 +59,12 @@ export async function criarChamado({
     descricao: String(descricao || '').trim(),
     criadoPorEmail: String(criadoPorEmail || '').trim().toLowerCase(),
     status: String(status || 'Aberto'),
-    // 2) força tipo 'corretiva' por padrão para o fluxo do operador
+    // 2) forÃ§a tipo 'corretiva' por padrÃ£o para o fluxo do operador
     tipo: String(tipo || 'corretiva'),
     ...extras
   };
 
-  // 3) normalizações e inclusão condicional
+  // 3) normalizaÃ§Ãµes e inclusÃ£o condicional
   if (maquinaId)       body.maquinaId       = String(maquinaId);
   if (maquinaTag)      body.maquinaTag      = String(maquinaTag).trim();
   if (maquinaNome)     body.maquinaNome     = String(maquinaNome).trim();
@@ -75,7 +97,7 @@ export async function listarChamadosPorCriador(email, page = 1, pageSize = 50) {
 }
 
 export async function listarChamados(params = {}) {
-  // cópia defensiva + normalização de datas (from/to)
+  // cÃ³pia defensiva + normalizaÃ§Ã£o de datas (from/to)
   const p = { ...params };
   for (const k of ['from', 'to']) {
     const v = p[k];
@@ -92,7 +114,7 @@ export async function listarChamados(params = {}) {
   const data = ct.includes('application/json') ? await res.json() : { error: await res.text() };
   if (!res.ok) throw new Error(data?.error || `Erro ao listar chamados (${res.status})`);
 
-  // --- Normalização: SEMPRE devolver objeto com items/total/paginação ---
+  // --- NormalizaÃ§Ã£o: SEMPRE devolver objeto com items/total/paginaÃ§Ã£o ---
   const items = Array.isArray(data) ? data
               : Array.isArray(data?.items) ? data.items
               : [];
@@ -110,7 +132,7 @@ export async function listarChamados(params = {}) {
 export async function getMaquinas(q = "") {
   const url = q ? `${BASE}/maquinas?q=${encodeURIComponent(q)}` : `${BASE}/maquinas`;
   const res = await fetch(url);
-  if (!res.ok) throw new Error(`Erro ao buscar máquinas: ${res.status}`);
+  if (!res.ok) throw new Error(`Erro ao buscar mÃ¡quinas: ${res.status}`);
   return res.json();
 }
 
@@ -120,13 +142,13 @@ export async function criarMaquina({ nome, tag, setor, critico }) {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       nome,
-      tag: tag ?? nome,       // se não mandar tag, usa o nome
+      tag: tag ?? nome,       // se nÃ£o mandar tag, usa o nome
       setor: setor ?? null,
       critico: !!critico
     })
   });
   const data = await res.json();
-  if (!res.ok) throw new Error(data?.error || `Erro ao criar máquina (${res.status})`);
+  if (!res.ok) throw new Error(data?.error || `Erro ao criar mÃ¡quina (${res.status})`);
   return data; // { id, nome, tag, setor, critico }
 }
 
@@ -195,12 +217,12 @@ export async function getChamado(id) {
   return data; // { id, maquina, tipo, status, descricao, criado_por, ... }
 }
 
-// Manutentores (para atribuição)
+// Manutentores (para atribuiÃ§Ã£o)
 export async function listarManutentores(auth = {}) {
   const res = await fetch(`${BASE}/usuarios?role=manutentor`, {
     headers: {
-      'x-user-role':  auth.role  || 'gestor',   // papel com permissão
-      'x-user-email': auth.email || ''          // email do usuário logado
+      'x-user-role':  auth.role  || 'gestor',   // papel com permissÃ£o
+      'x-user-email': auth.email || ''          // email do usuÃ¡rio logado
     }
   });
   const data = await res.json().catch(() => ({}));
@@ -217,7 +239,7 @@ export async function listarCausasRaiz() {
   return data; // [{ nome }]
 }
 
-// Ações no chamado (endpoints finos para clareza)
+// AÃ§Ãµes no chamado (endpoints finos para clareza)
 export async function atribuirChamado(id, { manutentorEmail, role, email }) {
   const res = await fetch(`${BASE}/chamados/${id}/atribuir`, {
     method: "POST",
@@ -234,7 +256,7 @@ export async function removerAtribuicao(id, { role, email }) {
     headers: { "Content-Type": "application/json", "x-user-role": role, "x-user-email": email }
   });
   const data = await res.json().catch(() => ({}));
-  if (!res.ok) throw new Error(data?.error || `Erro ao remover atribuição (${res.status})`);
+  if (!res.ok) throw new Error(data?.error || `Erro ao remover atribuiÃ§Ã£o (${res.status})`);
   return data;
 }
 export async function atenderChamado(id, { role, email } = {}) {
@@ -258,7 +280,7 @@ export async function adicionarObservacao(id, { texto, role, email }) {
     body: JSON.stringify({ texto })
   });
   const data = await res.json().catch(() => ({}));
-  if (!res.ok) throw new Error(data?.error || `Erro ao salvar observação (${res.status})`);
+  if (!res.ok) throw new Error(data?.error || `Erro ao salvar observaÃ§Ã£o (${res.status})`);
   return data;
 }
 export async function concluirChamado(id, payload, { role, email }) {
@@ -285,7 +307,7 @@ export async function getMaquina(id) {
   const res = await fetch(`${BASE}/maquinas/${id}`);
   const ct = res.headers.get("content-type") || "";
   const data = ct.includes("application/json") ? await res.json() : { error: await res.text() };
-  if (!res.ok) throw new Error(data?.error || `Erro ao buscar máquina (${res.status})`);
+  if (!res.ok) throw new Error(data?.error || `Erro ao buscar mÃ¡quina (${res.status})`);
   return data; // { id, nome, tag, setor, critico, chamadosAtivos: [...] }
 }
 
@@ -319,17 +341,17 @@ export async function removeChecklistItem(maquinaId, item, auth) {
   return j;
 }
 
-//Buscar checklist diário (itens atuais) de uma máquina
+//Buscar checklist diÃ¡rio (itens atuais) de uma mÃ¡quina
 export async function getChecklistDiario(maquinaId) {
   const r = await fetch(`${BASE}/maquinas/${maquinaId}/checklist-diario`);
   const data = await r.json().catch(() => ({}));
-  if (!r.ok) throw new Error(data?.error || `Erro ao buscar checklist diário (${r.status})`);
+  if (!r.ok) throw new Error(data?.error || `Erro ao buscar checklist diÃ¡rio (${r.status})`);
   // backend pode devolver { items:[...]} ou array
   const items = Array.isArray(data?.items) ? data.items : (Array.isArray(data) ? data : []);
   return items; // ex.: [{ id, texto, ordem }, ...]
 }
 
-//Enviar submissão do checklist diário (uma máquina por vez)
+//Enviar submissÃ£o do checklist diÃ¡rio (uma mÃ¡quina por vez)
 export async function enviarChecklistDiaria({
   operadorEmail,
   operadorNome,
@@ -355,7 +377,7 @@ export async function enviarChecklistDiaria({
     }),
   });
   const data = await res.json().catch(() => ({}));
-  if (!res.ok) throw new Error(data?.error || `Falha ao enviar checklist diário (${res.status})`);
+  if (!res.ok) throw new Error(data?.error || `Falha ao enviar checklist diÃ¡rio (${res.status})`);
   return data;
 }
 
@@ -373,7 +395,7 @@ export async function listarPecas() {
   const r = await fetch(`${BASE}/pecas`);
   const ct = r.headers.get('content-type') || '';
   const j = ct.includes('application/json') ? await r.json() : { error: await r.text() };
-  if (!r.ok) throw new Error(j?.error || 'Falha ao listar peças');
+  if (!r.ok) throw new Error(j?.error || 'Falha ao listar peÃ§as');
   return j.items || j; // backend pode retornar {items:[...]} ou [...]
 }
 
@@ -386,7 +408,7 @@ export async function excluirPeca(id, auth) {
     },
   });
   const j = await r.json().catch(() => ({}));
-  if (!r.ok) throw new Error(j?.error || 'Falha ao excluir peça');
+  if (!r.ok) throw new Error(j?.error || 'Falha ao excluir peÃ§a');
   return j;
 }
 
@@ -401,7 +423,7 @@ export async function criarPeca(payload, auth) {
     body: JSON.stringify(payload),
   });
   const j = await r.json().catch(() => ({}));
-  if (!r.ok) throw new Error(j?.error || 'Falha ao criar peça');
+  if (!r.ok) throw new Error(j?.error || 'Falha ao criar peÃ§a');
   return j; // {id,codigo,nome,categoria,estoqueAtual,estoqueMinimo,localizacao}
 }
 
@@ -416,7 +438,7 @@ export async function atualizarPeca(id, payload, auth) {
     body: JSON.stringify(payload),
   });
   const j = await r.json().catch(() => ({}));
-  if (!r.ok) throw new Error(j?.error || 'Falha ao atualizar peça');
+  if (!r.ok) throw new Error(j?.error || 'Falha ao atualizar peÃ§a');
   return j;
 }
 
@@ -462,7 +484,7 @@ export async function listarUsuarios(opts = {}) {
   const r = await fetch(u.toString());
   const ct = r.headers.get('content-type') || '';
   const j = ct.includes('application/json') ? await r.json() : { error: await r.text() };
-  if (!r.ok) throw new Error(j?.error || `Falha ao listar usuários (${r.status})`);
+  if (!r.ok) throw new Error(j?.error || `Falha ao listar usuÃ¡rios (${r.status})`);
   return j.items ?? j; // array
 }
 
@@ -478,7 +500,7 @@ export async function criarUsuario(data, { role, email } = {}) {
     body: JSON.stringify(data)
   });
   const json = await r.json().catch(() => ({}));
-  if (!r.ok) throw new Error(json?.error || `Falha ao criar usuário (${r.status})`);
+  if (!r.ok) throw new Error(json?.error || `Falha ao criar usuÃ¡rio (${r.status})`);
   return json; // { id, nome, usuario, email, role, funcao }
 }
 
@@ -494,7 +516,7 @@ export async function atualizarUsuario(id, data, { role, email } = {}) {
     body: JSON.stringify(data)
   });
   const json = await r.json().catch(() => ({}));
-  if (!r.ok) throw new Error(json?.error || `Falha ao atualizar usuário (${r.status})`);
+  if (!r.ok) throw new Error(json?.error || `Falha ao atualizar usuÃ¡rio (${r.status})`);
   return json;
 }
 
@@ -507,7 +529,7 @@ export async function excluirUsuario(id, auth) {
     }
   });
   const j = await r.json().catch(() => ({}));
-  if (!r.ok) throw new Error(j?.error || 'Falha ao excluir usuário');
+  if (!r.ok) throw new Error(j?.error || 'Falha ao excluir usuÃ¡rio');
   return j;
 }
 
@@ -522,7 +544,7 @@ export async function registrarMovimentacao(pecaId, { tipo, quantidade, descrica
     body: JSON.stringify({ tipo, quantidade, descricao })
   });
   const data = await r.json().catch(() => ({}));
-  if (!r.ok) throw new Error(data?.error || `Falha ao registrar movimentação (${r.status})`);
+  if (!r.ok) throw new Error(data?.error || `Falha ao registrar movimentaÃ§Ã£o (${r.status})`);
   return data; // opcional: { ok: true, peca, movimentacao }
 }
 
@@ -535,7 +557,7 @@ export async function listarMaquinas(params = {}) {
   const data = await res.json().catch(() => ({}));
 
   if (!res.ok) {
-    throw new Error(data?.error || `Erro ao listar máquinas (${res.status})`);
+    throw new Error(data?.error || `Erro ao listar mÃ¡quinas (${res.status})`);
   }
   // suporta API que devolve {items:[...]} ou array direto
   return Array.isArray(data?.items) ? data.items : (Array.isArray(data) ? data : []);
@@ -551,7 +573,7 @@ export async function listarSubmissoesDiarias({ operadorEmail, date }) {
   const data = await r.json().catch(() => ({}));
 
   if (!r.ok) {
-    throw new Error(data?.error || `Erro ao listar submissões diárias (${r.status})`);
+    throw new Error(data?.error || `Erro ao listar submissÃµes diÃ¡rias (${r.status})`);
   }
   // backend pode devolver { items: [...] } ou array direto
   return Array.isArray(data?.items) ? data.items : (Array.isArray(data) ? data : []);
@@ -560,7 +582,7 @@ export async function listarSubmissoesDiarias({ operadorEmail, date }) {
 export async function obterMaquina(id) {
   const r = await fetch(`${BASE}/maquinas/${encodeURIComponent(id)}`);
   const data = await r.json().catch(() => ({}));
-  if (!r.ok) throw new Error(data?.error || `Erro ao obter máquina (${r.status})`);
+  if (!r.ok) throw new Error(data?.error || `Erro ao obter mÃ¡quina (${r.status})`);
   // Esperado: { id, nome, tag, checklist_diario: [...] }
   return data;
 }
@@ -572,7 +594,7 @@ export async function registrarSubmissaoDiaria({ operadorEmail, maquinaId, date,
     body: JSON.stringify({ operadorEmail, maquinaId, date, respostas })
   });
   const data = await r.json().catch(() => ({}));
-  if (!r.ok) throw new Error(data?.error || `Erro ao registrar submissão (${r.status})`);
+  if (!r.ok) throw new Error(data?.error || `Erro ao registrar submissÃ£o (${r.status})`);
   return data;
 }
 
@@ -592,7 +614,7 @@ export async function changePassword({ email, senhaAtual, novaSenha }) {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      // cabeçalho útil se você já popula req.user pelo middleware
+      // cabeÃ§alho Ãºtil se vocÃª jÃ¡ popula req.user pelo middleware
       'x-user-email': email || ''
     },
     body: JSON.stringify({ email, senhaAtual, novaSenha })
@@ -604,7 +626,7 @@ export async function changePassword({ email, senhaAtual, novaSenha }) {
 
 export async function listarParetoCausas(params = {}, auth) {
   const qs = new URLSearchParams();
-  if (params.from) qs.set("from", params.from);   // se não usa período, pode remover
+  if (params.from) qs.set("from", params.from);   // se nÃ£o usa perÃ­odo, pode remover
   if (params.to)   qs.set("to", params.to);
 
   const url = `${BASE}/analytics/pareto-causas${qs.toString() ? `?${qs}` : ""}`;
@@ -641,6 +663,39 @@ export async function atualizarChecklistChamado(id, checklist, userEmail) {
   return data; // deve trazer { ok:true, corretivasGeradas: N }
 }
 
+export async function deletarMaquina(id, auth = {}) {
+  const headers = buildAuthHeaders(auth);
+
+  // Sem e-mail nao da pra autenticar via userFromHeader -> evita 401 ruidoso
+  if (!headers['x-user-email']) {
+    const err = new Error('LOGIN_REQUIRED');
+    err.status = 401;
+    throw err;
+  }
+
+  const res = await fetch(`${BASE}/maquinas/${encodeURIComponent(id)}`, {
+    method: 'DELETE',
+    headers,
+    // Se voce passar a usar JWT por cookie httpOnly, ative:
+    // credentials: 'include',
+  });
+
+  if (res.status === 204) return true;
+
+  const ct = res.headers.get('content-type') || '';
+  const data = ct.includes('application/json')
+    ? await res.json().catch(() => ({}))
+    : await res.text().catch(() => '');
+
+  if (!res.ok) {
+    const err = new Error(
+      data?.error || (typeof data === 'string' ? data : `Erro ao excluir máquina (${res.status})`)
+    );
+    err.status = res.status;
+    throw err;
+  }
+  return data || true;
+}
 export function connectSSE(handlers = {}) {
   const es = new EventSource(`${BASE}/events`);
   es.addEventListener('hello',       e => handlers.hello?.(JSON.parse(e.data)));
@@ -660,9 +715,9 @@ export function subscribeSSE(onEvent, opts = {}) {
 
   const url = `${BASE}/events${qs.toString() ? `?${qs}` : ''}`;
 
-  // Se o ambiente não suportar EventSource, apenas no-op
+  // Se o ambiente nÃ£o suportar EventSource, apenas no-op
   if (typeof window === 'undefined' || typeof window.EventSource === 'undefined') {
-    console.warn('EventSource não disponível; subscribeSSE será no-op.');
+    console.warn('EventSource nÃ£o disponÃ­vel; subscribeSSE serÃ¡ no-op.');
     return () => {};
   }
 
@@ -675,13 +730,13 @@ export function subscribeSSE(onEvent, opts = {}) {
       // esperado algo como: { topic: "chamados", action: "created" | "picked" | "finished", id? ... }
       if (typeof onEvent === 'function') onEvent(data);
     } catch {
-      // se não for JSON, ainda repassa como raw
+      // se nÃ£o for JSON, ainda repassa como raw
       if (typeof onEvent === 'function') onEvent({ raw: ev.data });
     }
   };
 
   es.onerror = (err) => {
-    // O EventSource tenta reconectar sozinho; só logamos
+    // O EventSource tenta reconectar sozinho; sÃ³ logamos
     console.warn('SSE error', err);
   };
 
