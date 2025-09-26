@@ -240,7 +240,7 @@ export default function ChecklistPage({ user }) {
 
   const handleLogout = () => {
     try {
-      localStorage.removeItem('authUser');
+      localStorage.removeItem('usuario');
       localStorage.removeItem('dadosTurno');
     } catch {}
     navigate('/login', { replace: true });

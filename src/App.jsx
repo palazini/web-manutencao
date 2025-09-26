@@ -18,10 +18,15 @@ function App() {
   const [turnoConfirmado, setTurnoConfirmado] = useState(false);
   const [dadosTurno, setDadosTurno] = useState(null);
   const location = useLocation();
+  const userRole = (user?.role || '').trim().toLowerCase();
 
-  const readAuthUser = () => {
-    try { return JSON.parse(localStorage.getItem('authUser') || 'null'); }
-    catch { return null; }
+  const readStoredUser = () => {
+    try {
+      const raw = localStorage.getItem('usuario');
+      return raw ? JSON.parse(raw) : null;
+    } catch {
+      return null;
+    }
   };
   const readDadosTurno = () => {
     try { return JSON.parse(localStorage.getItem('dadosTurno') || 'null'); }
@@ -30,7 +35,7 @@ function App() {
 
   // Mount: carrega usuário e dados do turno
   useEffect(() => {
-    const u = readAuthUser();
+    const u = readStoredUser();
     setUser(u);
     const dt = readDadosTurno();
     setDadosTurno(dt);
@@ -40,7 +45,7 @@ function App() {
 
   // A cada mudança de rota, re-hidrata (útil após login navegado ou sair do fluxo)
   useEffect(() => {
-    const u = readAuthUser();
+    const u = readStoredUser();
     setUser(u);
     const dt = readDadosTurno();
     setDadosTurno(dt);
@@ -50,8 +55,8 @@ function App() {
   // Sincroniza se limpar sessão em outra aba (evento storage)
   useEffect(() => {
     const onStorage = (e) => {
-      if (e.key === 'authUser' || e.key === 'dadosTurno') {
-        const u = readAuthUser();
+      if (e.key === 'usuario' || e.key === 'dadosTurno') {
+        const u = readStoredUser();
         setUser(u);
         const dt = readDadosTurno();
         setDadosTurno(dt);
@@ -77,7 +82,7 @@ function App() {
       <Toaster position="top-right" />
       <Routes>
         {user ? (
-          user.role === 'operador' ? (
+          userRole === 'operador' ? (
             <>
               <Route
                 path="/*"

@@ -104,7 +104,7 @@ export default function TarefasDiariasPage({ user, dadosTurno }) {
 
   const handleLogout = () => {
     try {
-      localStorage.removeItem('authUser');
+      localStorage.removeItem('usuario');
       localStorage.removeItem('dadosTurno');
     } catch {}
     navigate('/login', { replace: true });

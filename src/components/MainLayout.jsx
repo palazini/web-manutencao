@@ -34,6 +34,7 @@ import { listarChamados, listarAgendamentos, connectSSE } from '../services/apiC
 const MainLayout = ({ user }) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const role = (user?.role || '').trim().toLowerCase();
 
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [hasOpenCalls, setHasOpenCalls] = useState(false);
@@ -68,7 +69,7 @@ const MainLayout = ({ user }) => {
   };
 
   const refreshMyActive = async () => {
-    if (user?.role !== 'manutentor' || !user?.email) { setMyActiveCount(0); return; }
+    if (role !== 'manutentor' || !user?.email) { setMyActiveCount(0); return; }
     try {
       const a = await listarChamados({ status: 'Aberto',       manutentorEmail: user.email, pageSize: 1 });
       const e = await listarChamados({ status: 'Em Andamento', manutentorEmail: user.email, pageSize: 1 });
@@ -95,20 +96,20 @@ const MainLayout = ({ user }) => {
     });
 
     return () => { stopped = true; disconnect(); };
-  }, [user?.role, user?.email]);
+  }, [role, user?.email]);
 
   const handleLogout = () => {
     try {
-      localStorage.removeItem('authUser');
+      localStorage.removeItem('usuario');
       localStorage.removeItem('dadosTurno');
     } catch {}
     navigate('/login', { replace: true });
   };
 
   const getDashboardTitle = () => {
-    if (user?.role === 'operador')   return t('dashboard.operator');
-    if (user?.role === 'manutentor') return t('dashboard.maintainer');
-    if (user?.role === 'gestor')     return t('dashboard.manager');
+    if (role === 'operador')   return t('dashboard.operator');
+    if (role === 'manutentor') return t('dashboard.maintainer');
+    if (role === 'gestor')     return t('dashboard.manager');
     return '—';
   };
 
@@ -124,7 +125,7 @@ const MainLayout = ({ user }) => {
         <span>{t('nav.profile')}</span>
       </NavLink>
 
-      {(user?.role === 'manutentor' || user?.role === 'gestor') && (
+      {(role === 'manutentor' || role === 'gestor') && (
         <>
           <h3 className={styles.navSectionTitle}>{t('layout.sections.manageMaintenance')}</h3>
           <NavLink
@@ -145,7 +146,7 @@ const MainLayout = ({ user }) => {
         </>
       )}
 
-      {user?.role === 'manutentor' && (
+      {role === 'manutentor' && (
         <NavLink
           to="/meus-chamados"
           className={({ isActive }) => {
@@ -163,7 +164,7 @@ const MainLayout = ({ user }) => {
         </NavLink>
       )}
 
-      {user?.role === 'manutentor' && (
+      {role === 'manutentor' && (
         <NavLink
           to="/abrir-chamado"
           className={({ isActive }) => {
@@ -176,7 +177,7 @@ const MainLayout = ({ user }) => {
         </NavLink>
       )}
 
-      {(user?.role === 'manutentor' || user?.role === 'gestor') && (
+      {(role === 'manutentor' || role === 'gestor') && (
         <NavLink
           to="/calendario-geral"
           className={({ isActive }) => {
@@ -191,21 +192,21 @@ const MainLayout = ({ user }) => {
         </NavLink>
       )}
 
-      {(user?.role === 'manutentor' || user?.role === 'gestor') && (
+      {(role === 'manutentor' || role === 'gestor') && (
         <NavLink to="/historico" className={({ isActive }) => isActive ? `${styles.navLink} ${styles.activeLink}` : styles.navLink}>
           <FiCheckSquare className={styles.navIcon} />
           <span>{t('nav.history')}</span>
         </NavLink>
       )}
 
-      {(user?.role === 'manutentor' || user?.role === 'gestor') && (
+      {(role === 'manutentor' || role === 'gestor') && (
         <NavLink to="/estoque" className={({ isActive }) => isActive ? `${styles.navLink} ${styles.activeLink}` : styles.navLink}>
           <FiPackage  className={styles.navIcon} />
           <span>{t('nav.inventory')}</span>
         </NavLink>
       )}
 
-      {user?.role === 'gestor' && (
+      {role === 'gestor' && (
         <>
           <h3 className={styles.navSectionTitle}>{t('layout.sections.analytics')}</h3>
           <NavLink to="/analise-falhas" className={({ isActive }) => isActive ? `${styles.navLink} ${styles.activeLink}` : styles.navLink}>
@@ -289,7 +290,7 @@ const MainLayout = ({ user }) => {
         <Routes>
           <Route
             path="/"
-            element={user?.role === 'operador' ? (
+            element={role === 'operador' ? (
               <OperatorDashboard user={user} />
             ) : (
               <InicioPage user={user} />

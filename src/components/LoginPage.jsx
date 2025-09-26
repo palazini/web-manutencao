@@ -10,11 +10,7 @@ import LanguageMenu from './LanguageMenu.jsx';
 
 function readStoredUser() {
   try {
-    const raw =
-      localStorage.getItem('usuario') ||
-      localStorage.getItem('authUser') ||
-      localStorage.getItem('user') ||
-      localStorage.getItem('currentUser');
+    const raw = localStorage.getItem('usuario');
     return raw ? JSON.parse(raw) : null;
   } catch {
     return null;
@@ -25,9 +21,9 @@ function persistUser(userObj) {
   try {
     const json = JSON.stringify(userObj);
     localStorage.setItem('usuario', json);
-    localStorage.setItem('authUser', json);     // compat
-    localStorage.setItem('user', json);         // compat
-    localStorage.setItem('currentUser', json);  // compat
+    ['authUser', 'user', 'currentUser'].forEach((legacyKey) => {
+      localStorage.removeItem(legacyKey);
+    });
   } catch {}
 }
 
@@ -73,7 +69,7 @@ export default function LoginPage() {
         role: String(user?.role || '').trim().toLowerCase(),
       };
 
-      // salva em todas as chaves compatíveis
+      // salva no storage can?nico e limpa chaves legadas
       persistUser(normalized);
 
       // navega para a área logada

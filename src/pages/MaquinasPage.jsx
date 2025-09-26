@@ -28,14 +28,10 @@ const MaquinasPage = () => {
   // Descobre usuário atual (opcional, só para esconder UI de gestor)
   function getStoredUser() {
     try {
-      for (const k of ['usuario', 'user', 'currentUser']) {
-        const raw = localStorage.getItem(k);
-        if (!raw) continue;
-        const obj = JSON.parse(raw);
-        if (obj && typeof obj === 'object') return obj;
-      }
+      const raw = localStorage.getItem('usuario');
+      return raw ? JSON.parse(raw) : null;
     } catch {}
-    return {};
+    return null;
   }
   function extractRole(u) {
     return String(
@@ -51,7 +47,8 @@ const MaquinasPage = () => {
     setIsGestor(role === 'gestor' || role === 'admin');
 
     // atualiza se outro tab/loga/sai
-    const onStorage = () => {
+    const onStorage = (event) => {
+      if (event?.key && event.key !== 'usuario') return;
       const u2 = getStoredUser();
       const r2 = extractRole(u2);
       setIsGestor(r2 === 'gestor' || r2 === 'admin');

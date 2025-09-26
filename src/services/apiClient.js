@@ -8,18 +8,15 @@ export const BASE = (
 // Tenta descobrir o e-mail salvo pelo app (ajuste as chaves se necessario)
 function getLoggedUserEmail() {
   try {
-    const candidates = ['usuario', 'user', 'currentUser'];
-    for (const k of candidates) {
-      const raw = localStorage.getItem(k);
-      if (!raw) continue;
-      const obj = JSON.parse(raw);
-      const email =
-        obj?.email ||
-        obj?.user?.email ||
-        obj?.perfil?.email ||
-        obj?.current?.email;
-      if (email) return String(email).trim().toLowerCase();
-    }
+    const raw = localStorage.getItem('usuario');
+    if (!raw) return '';
+    const obj = JSON.parse(raw);
+    const email =
+      obj?.email ||
+      obj?.user?.email ||
+      obj?.perfil?.email ||
+      obj?.current?.email;
+    return email ? String(email).trim().toLowerCase() : '';
   } catch {}
   return '';
 }
