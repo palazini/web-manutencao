@@ -57,6 +57,7 @@ export default function ChamadoDetalhe({ user }) {
 
   const isGestor = (user?.role || '').toLowerCase() === 'gestor';
   const isManutentor = (user?.role || '').toLowerCase() === 'manutentor';
+  const isOperador = (user?.role || '').toLowerCase() === 'operador';
 
   const fmtDate = useMemo(
     () => new Intl.DateTimeFormat(i18n.language, { dateStyle: 'short' }),
@@ -76,35 +77,53 @@ export default function ChamadoDetalhe({ user }) {
         const c = await getChamado(id);
 
         // normaliza responsabilidades do chamado
-        const assignedToId = c.atribuido_para_id ?? null;
-        const assignedToNome = c.atribuido_para_nome ?? '';
-        const assignedToEmail = (c.atribuido_para_email ?? '').toLowerCase();
+        const normId    = c.manutentor_id_norm
+               ?? c.responsavel_atual_id
+               ?? c.atendido_por_id
+               ?? c.atribuido_para_id
+               ?? null;
 
-        const attendedById = c.atendido_por_id ?? null;
-        const attendedByNome = c.atendido_por_nome ?? '';
+        const normNome  = c.manutentor_nome_norm
+                      ?? c.responsavel_atual_nome
+                      ?? c.atendido_por_nome
+                      ?? c.atribuido_para_nome
+                      ?? '';
+
+        const normEmail = (c.manutentor_email_norm
+                      ?? c.responsavel_atual_email
+                      ?? c.atendido_por_email
+                      ?? c.atribuido_para_email
+                      ?? '').toLowerCase();
+
+        const attendedById    = c.atendido_por_id ?? null;
+        const attendedByNome  = c.atendido_por_nome ?? '';
         const attendedByEmail = (c.atendido_por_email ?? '').toLowerCase();
-        const attendedEm = c.atendido_em ?? null;
+        const attendedEm      = c.atendido_em ?? null;
 
         const mapped = {
           ...c,
-          operadorNome: c.operadorNome ?? c.criado_por ?? '',
-          dataAbertura: c.dataAbertura ?? c.criado_em ?? null,
+          operadorNome:  c.operadorNome ?? c.criado_por ?? '',
+          dataAbertura:  c.dataAbertura ?? c.criado_em ?? null,
           dataConclusao: c.dataConclusao ?? c.concluido_em ?? null,
 
-          manutentorId: assignedToId,
-          manutentorNome: assignedToNome,
-          manutentorEmail: assignedToEmail,
-          atendidoPorId: attendedById,
-          atendidoPorNome: attendedByNome,
-          atendidoPorEmail: attendedByEmail,
-          atendidoEm: attendedEm,
+          // 👇 “dono” do chamado para permissão (isOwner)
+          manutentorId:    normId,
+          manutentorNome:  normNome,
+          manutentorEmail: normEmail,
 
-          assignedTo: assignedToId,
-          assignedToNome: assignedToNome,
+          // exibimos também quem atendeu
+          atendidoPorId:    attendedById,
+          atendidoPorNome:  attendedByNome,
+          atendidoPorEmail: attendedByEmail,
+          atendidoEm:       attendedEm,
+
+          // usado para bloquear “atender” se já tem dono
+          assignedTo:     normId,
+          assignedToNome: normNome,
 
           observacoes: (c.observacoes || []).map(o => ({
             autor: o.autor,
-            data: o.criado_em || o.data,
+            data:  o.criado_em || o.data,
             texto: o.texto,
           })),
         };
@@ -235,7 +254,7 @@ export default function ChamadoDetalhe({ user }) {
     novo[index] = { ...novo[index], resposta: value };
     setChecklist(novo);
     try {
-      await atualizarChecklistChamado(id, novo, user.email); // body: { checklist, userEmail }
+      await atualizarChecklistChamado(id, novo, { role: user.role, email: user.email });
     } catch (e) {
       console.error(e);
       toast.error(t('chamadoDetalhe.toasts.checklistSaveError') || 'Falha ao salvar checklist.');

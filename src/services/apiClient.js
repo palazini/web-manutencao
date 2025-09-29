@@ -32,36 +32,29 @@ function buildAuthHeaders(auth) {
   return h;
 }
 export async function criarChamado({
-  maquinaTag,        // opcional
-  maquinaNome,       // opcional
-  maquinaId,         // opcional
+  maquinaTag,
+  maquinaNome,
+  maquinaId,
   descricao,
+  manutentorEmail,
+  tipo,
+  checklistItemKey,
+  item,
+  status,
   criadoPorEmail,
-  status = 'Aberto',
-  manutentorEmail,   // opcional
-  tipo,              // opcional: 'preditiva' | 'corretiva'
-  checklistItemKey,  // opcional (preditiva)
-  item,              // opcional (preditiva)
-  ...extras          // campos futuros
-}, {
-  role,
-  email
-} = {}) {
-  // 1) validaÃ§Ã£o mÃ­nima de mÃ¡quina (evita 400 no backend)
+  ...extras
+}, auth = {}) {
   if (!maquinaId && !maquinaTag && !maquinaNome) {
     throw new Error('Informe maquinaId, maquinaTag ou maquinaNome.');
   }
 
   const body = {
     descricao: String(descricao || '').trim(),
-    criadoPorEmail: String(criadoPorEmail || '').trim().toLowerCase(),
-    status: String(status || 'Aberto'),
-    // 2) forÃ§a tipo 'corretiva' por padrÃ£o para o fluxo do operador
+    // default do nosso fluxo
     tipo: String(tipo || 'corretiva'),
     ...extras
   };
 
-  // 3) normalizaÃ§Ãµes e inclusÃ£o condicional
   if (maquinaId)       body.maquinaId       = String(maquinaId);
   if (maquinaTag)      body.maquinaTag      = String(maquinaTag).trim();
   if (maquinaNome)     body.maquinaNome     = String(maquinaNome).trim();
@@ -71,11 +64,7 @@ export async function criarChamado({
 
   const res = await fetch(`${BASE}/chamados`, {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'x-user-role':  role  || 'operador',
-      'x-user-email': email || body.criadoPorEmail || ''
-    },
+    headers: buildAuthHeaders({ role: auth.role || 'operador', email: auth.email }),
     body: JSON.stringify(body)
   });
 
@@ -256,15 +245,10 @@ export async function removerAtribuicao(id, { role, email }) {
   if (!res.ok) throw new Error(data?.error || `Erro ao remover atribuiÃ§Ã£o (${res.status})`);
   return data;
 }
-export async function atenderChamado(id, { role, email } = {}) {
-  const headers = {
-    "Content-Type": "application/json",
-    "x-user-role": role ? String(role).trim() : "",
-    "x-user-email": email ? String(email).trim().toLowerCase() : ""
-  };
+export async function atenderChamado(id, auth = {}) {
   const res = await fetch(`${BASE}/chamados/${id}/atender`, {
     method: "POST",
-    headers
+    headers: buildAuthHeaders({ role: auth.role || "manutentor", email: auth.email })
   });
   const data = await res.json().catch(() => ({}));
   if (!res.ok) throw new Error(data?.error || `Erro ao atender (${res.status})`);
@@ -648,16 +632,19 @@ export async function enviarChecklistPreventiva(chamadoId, { respostas }) {
   return data;
 }
 
-export async function atualizarChecklistChamado(id, checklist, userEmail) {
+export async function atualizarChecklistChamado(id, checklist, auth = {}) {
   const res = await fetch(`${BASE}/chamados/${id}/checklist`, {
     method: 'PATCH',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ checklist, userEmail }), // <- ESSENCIAL
+    headers: buildAuthHeaders({ role: auth.role || "manutentor", email: auth.email }),
+    body: JSON.stringify({
+      checklist,
+      userEmail: auth.email || getLoggedUserEmail() || ""
+    }),
   });
   const ct = res.headers.get('content-type') || '';
   const data = ct.includes('application/json') ? await res.json() : { error: await res.text() };
   if (!res.ok) throw new Error(data?.error || `Erro ao salvar checklist (${res.status})`);
-  return data; // deve trazer { ok:true, corretivasGeradas: N }
+  return data; // { ok: true }
 }
 
 export async function deletarMaquina(id, auth = {}) {
