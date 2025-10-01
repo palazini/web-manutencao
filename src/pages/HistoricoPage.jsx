@@ -42,14 +42,14 @@ const HistoricoPage = () => {
   }, []);
 
   // Derivação de histórico filtrado
-  const historicoFiltrado = chamadosConcluidos.filter(chamado => {
+  const historicoFiltrado = chamadosConcluidos.filter((chamado) => {
     const matchTipo = filtroTipoChamado === 'todos' || chamado.tipo === filtroTipoChamado;
     const matchMaquina = filtroTipoMaquina === 'todos' || chamado.maquina === filtroTipoMaquina;
     return matchTipo && matchMaquina;
   });
 
   // Lista de máquinas únicas para o dropdown
-  const maquinasUnicas = Array.from(new Set(chamadosConcluidos.map(c => c.maquina)));
+  const maquinasUnicas = Array.from(new Set(chamadosConcluidos.map((c) => c.maquina))).filter(Boolean);
 
   // Tradução para o tipo (apenas para mostrar/exports; mantém os valores internos)
   const tipoLabel = (tipo) => {
@@ -59,18 +59,47 @@ const HistoricoPage = () => {
     return tipo || '';
   };
 
+  // Normaliza o array de observações para texto
+  const observacoesToText = (obs) => {
+    if (!Array.isArray(obs) || obs.length === 0) return '';
+    const parts = obs
+      .map((o) => {
+        if (o == null) return '';
+        if (typeof o === 'string') return o.trim();
+        if (typeof o === 'object') {
+          // tenta alguns campos comuns
+          const keys = ['texto', 'descricao', 'descrição', 'observacao', 'observação', 'obs', 'note', 'text', 'message'];
+          for (const k of keys) {
+            if (typeof o[k] === 'string' && o[k].trim()) return o[k].trim();
+          }
+          try {
+            return JSON.stringify(o);
+          } catch {
+            return '';
+          }
+        }
+        return String(o);
+      })
+      .filter(Boolean);
+
+    return parts.join(' • ');
+  };
+
+  // Label traduzida com fallback para quando a chave ainda não existir no i18n
+  const obsLabel = t('historico.export.columns.observations', { defaultValue: 'Observações' });
+
   // Dados para Excel (as chaves do objeto viram os cabeçalhos)
-  const excelData = historicoFiltrado.map(c => ({
+  const excelData = historicoFiltrado.map((c) => ({
     [t('historico.export.columns.machine')]: c.maquina,
     [t('historico.export.columns.callType')]: tipoLabel(c.tipo),
-    [t('historico.export.columns.openedAt')]:
-      c.dataAbertura ? dtFmt.format(c.dataAbertura.toDate()) : '',
+    [t('historico.export.columns.openedAt')]: c.dataAbertura ? dtFmt.format(c.dataAbertura.toDate()) : '',
     [t('historico.export.columns.attendedBy')]: c.manutentorNome || '',
     [t('historico.export.columns.performedService')]: c.solucao || '',
     [t('historico.export.columns.cause')]: c.causa || '',
-    [t('historico.export.columns.concludedAt')]:
-      c.dataConclusao ? dtFmt.format(c.dataConclusao.toDate()) : '',
-    [t('historico.export.columns.problem')]: c.descricao || ''
+    [t('historico.export.columns.concludedAt')]: c.dataConclusao ? dtFmt.format(c.dataConclusao.toDate()) : '',
+    [t('historico.export.columns.problem')]: c.descricao || '',
+    // NOVO: Observações
+    [obsLabel]: observacoesToText(c.observacoes),
   }));
 
   // Dados para PDF (mantém as keys originais; labels traduzidos no array de colunas)
@@ -82,14 +111,18 @@ const HistoricoPage = () => {
     { key: 'solucao',        label: t('historico.export.columns.performedService') },
     { key: 'causa',          label: t('historico.export.columns.cause') },
     { key: 'dataConclusao',  label: t('historico.export.columns.concludedAt') },
-    { key: 'descricao',      label: t('historico.export.columns.problem') }
+    { key: 'descricao',      label: t('historico.export.columns.problem') },
+    // NOVO: Observações
+    { key: 'observacoes',    label: obsLabel },
   ];
 
-  const pdfData = historicoFiltrado.map(c => ({
+  const pdfData = historicoFiltrado.map((c) => ({
     ...c,
     dataAbertura: c.dataAbertura ? dtFmt.format(c.dataAbertura.toDate()) : '',
     dataConclusao: c.dataConclusao ? dtFmt.format(c.dataConclusao.toDate()) : '',
-    tipo: tipoLabel(c.tipo)
+    tipo: tipoLabel(c.tipo),
+    // NOVO: Observações já normalizadas como string
+    observacoes: observacoesToText(c.observacoes),
   }));
 
   return (
@@ -106,7 +139,11 @@ const HistoricoPage = () => {
             <>
               {/* Área de exportação */}
               <div className={styles.exportButtons}>
-                <button onClick={() => exportToExcel(excelData, t('historico.export.sheetName'), 'historico-chamados')}>
+                <button
+                  onClick={() =>
+                    exportToExcel(excelData, t('historico.export.sheetName'), 'historico-chamados')
+                  }
+                >
                   {t('historico.export.downloadExcel')}
                 </button>
                 <button onClick={() => exportToPdf(pdfData, pdfColumns, 'historico-chamados')}>
@@ -122,7 +159,7 @@ const HistoricoPage = () => {
                     id="filtroTipoChamado"
                     className={styles.select}
                     value={filtroTipoChamado}
-                    onChange={e => setFiltroTipoChamado(e.target.value)}
+                    onChange={(e) => setFiltroTipoChamado(e.target.value)}
                   >
                     <option value="todos">{t('historico.filters.typeOptions.all')}</option>
                     <option value="corretiva">{t('historico.filters.typeOptions.corrective')}</option>
@@ -136,11 +173,13 @@ const HistoricoPage = () => {
                     id="filtroTipoMaquina"
                     className={styles.select}
                     value={filtroTipoMaquina}
-                    onChange={e => setFiltroTipoMaquina(e.target.value)}
+                    onChange={(e) => setFiltroTipoMaquina(e.target.value)}
                   >
                     <option value="todos">{t('historico.filters.machineOptions.all')}</option>
-                    {maquinasUnicas.map(maquina => (
-                      <option key={maquina} value={maquina}>{maquina}</option>
+                    {maquinasUnicas.map((maquina) => (
+                      <option key={maquina} value={maquina}>
+                        {maquina}
+                      </option>
                     ))}
                   </select>
                 </div>
@@ -154,19 +193,29 @@ const HistoricoPage = () => {
                     <Link to={`chamado/${chamado.id}`} key={chamado.id} className={styles.chamadoLink}>
                       <li className={styles.chamadoItem}>
                         <div className={styles.chamadoInfo}>
-                          <strong>{t('historico.item.machine', { name: chamado.maquina })}</strong>
+                          <strong>
+                            {t('historico.item.machine', { name: chamado.maquina })}
+                          </strong>
                           <small>
-                            {t('historico.item.attendedBy', { name: chamado.manutentorNome || t('historico.item.unknown') })}
+                            {t('historico.item.attendedBy', {
+                              name: chamado.manutentorNome || t('historico.item.unknown'),
+                            })}
                           </small>
                           <small>
                             {t('historico.item.concludedAt', {
-                              date: chamado.dataConclusao ? dtFmt.format(chamado.dataConclusao.toDate()) : '...'
+                              date: chamado.dataConclusao
+                                ? dtFmt.format(chamado.dataConclusao.toDate())
+                                : '...',
                             })}
                           </small>
                           <p className={styles.problemaPreview}>
                             <strong>{t('historico.item.problem')}</strong>{' '}
                             {chamado.descricao || t('historico.item.notSpecified')}
                           </p>
+                          {/* (Opcional) Prévia das observações na lista — pode remover se não quiser mostrar aqui */}
+                          {/* <p className={styles.problemaPreview}>
+                            <strong>{obsLabel}:</strong> {observacoesToText(chamado.observacoes) || '—'}
+                          </p> */}
                         </div>
                       </li>
                     </Link>
